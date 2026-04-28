@@ -58,7 +58,7 @@
   <div class="card">
     <h1>🗳️ ONOE Voting Portal</h1>
 
-    <p id="user"></p>
+    <p id="user">User: N RAMAN</p>
 
     <button class="support" onclick="vote('support')">👍 Support</button>
     <button class="against" onclick="vote('against')">👎 Against</button>
@@ -67,29 +67,8 @@
     <p id="percent"></p>
   </div>
 
-  <script>
-    let support = 0;
-    let against = 0;
-
-    function vote(type) {
-      if (type === "support") support++;
-      if (type === "against") against++;
-
-      let total = support + against;
-
-      document.getElementById("result").innerText =
-        "Support: " + support + " | Against: " + against;
-
-      // percentage
-      let supPer = ((support / total) * 100).toFixed(1);
-      let agPer = ((against / total) * 100).toFixed(1);
-
-      document.getElementById("percent").innerText =
-        "Support: " + supPer + "% | Against: " + agPer + "%";
-    }
-
-    document.getElementById("user").innerText = "User: N RAMAN";
-  </script>
+  <!-- JS FILE LINK -->
+  <script src="script.js"></script>
 
 </body>
 </html>
