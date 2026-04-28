@@ -3,19 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Voting Site</title>
+  <title>ONOE Voting Portal</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f5f9;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    button {
+      margin: 10px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .support {
+      background: #28a745;
+      color: white;
+    }
+
+    .against {
+      background: #dc3545;
+      color: white;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
 <body>
 
-  <h1>🗳️ Voting System</h1>
+  <div class="card">
+    <h1>🗳️ ONOE Voting Portal</h1>
 
-  <p id="user"></p>
+    <p id="user"></p>
 
-  <button onclick="vote('support')">Support</button>
-  <button onclick="vote('against')">Against</button>
+    <button class="support" onclick="vote('support')">👍 Support</button>
+    <button class="against" onclick="vote('against')">👎 Against</button>
 
-  <p id="result">No votes yet</p>
+    <p id="result">No votes yet</p>
+    <p id="percent"></p>
+  </div>
 
   <script>
     let support = 0;
@@ -25,11 +75,19 @@
       if (type === "support") support++;
       if (type === "against") against++;
 
+      let total = support + against;
+
       document.getElementById("result").innerText =
         "Support: " + support + " | Against: " + against;
+
+      // percentage
+      let supPer = ((support / total) * 100).toFixed(1);
+      let agPer = ((against / total) * 100).toFixed(1);
+
+      document.getElementById("percent").innerText =
+        "Support: " + supPer + "% | Against: " + agPer + "%";
     }
 
-    // USER NAME
     document.getElementById("user").innerText = "User: N RAMAN";
   </script>
 
