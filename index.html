@@ -2,97 +2,103 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>ONOE Voting System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ONOE Voting Portal</title>
 
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f4f6f9;
       margin: 0;
-      background: #f4f6f8;
+      padding: 0;
       text-align: center;
     }
 
-    .box {
-      max-width: 600px;
-      margin: auto;
+    header {
+      background: #1e88e5;
+      color: white;
       padding: 20px;
     }
 
     h1 {
-      font-size: 24px;
-      margin-top: 25px;
+      margin: 0;
     }
 
-    .status {
-      color: green;
-      font-weight: bold;
-      margin: 10px 0;
+    .container {
+      margin-top: 40px;
     }
 
     .btn {
-      width: 90%;
-      padding: 15px;
-      margin: 10px auto;
-      border: none;
-      border-radius: 8px;
+      padding: 15px 30px;
+      margin: 10px;
       font-size: 18px;
+      border: none;
       cursor: pointer;
-      display: block;
+      border-radius: 8px;
     }
 
     .support {
-      background: #2ecc71;
+      background: green;
       color: white;
     }
 
     .against {
-      background: #e74c3c;
+      background: red;
       color: white;
     }
 
-    iframe {
-      width: 100%;
-      height: 400px;
-      border: none;
+    .count {
+      font-size: 22px;
       margin-top: 20px;
     }
 
-    .footer {
-      font-size: 12px;
-      color: gray;
-      margin-top: 15px;
+    footer {
+      margin-top: 50px;
+      padding: 20px;
+      background: #ddd;
     }
   </style>
 </head>
 
 <body>
 
-<div class="box">
+<header>
+  <h1>ONOE / DELIMITATION Voting System</h1>
+  <p>Public Opinion Real-time Transparency Dashboard</p>
+</header>
 
-  <h1>🗳️ ONOE / Delimitation Voting</h1>
+<div class="container">
 
-  <div class="status">🔴 LIVE SYSTEM ACTIVE</div>
+  <h2>Cast Your Vote</h2>
 
-  <!-- VOTE BUTTONS -->
-  <button class="btn support"
-    onclick="window.open('PASTE_FORM_LINK_HERE')">
-    ✔️ Support
-  </button>
+  <button class="btn support" onclick="supportVote()">Support 👍</button>
+  <button class="btn against" onclick="againstVote()">Against 👎</button>
 
-  <button class="btn against"
-    onclick="window.open('PASTE_FORM_LINK_HERE')">
-    ❌ Against
-  </button>
-
-  <!-- DASHBOARD -->
-  <iframe src="PASTE_SHEET_EMBED_LINK_HERE"></iframe>
-
-  <div class="footer">
-    ⚡ Fast • Mobile Friendly • GitHub Pages Ready
+  <div class="count">
+    <p>Support Votes: <span id="supportCount">0</span></p>
+    <p>Against Votes: <span id="againstCount">0</span></p>
   </div>
 
 </div>
+
+<footer>
+  © 2026 ONOE Voting System | Live Dashboard
+</footer>
+
+<script>
+  let support = 0;
+  let against = 0;
+
+  function supportVote() {
+    support++;
+    document.getElementById("supportCount").innerText = support;
+  }
+
+  function againstVote() {
+    against++;
+    document.getElementById("againstCount").innerText = against;
+  }
+</script>
 
 </body>
 </html>
