@@ -1,103 +1,70 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ONOE Voting System</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>ONOE Voting System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
+<style>
+body {
+  font-family: Arial;
+  background: #f4f6f9;
+  text-align: center;
+  margin: 0;
+}
 
-    header {
-      background: #1e88e5;
-      color: white;
-      padding: 20px;
-    }
+header {
+  background: #1e88e5;
+  color: white;
+  padding: 20px;
+}
 
-    h1 {
-      margin: 0;
-    }
+button {
+  padding: 15px 25px;
+  margin: 10px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
-    .container {
-      margin-top: 40px;
-    }
+.support { background: green; color: white; }
+.against { background: red; color: white; }
 
-    .btn {
-      padding: 15px 30px;
-      margin: 10px;
-      font-size: 18px;
-      border: none;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-
-    .support {
-      background: green;
-      color: white;
-    }
-
-    .against {
-      background: red;
-      color: white;
-    }
-
-    .count {
-      font-size: 22px;
-      margin-top: 20px;
-    }
-
-    footer {
-      margin-top: 50px;
-      padding: 20px;
-      background: #ddd;
-    }
-  </style>
+</style>
 </head>
 
 <body>
 
 <header>
   <h1>ONOE / DELIMITATION Voting System</h1>
-  <p>Public Opinion Real-time Transparency Dashboard</p>
+  <p>Public Opinion Real-time Dashboard</p>
 </header>
 
-<div class="container">
+<h2>Cast Your Vote</h2>
 
-  <h2>Cast Your Vote</h2>
-
-  <button class="btn support" onclick="supportVote()">Support 👍</button>
-  <button class="btn against" onclick="againstVote()">Against 👎</button>
-
-  <div class="count">
-    <p>Support Votes: <span id="supportCount">0</span></p>
-    <p>Against Votes: <span id="againstCount">0</span></p>
-  </div>
-
-</div>
-
-<footer>
-  © 2026 ONOE Voting System | Live Dashboard
-</footer>
+<button class="support" onclick="supportVote()">Support 👍</button>
+<button class="against" onclick="againstVote()">Against 👎</button>
 
 <script>
-  let support = 0;
-  let against = 0;
+const scriptURL = "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE";
 
-  function supportVote() {
-    support++;
-    document.getElementById("supportCount").innerText = support;
-  }
+function sendVote(type) {
+  fetch(scriptURL, {
+    method: "POST",
+    body: JSON.stringify({ vote: type })
+  })
+  .then(() => alert("Vote Submitted: " + type))
+  .catch(() => alert("Error! Try again"));
+}
 
-  function againstVote() {
-    against++;
-    document.getElementById("againstCount").innerText = against;
-  }
+function supportVote() {
+  sendVote("Support");
+}
+
+function againstVote() {
+  sendVote("Against");
+}
 </script>
 
 </body>
