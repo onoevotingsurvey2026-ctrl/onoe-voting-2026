@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ONOE Voting Portal</title>
+  <title>ONOE Public Opinion Portal</title>
 
   <style>
     body {
@@ -13,32 +13,38 @@
       text-align: center;
     }
 
-    .box {
-      max-width: 600px;
+    .container {
+      max-width: 650px;
       margin: auto;
       padding: 20px;
     }
 
     h1 {
-      font-size: 24px;
+      font-size: 26px;
       margin-top: 25px;
     }
 
-    .status {
+    .subtitle {
+      color: #555;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    .live {
       color: green;
       font-weight: bold;
       margin: 10px 0;
     }
 
     .btn {
-      width: 90%;
-      padding: 15px;
-      margin: 10px auto;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      cursor: pointer;
       display: block;
+      width: 90%;
+      margin: 10px auto;
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
     }
 
     .support {
@@ -53,7 +59,7 @@
 
     iframe {
       width: 100%;
-      height: 400px;
+      height: 420px;
       border: none;
       margin-top: 20px;
     }
@@ -68,28 +74,32 @@
 
 <body>
 
-<div class="box">
+<div class="container">
 
-  <h1>🗳️ ONOE / Delimitation Voting</h1>
+  <h1>🗳️ ONOE / Delimitation Public Opinion</h1>
 
-  <div class="status">🔴 LIVE SYSTEM ACTIVE</div>
+  <div class="subtitle">
+    Real-time transparent voting system
+  </div>
+
+  <div class="live">🔴 LIVE DASHBOARD ACTIVE</div>
 
   <!-- VOTE BUTTONS -->
   <button class="btn support"
-    onclick="window.open('PASTE_FORM_LINK_HERE')">
+    onclick="window.open('PASTE_GOOGLE_FORM_LINK')">
     ✔️ Support
   </button>
 
   <button class="btn against"
-    onclick="window.open('PASTE_FORM_LINK_HERE')">
+    onclick="window.open('PASTE_GOOGLE_FORM_LINK')">
     ❌ Against
   </button>
 
-  <!-- DASHBOARD -->
-  <iframe src="PASTE_SHEET_EMBED_LINK_HERE"></iframe>
+  <!-- LIVE RESULTS -->
+  <iframe src="PASTE_GOOGLE_SHEET_EMBED_LINK"></iframe>
 
   <div class="footer">
-    ⚡ Fast • Mobile Friendly • GitHub Pages Ready
+    ⚡ Fast • Mobile Friendly • Real-time Updates
   </div>
 
 </div>
