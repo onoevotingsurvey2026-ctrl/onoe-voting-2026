@@ -1,81 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>ONOE Voting System</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Live Voting Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
 
-<style>
-body {
-  font-family: Arial;
-  background: #f4f6f9;
-  text-align: center;
-  margin: 0;
-}
+    .container {
+      margin-top: 60px;
+    }
 
-header {
-  background: #1e88e5;
-  color: white;
-  padding: 20px;
-}
+    h1 {
+      color: #222;
+    }
 
-button {
-  padding: 15px 25px;
-  margin: 10px;
-  font-size: 18px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
+    .card {
+      background: white;
+      width: 300px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+      font-size: 18px;
+    }
 
-.support { background: green; color: white; }
-.against { background: red; color: white; }
+    .support { color: green; font-weight: bold; }
+    .against { color: red; font-weight: bold; }
+    .total { color: blue; font-weight: bold; }
 
-</style>
+  </style>
 </head>
 
 <body>
 
-<header>
-  <h1>ONOE / DELIMITATION Voting System</h1>
-  <p>Public Opinion Real-time Dashboard</p>
-</header>
+  <div class="container">
 
-<h2>Cast Your Vote</h2>
+    <h1>🗳️ Live Voting Results</h1>
 
-<button class="support" onclick="supportVote()">Support 👍</button>
-<button class="against" onclick="againstVote()">Against 👎</button>
+    <div class="card">
+      ✔ Support: <span class="support" id="support">0</span>
+    </div>
 
-<script>
-const scriptURL = "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE";
+    <div class="card">
+      ❌ Against: <span class="against" id="against">0</span>
+    </div>
 
-function sendVote(type) {
-  fetch(scriptURL, {
-    method: "POST",
-    body: JSON.stringify({ vote: type })
-  })
-  .then(() => alert("Vote Submitted: " + type))
-  .catch(() => alert("Error! Try again"));
-}
+    <div class="card">
+      📊 Total Votes: <span class="total" id="total">0</span>
+    </div>
 
-function supportVote() {
-  sendVote("Support");
-}
+  </div>
 
-function againstVote() {
-  sendVote("Against");
-}
-</script>
-function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = JSON.parse(e.postData.contents);
+  <script>
+    // 👉 HERE you can later connect Google Sheets API
+    // For now static demo values
 
-  sheet.appendRow([
-    new Date(),
-    data.vote
-  ]);
+    let support = 1;
+    let against = 0;
 
-  return ContentService.createTextOutput("Success");
-}
+    document.getElementById("support").innerText = support;
+    document.getElementById("against").innerText = against;
+    document.getElementById("total").innerText = support + against;
+
+  </script>
+
 </body>
 </html>
