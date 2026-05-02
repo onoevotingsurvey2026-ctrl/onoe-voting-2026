@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE Voting 2026</title>
-
-  <!-- Chart.js -->
+  <title>ONOE Glass Voting Dashboard 2026</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -12,10 +10,8 @@
       font-family: Arial;
       background: radial-gradient(circle,#0f172a,#020617);
       color: white;
-      overflow-x: hidden;
     }
 
-    /* GLASS CARD */
     .glass {
       background: rgba(255,255,255,0.08);
       backdrop-filter: blur(15px);
@@ -25,104 +21,70 @@
       width: 90%;
       max-width: 600px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      animation: fadeIn 1s ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* HEADER */
     .title {
       text-align: center;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: bold;
       margin-top: 20px;
     }
 
-    /* BUTTONS */
     button {
-      width: 48%;
       padding: 12px;
+      margin: 8px 5px;
       border: none;
       border-radius: 10px;
-      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
       transition: 0.3s;
     }
 
-    button:hover {
-      transform: scale(1.05);
-    }
+    button:hover { transform: scale(1.05); }
 
-    .support { background: #22c55e; color: white; }
-    .against { background: #ef4444; color: white; }
+    .support { background:#22c55e; color:white; width:45%; }
+    .against { background:#ef4444; color:white; width:45%; }
+    .submit { background:#facc15; color:black; width:95%; }
 
-    .login {
-      width: 100%;
-      background: #3b82f6;
-      margin-bottom: 10px;
-    }
-
-    /* COUNTER ANIMATION */
     .count {
-      font-size: 22px;
-      font-weight: bold;
+      font-size: 20px;
       color: #38bdf8;
-      transition: all 0.5s ease;
+      font-weight: bold;
     }
 
-    /* LOADING */
-    .loader {
-      border: 4px solid #334155;
-      border-top: 4px solid #38bdf8;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      animation: spin 1s linear infinite;
-      margin: auto;
-    }
-
-    @keyframes spin {
-      100% { transform: rotate(360deg); }
+    .status {
+      text-align:center;
+      color:#94a3b8;
+      font-size:14px;
     }
 
     canvas {
-      margin-top: 10px;
+      margin-top: 15px;
     }
   </style>
 </head>
 
 <body>
 
-<div class="title">🗳️ ONOE Glass Voting Dashboard 2026</div>
+<div class="title">🗳️ ONOE Ultra Secure Glass Voting Dashboard</div>
 
 <div class="glass">
 
-  <button class="login" onclick="login()">🔐 Login with Google</button>
-
-  <p id="user">Not logged in</p>
+  <p class="status" id="status">Checking device status...</p>
 
   <hr style="opacity:0.2">
 
-  <div id="loading" class="loader"></div>
+  <p>👍 Support: <span class="count" id="support">0</span></p>
+  <p>👎 Against: <span class="count" id="against">0</span></p>
+  <p>🧮 Total: <span class="count" id="total">0</span></p>
 
-  <p>
-    👍 Support: <span class="count" id="support">0</span>
-  </p>
+  <hr style="opacity:0.2">
 
-  <p>
-    👎 Against: <span class="count" id="against">0</span>
-  </p>
+  <!-- SELECTION -->
+  <button class="support" onclick="selectVote('support')">👍 SUPPORT</button>
+  <button class="against" onclick="selectVote('against')">👎 AGAINST</button>
 
-  <p>
-    🧮 Total: <span class="count" id="total">0</span>
-  </p>
-
-  <button class="support" onclick="vote('support')">👍 SUPPORT</button>
-  <button class="against" onclick="vote('against')">👎 AGAINST</button>
+  <button class="submit" onclick="submitVote()">✅ SUBMIT VOTE</button>
 
   <canvas id="chart"></canvas>
 
@@ -135,10 +97,6 @@ import {
   getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import {
-  getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -147,22 +105,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
 
 const ref = doc(db, "votes", "total");
 
-/* CHART */
-const ctx = document.getElementById("chart");
-let chart = new Chart(ctx, {
-  type: "doughnut",
-  data: {
-    labels: ["Support", "Against"],
-    datasets: [{
-      data: [0,0],
-      backgroundColor: ["#22c55e","#ef4444"]
-    }]
-  }
-});
+let selectedVote = null;
+
+/* DEVICE LOCK SYSTEM */
+const deviceKey = "voted_onoe_2026";
 
 /* INIT */
 async function init(){
@@ -170,71 +119,86 @@ async function init(){
   if(!snap.exists()){
     await setDoc(ref,{support:0,against:0});
   }
+
+  checkDevice();
 }
 init();
 
-/* LIVE */
+/* DEVICE CHECK */
+function checkDevice(){
+  const status = document.getElementById("status");
+
+  if(localStorage.getItem(deviceKey)){
+    status.innerText = "⚠️ This device already voted";
+    status.style.color = "#ef4444";
+  } else {
+    status.innerText = "✅ You can vote now";
+    status.style.color = "#22c55e";
+  }
+}
+
+/* LIVE DATA */
 onSnapshot(ref,(snap)=>{
-
-  document.getElementById("loading").style.display="none";
-
   const d = snap.data() || {};
 
-  animate("support", d.support || 0);
-  animate("against", d.against || 0);
-
-  const total = (d.support||0)+(d.against||0);
-  animate("total", total);
+  document.getElementById("support").innerText = d.support || 0;
+  document.getElementById("against").innerText = d.against || 0;
+  document.getElementById("total").innerText =
+    (d.support||0)+(d.against||0);
 
   chart.data.datasets[0].data = [
     d.support||0,
     d.against||0
   ];
   chart.update();
-
 });
 
-/* NUMBER ANIMATION */
-function animate(id,value){
-  let el=document.getElementById(id);
-  let start=0;
-  let interval=setInterval(()=>{
-    start++;
-    el.innerText=start;
-    if(start>=value) clearInterval(interval);
-  },20);
-}
+/* CHART */
+const ctx = document.getElementById("chart");
+const chart = new Chart(ctx,{
+  type:"doughnut",
+  data:{
+    labels:["Support","Against"],
+    datasets:[{
+      data:[0,0],
+      backgroundColor:["#22c55e","#ef4444"]
+    }]
+  }
+});
 
-/* LOGIN */
-window.login = async function(){
-  const provider = new GoogleAuthProvider();
-  await signInWithPopup(auth,provider);
+/* SELECT VOTE */
+window.selectVote = function(type){
+  selectedVote = type;
+  alert("Selected: " + type.toUpperCase());
 };
 
-onAuthStateChanged(auth,(user)=>{
-  document.getElementById("user").innerText =
-    user ? "👤 "+user.displayName : "Not logged in";
-});
+/* SUBMIT VOTE */
+window.submitVote = async function(){
 
-/* VOTE */
-window.vote = async function(type){
+  if(localStorage.getItem(deviceKey)){
+    alert("⚠️ You already voted on this device!");
+    return;
+  }
 
-  const user = auth.currentUser;
-  if(!user){
-    alert("Login first!");
+  if(!selectedVote){
+    alert("⚠️ Please select SUPPORT or AGAINST!");
     return;
   }
 
   const snap = await getDoc(ref);
   const d = snap.data();
 
-  if(type==="support"){
+  if(selectedVote === "support"){
     await updateDoc(ref,{support:(d.support||0)+1});
-  }else{
+  } else {
     await updateDoc(ref,{against:(d.against||0)+1});
   }
 
-  alert("Vote recorded!");
+  localStorage.setItem(deviceKey,"true");
+
+  alert("✅ Vote submitted successfully!");
+
+  checkDevice();
 };
 
 </script>
