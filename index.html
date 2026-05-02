@@ -49,6 +49,14 @@ onSnapshot(ref, (docSnap) => {
     "👍 Support: " + (d.support ?? 0) +
     " | 👎 Against: " + (d.against ?? 0) +
     " | Total: " + ((d.support ?? 0) + (d.against ?? 0));
+});
+
+  const d = docSnap.data();
+
+  document.getElementById("result").innerHTML =
+    "👍 Support: " + (d.support ?? 0) +
+    " | 👎 Against: " + (d.against ?? 0) +
+    " | Total: " + ((d.support ?? 0) + (d.against ?? 0));
 });  document.getElementById("result").innerHTML =
   "👍 Support: " + d.support +
   " | 👎 Against: " + d.against +
