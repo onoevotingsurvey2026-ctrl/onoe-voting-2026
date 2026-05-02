@@ -1,45 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE Voting 2026</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>ONOE Voting Dashboard</title>
 
   <style>
     body {
       margin: 0;
       font-family: Arial;
-      background: radial-gradient(circle,#0f172a,#020617);
+      background: #0f172a;
       color: white;
-    }
-
-    .glass {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(15px);
-      border-radius: 16px;
-      padding: 20px;
-      margin: 20px auto;
-      width: 90%;
-      max-width: 600px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    }
-
-    .title {
       text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      margin-top: 20px;
+    }
+
+    .card {
+      background: #1e293b;
+      width: 90%;
+      max-width: 450px;
+      margin: 40px auto;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    .count {
+      font-size: 20px;
+      margin: 10px 0;
+      color: #38bdf8;
     }
 
     button {
       width: 48%;
       padding: 12px;
+      margin-top: 10px;
       border: none;
-      border-radius: 10px;
-      font-size: 16px;
+      border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
     }
 
     .support { background: #22c55e; color: white; }
@@ -52,25 +52,23 @@
       margin-top: 10px;
     }
 
-    .count {
-      font-size: 20px;
-      color: #38bdf8;
-      font-weight: bold;
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
+
   </style>
 </head>
 
 <body>
 
-<div class="title">🗳️ ONOE Public Voting Dashboard</div>
+<div class="card">
 
-<div class="glass">
+  <h2>🗳️ ONOE Voting Dashboard</h2>
 
-  <p>
-    👍 Support: <span id="support">0</span><br>
-    👎 Against: <span id="against">0</span><br>
-    🧮 Total: <span id="total">0</span>
-  </p>
+  <p class="count">👍 Support: <span id="support">0</span></p>
+  <p class="count">👎 Against: <span id="against">0</span></p>
+  <p class="count">🧮 Total: <span id="total">0</span></p>
 
   <hr style="opacity:0.2">
 
@@ -80,8 +78,6 @@
   <button id="submitBtn" class="submit" disabled onclick="submitVote()">
     SUBMIT VOTE
   </button>
-
-  <canvas id="chart"></canvas>
 
 </div>
 
@@ -114,7 +110,7 @@ async function init(){
 }
 init();
 
-/* LIVE DATA */
+/* LIVE UPDATE */
 onSnapshot(ref,(snap)=>{
   const d = snap.data() || {};
 
@@ -122,29 +118,9 @@ onSnapshot(ref,(snap)=>{
   document.getElementById("against").innerText = d.against || 0;
   document.getElementById("total").innerText =
     (d.support||0)+(d.against||0);
-
-  chart.data.datasets[0].data = [
-    d.support||0,
-    d.against||0
-  ];
-  chart.update();
 });
 
-/* CHART */
-const ctx = document.getElementById("chart");
-
-let chart = new Chart(ctx,{
-  type:"doughnut",
-  data:{
-    labels:["Support","Against"],
-    datasets:[{
-      data:[0,0],
-      backgroundColor:["#22c55e","#ef4444"]
-    }]
-  }
-});
-
-/* SELECT */
+/* SELECT VOTE */
 window.selectVote = function(type){
   selected = type;
   document.getElementById("submitBtn").disabled = false;
@@ -155,7 +131,7 @@ function isVoted(){
   return localStorage.getItem("voted") === "true";
 }
 
-/* SUBMIT */
+/* SUBMIT VOTE */
 window.submitVote = async function(){
 
   if(isVoted()){
@@ -164,7 +140,7 @@ window.submitVote = async function(){
   }
 
   if(!selected){
-    alert("Select SUPPORT or AGAINST");
+    alert("Please select SUPPORT or AGAINST");
     return;
   }
 
