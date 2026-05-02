@@ -1,74 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Live Voting Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 0;
-    }
+  <title>ONOE Voting 2026</title>
 
-    .container {
-      margin-top: 60px;
-    }
-
-    h1 {
-      color: #222;
-    }
-
-    .card {
-      background: white;
-      width: 300px;
-      margin: 20px auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
-      font-size: 18px;
-    }
-
-    .support { color: green; font-weight: bold; }
-    .against { color: red; font-weight: bold; }
-    .total { color: blue; font-weight: bold; }
-
-  </style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 </head>
 
-<body>
+<body style="text-align:center;font-family:Arial">
 
-  <div class="container">
+<h2>🗳️ ONOE & Delimitation Public Voting Survey 2026</h2>
 
-    <h1>🗳️ Live Voting Results</h1>
+<p id="result">Loading votes...</p>
 
-    <div class="card">
-      ✔ Support: <span class="support" id="support">0</span>
-    </div>
+<button onclick="vote('support')">👍 Support</button>
+<button onclick="vote('against')">👎 Against</button>
 
-    <div class="card">
-      ❌ Against: <span class="against" id="against">0</span>
-    </div>
+<script type="module">
 
-    <div class="card">
-      📊 Total Votes: <span class="total" id="total">0</span>
-    </div>
+// 🔥 Firebase Config (YOUR DATA PASTE HERE)
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
 
-  </div>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  <script>
-    // 👉 HERE you can later connect Google Sheets API
-    // For now static demo values
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    let support = 1;
-    let against = 0;
+const ref = doc(db, "votes", "total");
 
-    document.getElementById("support").innerText = support;
-    document.getElementById("against").innerText = against;
-    document.getElementById("total").innerText = support + against;
+// init
+const snap = await getDoc(ref);
+if (!snap.exists()) {
+  await setDoc(ref, { support: 0, against: 0 });
+}
 
-  </script>
+// live update
+onSnapshot(ref, (docSnap) => {
+  const d = docSnap.data();
+  document.getElementById("result").innerHTML =
+  "👍 Support: " + d.support +
+  " | 👎 Against: " + d.against +
+  " | Total: " + (d.support + d.against);
+});
+
+// vote function
+window.vote = async function(type) {
+  const snap = await getDoc(ref);
+  const d = snap.data();
+
+  if (type === "support") {
+    await updateDoc(ref, { support: d.support + 1 });
+  } else {
+    await updateDoc(ref, { against: d.against + 1 });
+  }
+};
+
+</script>
 
 </body>
 </html>
