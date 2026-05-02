@@ -2,10 +2,6 @@
 <html>
 <head>
   <title>ONOE Voting 2026</title>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 </head>
 
 <body style="text-align:center;font-family:Arial">
@@ -19,26 +15,26 @@
 
 <script type="module">
 
-// 🔥 Firebase Config (YOUR DATA PASTE HERE)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// 🔥 Firebase Config (PUT YOUR REAL VALUES)
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
+  projectId: "ONOEVote2026",
   storageBucket: "YOUR_STORAGE_BUCKET",
   messagingSenderId: "YOUR_SENDER_ID",
   appId: "YOUR_APP_ID"
 };
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const ref = doc(db, "votes", "total");
 
-// init
+// create if not exists
 const snap = await getDoc(ref);
 if (!snap.exists()) {
   await setDoc(ref, { support: 0, against: 0 });
@@ -53,7 +49,7 @@ onSnapshot(ref, (docSnap) => {
   " | Total: " + (d.support + d.against);
 });
 
-// vote function
+// voting
 window.vote = async function(type) {
   const snap = await getDoc(ref);
   const d = snap.data();
