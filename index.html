@@ -41,8 +41,15 @@ if (!snap.exists()) {
 
 // live update
 onSnapshot(ref, (docSnap) => {
+  if (!docSnap.exists()) return;
+
   const d = docSnap.data();
+
   document.getElementById("result").innerHTML =
+    "👍 Support: " + (d.support ?? 0) +
+    " | 👎 Against: " + (d.against ?? 0) +
+    " | Total: " + ((d.support ?? 0) + (d.against ?? 0));
+});  document.getElementById("result").innerHTML =
   "👍 Support: " + d.support +
   " | 👎 Against: " + d.against +
   " | Total: " + (d.support + d.against);
