@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE Glass Voting Dashboard 2026</title>
+  <title>ONOE Voting 2026</title>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -31,60 +32,54 @@
     }
 
     button {
+      width: 48%;
       padding: 12px;
-      margin: 8px 5px;
       border: none;
       border-radius: 10px;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.3s;
+      margin-top: 10px;
     }
 
-    button:hover { transform: scale(1.05); }
+    .support { background: #22c55e; color: white; }
+    .against { background: #ef4444; color: white; }
 
-    .support { background:#22c55e; color:white; width:45%; }
-    .against { background:#ef4444; color:white; width:45%; }
-    .submit { background:#facc15; color:black; width:95%; }
+    .submit {
+      width: 100%;
+      background: #3b82f6;
+      color: white;
+      margin-top: 10px;
+    }
 
     .count {
       font-size: 20px;
       color: #38bdf8;
       font-weight: bold;
     }
-
-    .status {
-      text-align:center;
-      color:#94a3b8;
-      font-size:14px;
-    }
-
-    canvas {
-      margin-top: 15px;
-    }
   </style>
 </head>
 
 <body>
 
-<div class="title">🗳️ ONOE Ultra Secure Glass Voting Dashboard</div>
+<div class="title">🗳️ ONOE Public Voting Dashboard</div>
 
 <div class="glass">
 
-  <p class="status" id="status">Checking device status...</p>
+  <p>
+    👍 Support: <span id="support">0</span><br>
+    👎 Against: <span id="against">0</span><br>
+    🧮 Total: <span id="total">0</span>
+  </p>
 
   <hr style="opacity:0.2">
 
-  <p>👍 Support: <span class="count" id="support">0</span></p>
-  <p>👎 Against: <span class="count" id="against">0</span></p>
-  <p>🧮 Total: <span class="count" id="total">0</span></p>
-
-  <hr style="opacity:0.2">
-
-  <!-- SELECTION -->
   <button class="support" onclick="selectVote('support')">👍 SUPPORT</button>
   <button class="against" onclick="selectVote('against')">👎 AGAINST</button>
 
-  <button class="submit" onclick="submitVote()">✅ SUBMIT VOTE</button>
+  <button id="submitBtn" class="submit" disabled onclick="submitVote()">
+    SUBMIT VOTE
+  </button>
 
   <canvas id="chart"></canvas>
 
@@ -108,10 +103,7 @@ const db = getFirestore(app);
 
 const ref = doc(db, "votes", "total");
 
-let selectedVote = null;
-
-/* DEVICE LOCK SYSTEM */
-const deviceKey = "voted_onoe_2026";
+let selected = null;
 
 /* INIT */
 async function init(){
@@ -119,23 +111,8 @@ async function init(){
   if(!snap.exists()){
     await setDoc(ref,{support:0,against:0});
   }
-
-  checkDevice();
 }
 init();
-
-/* DEVICE CHECK */
-function checkDevice(){
-  const status = document.getElementById("status");
-
-  if(localStorage.getItem(deviceKey)){
-    status.innerText = "⚠️ This device already voted";
-    status.style.color = "#ef4444";
-  } else {
-    status.innerText = "✅ You can vote now";
-    status.style.color = "#22c55e";
-  }
-}
 
 /* LIVE DATA */
 onSnapshot(ref,(snap)=>{
@@ -155,7 +132,8 @@ onSnapshot(ref,(snap)=>{
 
 /* CHART */
 const ctx = document.getElementById("chart");
-const chart = new Chart(ctx,{
+
+let chart = new Chart(ctx,{
   type:"doughnut",
   data:{
     labels:["Support","Against"],
@@ -166,39 +144,44 @@ const chart = new Chart(ctx,{
   }
 });
 
-/* SELECT VOTE */
+/* SELECT */
 window.selectVote = function(type){
-  selectedVote = type;
-  alert("Selected: " + type.toUpperCase());
+  selected = type;
+  document.getElementById("submitBtn").disabled = false;
 };
 
-/* SUBMIT VOTE */
+/* DEVICE LOCK */
+function isVoted(){
+  return localStorage.getItem("voted") === "true";
+}
+
+/* SUBMIT */
 window.submitVote = async function(){
 
-  if(localStorage.getItem(deviceKey)){
-    alert("⚠️ You already voted on this device!");
+  if(isVoted()){
+    alert("⚠️ You already voted on this device");
     return;
   }
 
-  if(!selectedVote){
-    alert("⚠️ Please select SUPPORT or AGAINST!");
+  if(!selected){
+    alert("Select SUPPORT or AGAINST");
     return;
   }
 
   const snap = await getDoc(ref);
   const d = snap.data();
 
-  if(selectedVote === "support"){
+  if(selected === "support"){
     await updateDoc(ref,{support:(d.support||0)+1});
-  } else {
+  }else{
     await updateDoc(ref,{against:(d.against||0)+1});
   }
 
-  localStorage.setItem(deviceKey,"true");
+  localStorage.setItem("voted","true");
 
-  alert("✅ Vote submitted successfully!");
+  alert("✅ Vote submitted successfully");
 
-  checkDevice();
+  document.getElementById("submitBtn").disabled = true;
 };
 
 </script>
