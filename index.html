@@ -13,13 +13,13 @@
 <button onclick="vote('support')">👍 Support</button>
 <button onclick="vote('against')">👎 Against</button>
 
-<button onclick="vote('against')">👎 Against</button>
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// 🔥 YOUR REAL FIREBASE CONFIG (already correct)
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -32,22 +32,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ... باقي code (onSnapshot, vote function)
-
-</script>
-
 const ref = doc(db, "votes", "total");
 
-// Create document if not exists
+// ✅ Ensure document exists
 async function init() {
-  const snap = await getDoc(ref);
-  if (!snap.exists()) {
-    await setDoc(ref, { support: 0, against: 0 });
+  try {
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, { support: 0, against: 0 });
+    }
+  } catch (e) {
+    console.error("Init error:", e);
   }
 }
 init();
 
-// Live update
+// ✅ Live update
 onSnapshot(ref, (docSnap) => {
   if (!docSnap.exists()) return;
 
@@ -59,15 +59,19 @@ onSnapshot(ref, (docSnap) => {
     " | Total: " + ((d.support || 0) + (d.against || 0));
 });
 
-// Vote function
+// ✅ Vote function
 window.vote = async function(type) {
-  const snap = await getDoc(ref);
-  const d = snap.data();
+  try {
+    const snap = await getDoc(ref);
+    const d = snap.data();
 
-  if (type === "support") {
-    await updateDoc(ref, { support: (d.support || 0) + 1 });
-  } else {
-    await updateDoc(ref, { against: (d.against || 0) + 1 });
+    if (type === "support") {
+      await updateDoc(ref, { support: (d.support || 0) + 1 });
+    } else {
+      await updateDoc(ref, { against: (d.against || 0) + 1 });
+    }
+  } catch (e) {
+    console.error("Vote error:", e);
   }
 };
 
