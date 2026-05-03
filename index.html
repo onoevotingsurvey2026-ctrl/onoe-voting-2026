@@ -1,139 +1,125 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE Voting System</title>
+  <title>ONOE Voting Dashboard</title>
 
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
   <style>
     body {
-      margin:0;
       font-family: Arial;
-      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-      color:white;
-      text-align:center;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding-top: 50px;
     }
-
-    .panel {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(15px);
-      border-radius: 20px;
-      width: 340px;
-      margin: 50px auto;
-      padding: 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    .box {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 12px;
+      width: 300px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
-
     button {
-      padding: 10px 16px;
-      margin: 8px;
+      padding: 10px 15px;
+      margin: 10px;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
+      cursor: pointer;
       font-size: 16px;
-      cursor:pointer;
     }
-
-    .login { background:#007bff; color:white; }
-    .support { background:#28a745; color:white; }
-    .against { background:#dc3545; color:white; }
+    .login { background: #22c55e; color: white; }
+    .support { background: #10b981; }
+    .against { background: #f43f5e; }
   </style>
 </head>
 
 <body>
 
-<div class="panel">
-  <h2>🗳️ ONOE Voting Dashboard</h2>
+<div class="box">
+  <h2>🗳️ ONOE Voting</h2>
 
-  <button class="login" onclick="login()">🔐 Google Login</button>
+  <button class="login" onclick="login()">Google Login</button>
 
-  <p id="user"></p>
+  <br><br>
 
-  <hr>
+  <button class="support" onclick="vote('support')">Support</button>
+  <button class="against" onclick="vote('against')">Against</button>
 
-  <button class="support" onclick="vote('support')">👍 Support</button>
-  <button class="against" onclick="vote('against')">👎 Against</button>
-
-  <hr>
-
-  <h3>📊 Live Results</h3>
-  <p>Support: <span id="support">0</span></p>
-  <p>Against: <span id="against">0</span></p>
-
-  <hr>
-
-  <h4>Admin View</h4>
-  <p id="admin">Loading...</p>
+  <h3>Live Results</h3>
+  <p>Support: <span id="supportCount">0</span></p>
+  <p>Against: <span id="againstCount">0</span></p>
 </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-};
+  // 🔥 உங்கள் Firebase config paste பண்ணவும்
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+  };
 
-firebase.initializeApp(firebaseConfig);
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-const auth = firebase.auth();
-const db = firebase.database();
-
-let userId = null;
-
-// 🔐 LOGIN
-function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
 
-  auth.signInWithPopup(provider).then(res=>{
-    userId = res.user.uid;
-    document.getElementById("user").innerText =
-      "Logged in: " + res.user.email;
-  });
-}
-
-// 🗳️ VOTE (STRICT LOCK)
-function vote(type){
-  if(!userId){
-    alert("Please login first");
-    return;
+  // ✅ Login (Redirect method)
+  function login() {
+    auth.signInWithRedirect(provider);
   }
 
-  const ref = db.ref("votes/" + userId);
+  // ✅ Check login
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      console.log("Logged in:", user.email);
+    }
+  });
 
-  ref.once("value").then(snapshot=>{
-    if(snapshot.exists()){
-      alert("❌ You already voted!");
+  // ✅ Vote system
+  function vote(option) {
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("Please login first");
       return;
     }
 
-    ref.set({
-      choice: type,
-      time: Date.now()
+    const voteRef = db.collection("votes").doc(user.uid);
+
+    voteRef.get().then((doc) => {
+      if (doc.exists) {
+        alert("You already voted!");
+      } else {
+        voteRef.set({
+          vote: option
+        });
+        alert("Vote submitted!");
+      }
     });
+  }
 
-    alert("✅ Vote submitted");
-  });
-}
+  // ✅ Live count update
+  function loadVotes() {
+    db.collection("votes").onSnapshot((snapshot) => {
+      let support = 0;
+      let against = 0;
 
-// 📊 LIVE RESULTS
-db.ref("votes").on("value", snap=>{
-  let data = snap.val() || {};
+      snapshot.forEach((doc) => {
+        if (doc.data().vote === "support") support++;
+        if (doc.data().vote === "against") against++;
+      });
 
-  let support=0, against=0;
+      document.getElementById("supportCount").innerText = support;
+      document.getElementById("againstCount").innerText = against;
+    });
+  }
 
-  Object.values(data).forEach(v=>{
-    if(v.choice==="support") support++;
-    if(v.choice==="against") against++;
-  });
-
-  document.getElementById("support").innerText = support;
-  document.getElementById("against").innerText = against;
-
-  document.getElementById("admin").innerText =
-    "Total Votes: " + (support + against);
-});
+  loadVotes();
 </script>
 
 </body>
