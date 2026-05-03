@@ -19,7 +19,7 @@
       background: #1e293b;
       padding: 30px;
       border-radius: 12px;
-      width: 300px;
+      width: 320px;
       margin: auto;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
@@ -32,8 +32,8 @@
       font-size: 16px;
     }
     .login { background: #22c55e; color: white; }
-    .support { background: #10b981; }
-    .against { background: #f43f5e; }
+    .support { background: #10b981; color: white; }
+    .against { background: #f43f5e; color: white; }
   </style>
 </head>
 
@@ -55,32 +55,32 @@
 </div>
 
 <script>
-  // 🔥 உங்கள் Firebase config paste பண்ணவும்
+  // 🔥 உங்கள் Firebase config இங்கு paste பண்ணவும்
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
+    projectId: "YOUR_PROJECT_ID"
   };
 
   firebase.initializeApp(firebaseConfig);
+
   const auth = firebase.auth();
   const db = firebase.firestore();
-
   const provider = new firebase.auth.GoogleAuthProvider();
 
-  // ✅ Login (Redirect method)
+  // ✅ Google Login
   function login() {
     auth.signInWithRedirect(provider);
   }
 
-  // ✅ Check login
+  // ✅ Auth check
   auth.onAuthStateChanged((user) => {
     if (user) {
       console.log("Logged in:", user.email);
     }
   });
 
-  // ✅ Vote system
+  // ✅ Vote Function (One person = One vote)
   function vote(option) {
     const user = auth.currentUser;
 
@@ -89,7 +89,8 @@
       return;
     }
 
-    const voteRef = db.collection("votes").doc(user.uid);
+    const userId = user.uid;
+    const voteRef = db.collection("votes").doc(userId);
 
     voteRef.get().then((doc) => {
       if (doc.exists) {
@@ -103,23 +104,21 @@
     });
   }
 
-  // ✅ Live count update
-  function loadVotes() {
-    db.collection("votes").onSnapshot((snapshot) => {
-      let support = 0;
-      let against = 0;
+  // ✅ Live Count (Realtime)
+  db.collection("votes").onSnapshot((snapshot) => {
+    let support = 0;
+    let against = 0;
 
-      snapshot.forEach((doc) => {
-        if (doc.data().vote === "support") support++;
-        if (doc.data().vote === "against") against++;
-      });
+    snapshot.forEach((doc) => {
+      const data = doc.data();
 
-      document.getElementById("supportCount").innerText = support;
-      document.getElementById("againstCount").innerText = against;
+      if (data.vote === "support") support++;
+      if (data.vote === "against") against++;
     });
-  }
 
-  loadVotes();
+    document.getElementById("supportCount").innerText = support;
+    document.getElementById("againstCount").innerText = against;
+  });
 </script>
 
 </body>
