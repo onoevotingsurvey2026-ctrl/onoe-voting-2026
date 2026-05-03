@@ -1,108 +1,112 @@
 <!DOCTYPE html>
-<html lang="ta">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Voting Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voting Login System</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      margin: 0;
-      padding: 0;
-    }
-
-    .header {
-      background: #0d6efd;
-      color: white;
+      font-family: Arial;
       text-align: center;
-      padding: 20px;
-      font-size: 22px;
-      font-weight: bold;
+      margin-top: 60px;
+      background: #f2f2f2;
     }
 
-    .container {
-      max-width: 500px;
-      margin: 40px auto;
+    .card {
       background: white;
-      padding: 25px;
+      width: 320px;
+      margin: auto;
+      padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0px 0px 10px #ccc;
     }
 
-    h2 {
-      text-align: center;
-    }
-
-    .option {
-      margin: 15px 0;
-      font-size: 18px;
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
     }
 
     button {
-      width: 100%;
-      padding: 12px;
-      background: #0d6efd;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
+      padding: 10px 20px;
+      margin-top: 10px;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #0b5ed7;
-    }
-
-    .result {
-      margin-top: 20px;
-      text-align: center;
-      font-weight: bold;
-      color: green;
+    #dashboard {
+      display: none;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="header">
-    🗳️ மக்கள் கருத்து பதிவு தளம்
-  </div>
+<h2>🗳️ Voting Login System</h2>
 
-  <div class="container">
-    <h2>உங்கள் கருத்தை பதிவு செய்யவும்</h2>
+<!-- LOGIN -->
+<div class="card" id="loginBox">
+  <h3>Login</h3>
 
-    <form id="voteForm">
-      
-      <div class="option">
-        <input type="radio" name="vote" value="Support" required> 👍 Support
-      </div>
+  <input type="email" id="email" placeholder="Enter Email">
+  <input type="password" id="password" placeholder="Enter Password">
 
-      <div class="option">
-        <input type="radio" name="vote" value="Against"> 👎 Against
-      </div>
+  <button onclick="login()">Login</button>
+</div>
 
-      <button type="submit">🗳️ Submit Vote</button>
-    </form>
+<!-- DASHBOARD -->
+<div class="card" id="dashboard">
+  <h3>Welcome 🎉</h3>
+  <p>Login Successful</p>
 
-    <div class="result" id="result"></div>
-  </div>
+  <button onclick="logout()">Logout</button>
+</div>
 
-  <script>
-    const form = document.getElementById("voteForm");
-    const result = document.getElementById("result");
+<script>
+  // 🔥 YOUR REAL FIREBASE CONFIG
+  const firebaseConfig = {
+    apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+    authDomain: "onoevote2026.firebaseapp.com",
+    databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "onoevote2026",
+    storageBucket: "onoevote2026.firebasestorage.app",
+    messagingSenderId: "181065724520",
+    appId: "1:181065724520:web:61a8541708b48fa51101dd"
+  };
 
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
 
-      const selected = document.querySelector('input[name="vote"]:checked').value;
+  // LOGIN
+  function login() {
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
 
-      result.innerHTML = "உங்கள் vote பதிவு செய்யப்பட்டது: " + selected;
+    if (!email || !password) {
+      alert("Enter email & password");
+      return;
+    }
 
-      form.reset();
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        alert("Login Success ✅");
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+      })
+      .catch((error) => {
+        alert("Login Failed ❌\n" + error.message);
+      });
+  }
+
+  // LOGOUT
+  function logout() {
+    auth.signOut().then(() => {
+      location.reload();
     });
-  </script>
+  }
+</script>
 
 </body>
 </html>
