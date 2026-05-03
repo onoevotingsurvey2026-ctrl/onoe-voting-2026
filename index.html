@@ -3,7 +3,7 @@
 <head>
   <title>Voting Login System</title>
 
-  <!-- Firebase compat SDK -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
@@ -50,7 +50,7 @@
 <div class="card" id="loginBox">
   <h3>Login</h3>
 
-  <input type="email" id="email" placeholder="Enter Gmail">
+  <input type="email" id="email" placeholder="Enter Email">
   <input type="password" id="password" placeholder="Enter Password">
 
   <button onclick="login()">Login</button>
@@ -59,18 +59,19 @@
 <!-- DASHBOARD -->
 <div class="card" id="dashboard">
   <h3>Welcome 🎉</h3>
-  <p>You are successfully logged in</p>
+  <p>Login Successful</p>
 
   <button onclick="logout()">Logout</button>
 </div>
 
 <script>
- const firebaseConfig = {
-  apiKey: "AIzaSyXXXXREALKEY",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project-id",
-  appId: "your-app-id"
-};
+  // 🔥 Firebase Config (REPLACE ONLY THIS)
+  const firebaseConfig = {
+    apiKey: "PASTE_REAL_API_KEY_HERE",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    appId: "YOUR_APP_ID"
+  };
 
   // Initialize Firebase safely
   firebase.initializeApp(firebaseConfig);
@@ -79,8 +80,8 @@
 
   // ✅ LOGIN FUNCTION
   function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
 
     if (!email || !password) {
       alert("Please enter email & password");
