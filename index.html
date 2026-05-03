@@ -1,18 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login Voting System</title>
+  <title>Voting Login System</title>
 
-  <!-- Firebase CDN (compat version easy for beginners) -->
+  <!-- Firebase compat SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
   <style>
-    body { font-family: Arial; text-align:center; margin-top:50px; }
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin-top: 60px;
+      background: #f2f2f2;
+    }
 
-    .box { display:none; }
-    input { padding:10px; margin:5px; width:200px; }
-    button { padding:10px 20px; margin:10px; cursor:pointer; }
+    .card {
+      background: white;
+      width: 320px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px #ccc;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    #dashboard {
+      display: none;
+    }
   </style>
 </head>
 
@@ -20,56 +46,62 @@
 
 <h2>🗳️ Voting Login System</h2>
 
-<!-- LOGIN BOX -->
-<div id="loginBox">
+<!-- LOGIN -->
+<div class="card" id="loginBox">
   <h3>Login</h3>
-  <input type="email" id="email" placeholder="Enter Gmail"><br>
-  <input type="password" id="password" placeholder="Enter Password"><br>
+
+  <input type="email" id="email" placeholder="Enter Gmail">
+  <input type="password" id="password" placeholder="Enter Password">
+
   <button onclick="login()">Login</button>
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboard" class="box">
-  <h2>Welcome User 🎉</h2>
-
+<div class="card" id="dashboard">
+  <h3>Welcome 🎉</h3>
   <p>You are successfully logged in</p>
 
   <button onclick="logout()">Logout</button>
 </div>
 
 <script>
-  // 🔥 Firebase Config (உங்கள் project details இங்கே replace பண்ணணும்)
+  // 🔥 STEP 1: Firebase Config (ONLY REPLACE THIS)
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
+    apiKey: "PASTE_YOUR_API_KEY_HERE",
     authDomain: "YOUR_PROJECT.firebaseapp.com",
     projectId: "YOUR_PROJECT_ID",
+    appId: "YOUR_APP_ID"
   };
 
-  // Initialize Firebase
+  // Initialize Firebase safely
   firebase.initializeApp(firebaseConfig);
 
   const auth = firebase.auth();
 
   // ✅ LOGIN FUNCTION
-  function login(){
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("password").value;
+  function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if (!email || !password) {
+      alert("Please enter email & password");
+      return;
+    }
 
     auth.signInWithEmailAndPassword(email, password)
-    .then(user => {
-      alert("Login Success ✅");
+      .then(() => {
+        alert("Login Success ✅");
 
-      // hide login, show dashboard
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
-    })
-    .catch(error => {
-      alert("Login Failed ❌ : " + error.message);
-    });
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+      })
+      .catch((error) => {
+        alert("Login Failed ❌\n" + error.message);
+      });
   }
 
   // ✅ LOGOUT FUNCTION
-  function logout(){
+  function logout() {
     auth.signOut().then(() => {
       location.reload();
     });
