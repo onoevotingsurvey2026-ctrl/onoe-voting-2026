@@ -1,202 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ONOE Voting Dashboard - Upgraded</title>
+  <title>Voting Dashboard</title>
 
-  <!-- Firebase v8 -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
   <style>
-    body{
-      font-family: Arial, sans-serif;
-      margin:0;
-      background:#f4f6f9;
-    }
-
-    header{
-      background:#0d6efd;
-      color:white;
-      padding:15px;
-      text-align:center;
-    }
-
-    .container{
-      max-width:900px;
-      margin:20px auto;
-      padding:15px;
-    }
-
-    .card{
-      background:white;
-      padding:20px;
-      border-radius:12px;
-      box-shadow:0 2px 10px rgba(0,0,0,0.1);
-      margin-bottom:15px;
-    }
-
-    button{
-      padding:10px 15px;
-      margin:5px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:16px;
-    }
-
-    .support{background:#28a745;color:white;}
-    .against{background:#dc3545;color:white;}
-    .reset{background:#6c757d;color:white;}
-
-    .stats{
-      display:flex;
-      justify-content:space-around;
-      text-align:center;
-      flex-wrap:wrap;
-    }
-
-    .box{
-      flex:1;
-      min-width:120px;
-      margin:10px;
-      padding:15px;
-      background:#fff;
-      border-radius:10px;
-      box-shadow:0 1px 5px rgba(0,0,0,0.1);
-    }
-
-    .big{
-      font-size:28px;
-      font-weight:bold;
-    }
-
-    .login-box{
-      text-align:center;
-    }
-
-    input{
-      padding:10px;
-      margin:5px;
-      width:80%;
-      max-width:300px;
-    }
+    body { font-family: Arial; text-align:center; margin-top:50px; }
+    .box { display:none; }
+    button { padding:10px 20px; margin:10px; }
   </style>
 </head>
+
 <body>
 
-<header>
-  🗳️ ONOE Public Voting Survey 2026 (Upgraded)
-</header>
+<h2>🗳️ Voting System</h2>
 
-<div class="container">
+<!-- LOGIN BOX -->
+<div id="loginBox">
+  <h3>Login</h3>
+  <input type="email" id="email" placeholder="Gmail ID"><br><br>
+  <input type="password" id="password" placeholder="Password"><br><br>
+  <button onclick="login()">Login</button>
+</div>
 
-  <!-- LOGIN -->
-  <div class="card login-box" id="loginBox">
-    <h3>Admin / User Login</h3>
-    <input type="email" id="email" placeholder="Email" /><br/>
-    <input type="password" id="password" placeholder="Password" /><br/>
-    <button onclick="login()" class="support">Login</button>
-  </div>
+<!-- DASHBOARD -->
+<div id="dashboard" class="box">
+  <h3>Welcome User</h3>
 
-  <!-- DASHBOARD -->
-  <div class="card" id="dashboard" style="display:none;">
+  <h2>Support: <span id="supportCount">0</span></h2>
+  <h2>Against: <span id="againstCount">0</span></h2>
 
-    <h2>Live Voting Dashboard</h2>
+  <button onclick="vote('support')">Support</button>
+  <button onclick="vote('against')">Against</button>
 
-    <div class="stats">
-      <div class="box">
-        Support
-        <div class="big" id="supportCount">0</div>
-      </div>
-      <div class="box">
-        Against
-        <div class="big" id="againstCount">0</div>
-      </div>
-      <div class="box">
-        Total
-        <div class="big" id="totalCount">0</div>
-      </div>
-    </div>
-
-    <hr/>
-
-    <button class="support" onclick="vote('support')">Support 👍</button>
-    <button class="against" onclick="vote('against')">Against 👎</button>
-    <button class="reset" onclick="resetVotes()">Reset (Admin)</button>
-
-  </div>
-
+  <br><br>
+  <button onclick="logout()">Logout</button>
 </div>
 
 <script>
+  // 🔥 Firebase Config (உங்கள் details இங்கே போடணும்)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+  };
 
-// 🔥 Firebase Config (replace with your config)
-var firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-};
+  firebase.initializeApp(firebaseConfig);
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-let support = 0;
-let against = 0;
+  // ✅ LOGIN
+  function login(){
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
 
-// LOGIN
-function login(){
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+    auth.signInWithEmailAndPassword(email, password)
+    .then(user => {
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      loadVotes();
+    })
+    .catch(err => alert(err.message));
+  }
 
-  firebase.auth().signInWithEmailAndPassword(email, password)
-  .then(()=>{
-    document.getElementById('loginBox').style.display='none';
-    document.getElementById('dashboard').style.display='block';
-  })
-  .catch(err=>alert(err.message));
-}
+  // ✅ LOGOUT
+  function logout(){
+    auth.signOut();
+    location.reload();
+  }
 
-// VOTE
-function vote(type){
-  const ref = db.collection("votes").doc("main");
+  // ✅ VOTE FUNCTION
+  function vote(type){
+    db.collection("votes").doc("result").set({
+      [type]: firebase.firestore.FieldValue.increment(1)
+    }, { merge: true });
 
-  ref.get().then(doc=>{
-    let data = doc.exists ? doc.data() : {support:0, against:0};
+    loadVotes();
+  }
 
-    if(type==='support') data.support++;
-    if(type==='against') data.against++;
-
-    ref.set(data);
-  });
-}
-
-// RESET
-function resetVotes(){
-  db.collection("votes").doc("main").set({support:0, against:0});
-}
-
-// REALTIME UPDATE
-function listenVotes(){
-  db.collection("votes").doc("main")
-  .onSnapshot(doc=>{
-    if(doc.exists){
-      const d = doc.data();
-      support = d.support || 0;
-      against = d.against || 0;
-
-      document.getElementById('supportCount').innerText = support;
-      document.getElementById('againstCount').innerText = against;
-      document.getElementById('totalCount').innerText = support + against;
-    }
-  });
-}
-
-listenVotes();
-
+  // ✅ LOAD VOTES
+  function loadVotes(){
+    db.collection("votes").doc("result").get()
+    .then(doc => {
+      let data = doc.data() || {};
+      document.getElementById("supportCount").innerText = data.support || 0;
+      document.getElementById("againstCount").innerText = data.against || 0;
+    });
+  }
 </script>
 
 </body>
