@@ -1,95 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Voting Dashboard</title>
+  <title>Login Voting System</title>
 
-  <!-- Firebase CDN -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+  <!-- Firebase CDN (compat version easy for beginners) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
   <style>
     body { font-family: Arial; text-align:center; margin-top:50px; }
+
     .box { display:none; }
-    button { padding:10px 20px; margin:10px; }
+    input { padding:10px; margin:5px; width:200px; }
+    button { padding:10px 20px; margin:10px; cursor:pointer; }
   </style>
 </head>
 
 <body>
 
-<h2>🗳️ Voting System</h2>
+<h2>🗳️ Voting Login System</h2>
 
 <!-- LOGIN BOX -->
 <div id="loginBox">
   <h3>Login</h3>
-  <input type="email" id="email" placeholder="Gmail ID"><br><br>
-  <input type="password" id="password" placeholder="Password"><br><br>
+  <input type="email" id="email" placeholder="Enter Gmail"><br>
+  <input type="password" id="password" placeholder="Enter Password"><br>
   <button onclick="login()">Login</button>
 </div>
 
 <!-- DASHBOARD -->
 <div id="dashboard" class="box">
-  <h3>Welcome User</h3>
+  <h2>Welcome User 🎉</h2>
 
-  <h2>Support: <span id="supportCount">0</span></h2>
-  <h2>Against: <span id="againstCount">0</span></h2>
+  <p>You are successfully logged in</p>
 
-  <button onclick="vote('support')">Support</button>
-  <button onclick="vote('against')">Against</button>
-
-  <br><br>
   <button onclick="logout()">Logout</button>
 </div>
 
 <script>
-  // 🔥 Firebase Config (உங்கள் details இங்கே போடணும்)
+  // 🔥 Firebase Config (உங்கள் project details இங்கே replace பண்ணணும்)
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT.firebaseapp.com",
     projectId: "YOUR_PROJECT_ID",
   };
 
+  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
 
   const auth = firebase.auth();
-  const db = firebase.firestore();
 
-  // ✅ LOGIN
+  // ✅ LOGIN FUNCTION
   function login(){
     let email = document.getElementById("email").value;
     let password = document.getElementById("password").value;
 
     auth.signInWithEmailAndPassword(email, password)
     .then(user => {
+      alert("Login Success ✅");
+
+      // hide login, show dashboard
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
-      loadVotes();
     })
-    .catch(err => alert(err.message));
+    .catch(error => {
+      alert("Login Failed ❌ : " + error.message);
+    });
   }
 
-  // ✅ LOGOUT
+  // ✅ LOGOUT FUNCTION
   function logout(){
-    auth.signOut();
-    location.reload();
-  }
-
-  // ✅ VOTE FUNCTION
-  function vote(type){
-    db.collection("votes").doc("result").set({
-      [type]: firebase.firestore.FieldValue.increment(1)
-    }, { merge: true });
-
-    loadVotes();
-  }
-
-  // ✅ LOAD VOTES
-  function loadVotes(){
-    db.collection("votes").doc("result").get()
-    .then(doc => {
-      let data = doc.data() || {};
-      document.getElementById("supportCount").innerText = data.support || 0;
-      document.getElementById("againstCount").innerText = data.against || 0;
+    auth.signOut().then(() => {
+      location.reload();
     });
   }
 </script>
