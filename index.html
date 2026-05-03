@@ -1,165 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE Voting Dashboard</title>
+  <title>ONOE Voting - One Click</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
   <style>
     body {
-      margin: 0;
       font-family: Arial;
-      background: #0f172a;
-      color: white;
       text-align: center;
+      padding: 30px;
     }
-
-    .card {
-      background: #1e293b;
-      width: 90%;
-      max-width: 450px;
-      margin: 40px auto;
-      padding: 20px;
-      border-radius: 14px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-    }
-
-    h2 {
-      margin-bottom: 10px;
-    }
-
-    .count {
-      font-size: 20px;
-      margin: 10px 0;
-      color: #38bdf8;
-    }
-
     button {
-      width: 48%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
+      padding: 15px 25px;
+      font-size: 18px;
+      margin: 10px;
       cursor: pointer;
     }
-
-    .support { background: #22c55e; color: white; }
-    .against { background: #ef4444; color: white; }
-
-    .submit {
-      width: 100%;
-      background: #3b82f6;
-      color: white;
-      margin-top: 10px;
+    .box {
+      margin-top: 20px;
     }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
   </style>
 </head>
 
 <body>
 
-<div class="card">
+<h2>🗳️ ONOE One Click Voting</h2>
 
-  <h2>🗳️ ONOE Voting Dashboard</h2>
-
-  <p class="count">👍 Support: <span id="support">0</span></p>
-  <p class="count">👎 Against: <span id="against">0</span></p>
-  <p class="count">🧮 Total: <span id="total">0</span></p>
-
-  <hr style="opacity:0.2">
-
-  <button class="support" onclick="selectVote('support')">👍 SUPPORT</button>
-  <button class="against" onclick="selectVote('against')">👎 AGAINST</button>
-
-  <button id="submitBtn" class="submit" disabled onclick="submitVote()">
-    SUBMIT VOTE
-  </button>
-
+<div class="box">
+  <button onclick="vote('support')">👍 SUPPORT</button>
+  <button onclick="vote('against')">👎 AGAINST</button>
 </div>
 
-<script type="module">
+<h3>📊 Live Results</h3>
+<p>Support: <span id="support">0</span></p>
+<p>Against: <span id="against">0</span></p>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+<script>
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
+  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "onoevote2026"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-const ref = doc(db, "votes", "total");
 
-let selected = null;
+// 👉 Create unique device ID (first time only)
+let deviceId = localStorage.getItem("deviceId");
 
-/* INIT */
-async function init(){
-  const snap = await getDoc(ref);
-  if(!snap.exists()){
-    await setDoc(ref,{support:0,against:0});
-  }
+if(!deviceId){
+  deviceId = "dev_" + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem("deviceId", deviceId);
 }
-init();
 
-/* LIVE UPDATE */
-onSnapshot(ref,(snap)=>{
-  const d = snap.data() || {};
 
-  document.getElementById("support").innerText = d.support || 0;
-  document.getElementById("against").innerText = d.against || 0;
-  document.getElementById("total").innerText =
-    (d.support||0)+(d.against||0);
+// 🗳️ VOTE FUNCTION
+function vote(choice){
+
+  const ref = db.ref("votes/" + deviceId);
+
+  ref.once("value").then(snapshot => {
+
+    if(snapshot.exists()){
+      alert("❌ You already voted!");
+      return;
+    }
+
+    ref.set({
+      choice: choice,
+      time: Date.now()
+    });
+
+    alert("✅ Vote recorded: " + choice);
+  });
+}
+
+
+// 📊 LIVE COUNT
+db.ref("votes").on("value", snapshot => {
+  let data = snapshot.val() || {};
+  let support = 0;
+  let against = 0;
+
+  Object.values(data).forEach(v => {
+    if(v.choice === "support") support++;
+    if(v.choice === "against") against++;
+  });
+
+  document.getElementById("support").innerText = support;
+  document.getElementById("against").innerText = against;
 });
-
-/* SELECT VOTE */
-window.selectVote = function(type){
-  selected = type;
-  document.getElementById("submitBtn").disabled = false;
-};
-
-/* DEVICE LOCK */
-function isVoted(){
-  return localStorage.getItem("voted") === "true";
-}
-
-/* SUBMIT VOTE */
-window.submitVote = async function(){
-
-  if(isVoted()){
-    alert("⚠️ You already voted on this device");
-    return;
-  }
-
-  if(!selected){
-    alert("Please select SUPPORT or AGAINST");
-    return;
-  }
-
-  const snap = await getDoc(ref);
-  const d = snap.data();
-
-  if(selected === "support"){
-    await updateDoc(ref,{support:(d.support||0)+1});
-  }else{
-    await updateDoc(ref,{against:(d.against||0)+1});
-  }
-
-  localStorage.setItem("voted","true");
-
-  alert("✅ Vote submitted successfully");
-
-  document.getElementById("submitBtn").disabled = true;
-};
-
 </script>
 
 </body>
