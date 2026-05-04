@@ -1,218 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultra Glass Voting Dashboard</title>
+  <title>India Civic Live Data Dashboard</title>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<style>
-body {
-  margin:0;
-  font-family: Arial;
-  background: linear-gradient(135deg,#1f1c2c,#928dab);
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
-.glass {
-  background: rgba(255,255,255,0.1);
-  padding:20px;
-  border-radius:20px;
-  width:90%;
-  max-width:420px;
-  backdrop-filter: blur(15px);
-  color:white;
-  text-align:center;
-}
+  <style>
+    body {
+      margin:0;
+      font-family:Arial;
+      background:#0b1220;
+      color:white;
+    }
 
-input {
-  width:90%;
-  padding:10px;
-  margin:5px;
-  border:none;
-  border-radius:10px;
-}
+    .header {
+      background:#111827;
+      padding:15px;
+      text-align:center;
+      color:#00ffcc;
+      font-weight:bold;
+    }
 
-button {
-  padding:10px;
-  margin:5px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:bold;
-}
+    .grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      padding:10px;
+    }
 
-.login {background:#00c6ff;color:white;}
-.google {background:#ff4b5c;color:white;}
-.support {background:#00ff9d;width:45%;}
-.against {background:#ff4b5c;width:45%;}
-.dashboard {display:none;}
+    .card {
+      background:rgba(255,255,255,0.05);
+      padding:15px;
+      border-radius:10px;
+      border:1px solid #00ffcc33;
+    }
 
-/* 🔴 LIVE BADGE */
-.live-badge {
-  background: red;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  margin-left: 10px;
-  animation: blink 1s infinite;
-}
+    #map {
+      height:400px;
+      margin:10px;
+      border-radius:10px;
+    }
 
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0.3; }
-  100% { opacity: 1; }
-}
-</style>
+    .ticker {
+      background:black;
+      color:#00ffcc;
+      padding:5px;
+      overflow:hidden;
+      white-space:nowrap;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div class="glass" id="loginBox">
-  <h2>🔥 Voting Login</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button class="login" onclick="login()">Login</button>
-  <button class="google" onclick="googleLogin()">Google Login</button>
-  <p id="msg"></p>
+<div class="header">
+  🇮🇳 INDIA CIVIC LIVE DATA DASHBOARD
 </div>
 
-<!-- DASHBOARD -->
-<div class="glass dashboard" id="dashboard">
-  <h2>🗳️ Voting Dashboard <span class="live-badge">LIVE</span></h2>
-
-  <button class="support" onclick="vote('support')">Support 👍</button>
-  <button class="against" onclick="vote('against')">Against 👎</button>
-
-  <h3>Support: <span id="supportCount">0</span></h3>
-  <h3>Against: <span id="againstCount">0</span></h3>
-  <h3>Total Votes: <span id="totalCount">0</span></h3>
-
-  <button onclick="logout()">Logout</button>
+<div class="ticker">
+  ONOE vs DELIMITATION | REAL DATA CIVIC ANALYSIS | LIVE DASHBOARD ACTIVE |
 </div>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>📊 LIVE ANALYTICS</h3>
+    <p id="analytics">Loading...</p>
+  </div>
+
+  <div class="card">
+    <h3>🧠 INSIGHTS</h3>
+    <p id="insight">Processing data...</p>
+  </div>
+
+</div>
+
+<div id="map"></div>
 
 <script>
 
-// 🔥 FIREBASE CONFIG
-const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+const indiaData = {
+  onoe: 45,
+  delim: 35,
+  combo: 20,
+
+  tn: 0.8,
+  dl: 0.6,
+  mh: 0.5
 };
 
-firebase.initializeApp(firebaseConfig);
+// 🧠 ANALYTICS
+function updateAnalytics(v){
+  let total = v.onoe + v.delim + v.combo;
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-let currentUser = null;
-
-// AUTO LOGIN
-auth.onAuthStateChanged(function(user) {
-  if (user) {
-    currentUser = user;
-    showDashboard();
-  }
-});
-
-// EMAIL LOGIN
-function login(){
-  let email = document.getElementById("email").value;
-  let password = document.getElementById("password").value;
-
-  auth.signInWithEmailAndPassword(email, password)
-  .then(user => {
-    currentUser = user.user;
-    showDashboard();
-  })
-  .catch(err => {
-    document.getElementById("msg").innerText = err.message;
-  });
+  document.getElementById("analytics").innerHTML =
+    "ONOE: " + (v.onoe/total*100).toFixed(1) + "%<br>" +
+    "DELIMITATION: " + (v.delim/total*100).toFixed(1) + "%<br>" +
+    "COMBINED: " + (v.combo/total*100).toFixed(1) + "%";
 }
 
-// GOOGLE LOGIN
-function googleLogin(){
-  let provider = new firebase.auth.GoogleAuthProvider();
+// 🧠 INSIGHT
+function insight(v){
+  let msg = "Balanced civic opinion";
 
-  provider.setCustomParameters({
-    prompt: 'select_account'
-  });
+  if(v.onoe > v.delim) msg = "ONOE leaning trend";
+  if(v.delim > v.onoe) msg = "Delimitation leaning trend";
 
-  auth.signInWithPopup(provider)
-  .then(result => {
-    currentUser = result.user;
-    showDashboard();
-  })
-  .catch(err => {
-    alert(err.message);
-  });
+  document.getElementById("insight").innerText = msg;
 }
 
-// SHOW DASHBOARD
-function showDashboard(){
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("dashboard").style.display = "block";
-  listenVotes();
+// 🗺️ MAP
+let map = L.map('map').setView([20.5937, 78.9629], 5);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'India Civic Map'
+}).addTo(map);
+
+function heat(){
+  let heatData = [
+    [13.0827, 80.2707, indiaData.tn],
+    [28.7041, 77.1025, indiaData.dl],
+    [19.0760, 72.8777, indiaData.mh]
+  ];
+
+  L.heatLayer(heatData, {radius:25}).addTo(map);
 }
 
-// VOTE
-function vote(type){
-  if(!currentUser) return;
-
-  let ref = db.collection("votes").doc(currentUser.uid);
-
-  ref.get().then(doc => {
-    if(doc.exists){
-      alert("You already voted ✔");
-    } else {
-      ref.set({
-        email: currentUser.email,
-        vote: type,
-        time: Date.now()
-      });
-    }
-  });
-}
-
-// LIVE COUNT
-function listenVotes(){
-  db.collection("votes").onSnapshot(snapshot => {
-
-    let support = 0;
-    let against = 0;
-    let total = 0;
-
-    snapshot.forEach(doc => {
-      total++;
-      if(doc.data().vote === "support") support++;
-      else against++;
-    });
-
-    document.getElementById("supportCount").innerText = support;
-    document.getElementById("againstCount").innerText = against;
-    document.getElementById("totalCount").innerText = total;
-  });
-}
-
-// LOGOUT
-function logout(){
-  auth.signOut().then(() => {
-    currentUser = null;
-    location.reload();
-  });
-}
+// INIT
+updateAnalytics(indiaData);
+insight(indiaData);
+heat();
 
 </script>
 
