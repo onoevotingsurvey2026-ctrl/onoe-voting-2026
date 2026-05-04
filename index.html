@@ -74,6 +74,7 @@ button {
 
   <h3>Support: <span id="supportCount">0</span></h3>
   <h3>Against: <span id="againstCount">0</span></h3>
+  <h3>Total Votes: <span id="totalCount">0</span></h3>
 
   <button onclick="logout()">Logout</button>
 </div>
@@ -98,13 +99,11 @@ const db = firebase.firestore();
 
 let currentUser = null;
 
-// 🔥 AUTH STATE (AUTO DASHBOARD)
+// 🔥 AUTO LOGIN
 auth.onAuthStateChanged(function(user) {
   if (user) {
     currentUser = user;
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    listenVotes();
+    showDashboard();
   }
 });
 
@@ -123,7 +122,7 @@ function login(){
   });
 }
 
-// 🔥 GOOGLE LOGIN (MULTI-USER FIX)
+// 🔥 GOOGLE LOGIN (ACCOUNT SELECTOR)
 function googleLogin(){
   let provider = new firebase.auth.GoogleAuthProvider();
 
@@ -149,7 +148,7 @@ function showDashboard(){
   listenVotes();
 }
 
-// VOTE
+// VOTE FUNCTION
 function vote(type){
   if(!currentUser) return;
 
@@ -168,19 +167,23 @@ function vote(type){
   });
 }
 
-// LIVE COUNT
+// 🔥 LIVE COUNT (WITH TOTAL)
 function listenVotes(){
   db.collection("votes").onSnapshot(snapshot => {
+
     let support = 0;
     let against = 0;
+    let total = 0;
 
     snapshot.forEach(doc => {
+      total++;
       if(doc.data().vote === "support") support++;
       else against++;
     });
 
     document.getElementById("supportCount").innerText = support;
     document.getElementById("againstCount").innerText = against;
+    document.getElementById("totalCount").innerText = total;
   });
 }
 
