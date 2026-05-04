@@ -80,7 +80,7 @@ button {
 
 <script>
 
-// 🔥 FINAL FIREBASE CONFIG
+// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -98,6 +98,16 @@ const db = firebase.firestore();
 
 let currentUser = null;
 
+// 🔥 AUTH STATE (AUTO DASHBOARD)
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    currentUser = user;
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    listenVotes();
+  }
+});
+
 // EMAIL LOGIN
 function login(){
   let email = document.getElementById("email").value;
@@ -113,9 +123,14 @@ function login(){
   });
 }
 
-// 🔥 GOOGLE LOGIN (WITH DEBUG)
+// 🔥 GOOGLE LOGIN (MULTI-USER FIX)
 function googleLogin(){
   let provider = new firebase.auth.GoogleAuthProvider();
+
+  provider.setCustomParameters({
+    prompt: 'select_account'
+  });
+
   auth.signInWithPopup(provider)
   .then(result => {
     currentUser = result.user;
@@ -134,7 +149,7 @@ function showDashboard(){
   listenVotes();
 }
 
-// ONE USER ONE VOTE
+// VOTE
 function vote(type){
   if(!currentUser) return;
 
