@@ -80,7 +80,7 @@ button {
 
 <script>
 
-// 🔥 FINAL FIREBASE CONFIG (FIXED)
+// 🔥 FINAL FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -98,7 +98,7 @@ const db = firebase.firestore();
 
 let currentUser = null;
 
-// LOGIN
+// EMAIL LOGIN
 function login(){
   let email = document.getElementById("email").value;
   let password = document.getElementById("password").value;
@@ -113,7 +113,7 @@ function login(){
   });
 }
 
-// GOOGLE LOGIN
+// 🔥 GOOGLE LOGIN (WITH DEBUG)
 function googleLogin(){
   let provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
@@ -121,7 +121,10 @@ function googleLogin(){
     currentUser = result.user;
     showDashboard();
   })
-  .catch(err => alert(err.message));
+  .catch(err => {
+    console.log(err);
+    alert(err.message);
+  });
 }
 
 // SHOW DASHBOARD
@@ -131,7 +134,7 @@ function showDashboard(){
   listenVotes();
 }
 
-// VOTE (ONE USER ONE VOTE)
+// ONE USER ONE VOTE
 function vote(type){
   if(!currentUser) return;
 
@@ -169,6 +172,7 @@ function listenVotes(){
 // LOGOUT
 function logout(){
   auth.signOut().then(() => {
+    currentUser = null;
     location.reload();
   });
 }
