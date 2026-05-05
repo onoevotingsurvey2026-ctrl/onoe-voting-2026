@@ -1,54 +1,135 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE Vote Dashboard</title>
+  <title>ONOE & Delimitation Dashboard</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body { margin:0; font-family:Arial; background:#0b1220; color:white; text-align:center; }
-    header { padding:15px; background:#111827; border-bottom:2px solid red; }
 
-    .top { display:flex; justify-content:space-between; padding:10px; background:#1f2937; }
+    body {
+      margin:0;
+      font-family: Arial;
+      background: #0b1220;
+      color: white;
+    }
 
-    button { padding:10px; margin:5px; border:none; border-radius:6px; cursor:pointer; }
+    header {
+      text-align:center;
+      padding:15px;
+      background:#111827;
+      border-bottom:2px solid red;
+    }
 
-    .vote { width:220px; }
+    .live {
+      color:red;
+      font-weight:bold;
+    }
+
+    .top {
+      display:flex;
+      justify-content:space-between;
+      padding:10px;
+      background:#1f2937;
+      flex-wrap:wrap;
+    }
+
+    button {
+      padding:10px;
+      margin:5px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+    }
+
+    .vote {
+      width:220px;
+      font-size:16px;
+    }
+
     .onoe { background:#2563eb; color:white; }
     .delim { background:#16a34a; color:white; }
     .comb { background:#7c3aed; color:white; }
 
-    #dashboard { display:none; }
-    .box { width:90%; margin:auto; margin-top:20px; }
+    #loginBox {
+      text-align:center;
+      margin-top:40px;
+    }
 
-    .live { color:red; font-weight:bold; }
+    #dashboard {
+      text-align:center;
+    }
+
+    .chart-box {
+      width:80%;
+      margin:auto;
+      margin-top:20px;
+    }
+
+    #user {
+      font-weight:bold;
+    }
+
+    /* ================= MOBILE MODE ================= */
+
+    @media (max-width:768px) {
+
+      .top {
+        flex-direction:column;
+        align-items:center;
+      }
+
+      .vote {
+        width:95%;
+      }
+
+      .chart-box {
+        width:98%;
+      }
+
+      header {
+        font-size:14px;
+      }
+    }
+
   </style>
 </head>
 
 <body>
 
 <header>
-🏛️ ONOE & Delimitation Public Opinion Dashboard  
+🏛️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு  
 <br>
-<span class="live">🔴 LIVE</span>
+ONOE & Delimitation Public Opinion Dashboard  
+<br>
+<span class="live">🔴 LIVE / நேரலை</span>
+<p style="font-size:13px;color:#9ca3af;">
+👥 மக்கள் கருத்து சேகரிப்பு அமைப்பு | Public Opinion System
+</p>
 </header>
 
 <div class="top">
-  <div id="user">👤 Guest</div>
-  <button onclick="login()">Google Login</button>
+  <div id="user">👤 Guest / விருந்தினர்</div>
+
+  <div>
+    <button onclick="login()">🔑 Google Login</button>
+    <button onclick="document.body.requestFullscreen()">📺 TV Mode</button>
+  </div>
 </div>
 
 <div id="loginBox">
-  <h3>Login to Vote</h3>
+  <h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
+  <p style="color:gray;">Live results updating instantly</p>
 </div>
 
-<div id="dashboard">
+<div id="dashboard" style="display:none">
 
-  <h3>Vote Options</h3>
+  <h3>🗳️ Vote Options</h3>
 
   <button class="vote onoe" onclick="vote('onoe')">ONOE</button>
   <button class="vote delim" onclick="vote('delimitation')">Delimitation</button>
@@ -56,11 +137,11 @@
 
   <p id="status"></p>
 
-  <div class="box">
+  <div class="chart-box">
     <canvas id="bar"></canvas>
   </div>
 
-  <div class="box">
+  <div class="chart-box">
     <canvas id="pie"></canvas>
   </div>
 
@@ -69,13 +150,9 @@
 <script>
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -86,44 +163,27 @@ const auth = firebase.auth();
 let user = null;
 let voted = false;
 
-/* 🔐 LOGIN FIX */
+/* LOGIN */
 function login() {
   const provider = new firebase.auth.GoogleAuthProvider();
 
   auth.signInWithPopup(provider)
-    .then(res => {
-      console.log("Login success", res.user.email);
-    })
-    .catch(err => {
-      console.log(err.code, err.message);  // 🔴 IMPORTANT DEBUG
-      alert("Login Error: " + err.message);
-    });
+    .then(res => console.log("Login success"))
+    .catch(err => console.log(err.code, err.message));
 }
 
-/* AUTH STATE */
+/* AUTH */
 auth.onAuthStateChanged(u => {
   if (u) {
     user = u;
-
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
     document.getElementById("user").innerText = "👤 " + u.email;
-
-    checkVote();
   }
 });
 
-/* CHECK VOTE */
-function checkVote() {
-  db.collection("userVotes").doc(user.uid).get().then(doc => {
-    if (doc.exists) voted = true;
-  });
-}
-
 /* VOTE */
 function vote(type) {
-  if (voted) return;
-
   let ref = db.collection("votes").doc("india");
 
   db.runTransaction(async t => {
@@ -135,11 +195,10 @@ function vote(type) {
     t.set(ref, d);
   });
 
-  voted = true;
-  document.getElementById("status").innerText = "Vote recorded";
+  document.getElementById("status").innerText = "Vote recorded ✔";
 }
 
-/* LIVE */
+/* LIVE CHART */
 let bar, pie;
 
 db.collection("votes").doc("india")
@@ -152,13 +211,19 @@ db.collection("votes").doc("india")
   if (bar) bar.destroy();
   bar = new Chart(document.getElementById("bar"), {
     type: "bar",
-    data: { labels:["ONOE","Delim","Comb"], datasets:[{data:values}] }
+    data: {
+      labels:["ONOE","Delim","Comb"],
+      datasets:[{ data:values, backgroundColor:["#2563eb","#16a34a","#7c3aed"] }]
+    }
   });
 
   if (pie) pie.destroy();
   pie = new Chart(document.getElementById("pie"), {
     type: "pie",
-    data: { labels:["ONOE","Delim","Comb"], datasets:[{data:values}] }
+    data: {
+      labels:["ONOE","Delim","Comb"],
+      datasets:[{ data:values }]
+    }
   });
 
 });
