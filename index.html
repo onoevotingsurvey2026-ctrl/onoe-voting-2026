@@ -1,138 +1,168 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>India Civic Live Data Dashboard</title>
+  <title>ONOE vs Delimitation Public Opinion Dashboard</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body {
-      margin:0;
-      font-family:Arial;
-      background:#0b1220;
-      color:white;
-    }
+    body { font-family: Arial; margin:0; background:#0f172a; color:white; }
 
-    .header {
-      background:#111827;
-      padding:15px;
+    header {
       text-align:center;
-      color:#00ffcc;
-      font-weight:bold;
-    }
-
-    .grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      padding:10px;
-    }
-
-    .card {
-      background:rgba(255,255,255,0.05);
       padding:15px;
-      border-radius:10px;
-      border:1px solid #00ffcc33;
+      background:#111827;
     }
 
-    #map {
-      height:400px;
+    .live { color:#ff4d4d; font-weight:bold; }
+
+    .top {
+      display:flex;
+      justify-content:space-between;
+      padding:10px 20px;
+      background:#1e293b;
+    }
+
+    .container { text-align:center; margin-top:20px; }
+
+    button {
       margin:10px;
-      border-radius:10px;
+      padding:12px;
+      width:220px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:16px;
     }
 
-    .ticker {
-      background:black;
-      color:#00ffcc;
-      padding:5px;
-      overflow:hidden;
-      white-space:nowrap;
-    }
+    .onoe { background:#2563eb; color:white; }
+    .delim { background:#16a34a; color:white; }
+    .comb { background:#7c3aed; color:white; }
+
+    .chartbox { width:80%; margin:auto; margin-top:20px; }
+
+    #login { text-align:center; margin-top:80px; }
+
+    .disabled { opacity:0.5; pointer-events:none; }
   </style>
 </head>
 
 <body>
 
-<div class="header">
-  🇮🇳 INDIA CIVIC LIVE DATA DASHBOARD
+<header>
+🗳️ ONOE vs Delimitation Public Opinion Dashboard <br>
+<span class="live">🔴 LIVE SYSTEM</span>
+</header>
+
+<div class="top">
+  <div id="user">Guest</div>
+  <button onclick="login()">Google Login</button>
 </div>
 
-<div class="ticker">
-  ONOE vs DELIMITATION | REAL DATA CIVIC ANALYSIS | LIVE DASHBOARD ACTIVE |
+<div id="login">
+  <h3>Login to Vote</h3>
 </div>
 
-<div class="grid">
+<div id="dashboard" class="container" style="display:none">
 
-  <div class="card">
-    <h3>📊 LIVE ANALYTICS</h3>
-    <p id="analytics">Loading...</p>
+  <h3>Vote Options</h3>
+
+  <button class="onoe" onclick="vote('onoe')">ONOE</button>
+  <button class="delim" onclick="vote('delimitation')">Delimitation</button>
+  <button class="comb" onclick="vote('combined')">Combined</button>
+
+  <p id="status"></p>
+  <p id="time"></p>
+
+  <div class="chartbox">
+    <canvas id="bar"></canvas>
   </div>
 
-  <div class="card">
-    <h3>🧠 INSIGHTS</h3>
-    <p id="insight">Processing data...</p>
+  <div class="chartbox">
+    <canvas id="pie"></canvas>
   </div>
 
 </div>
-
-<div id="map"></div>
 
 <script>
+  // 🔥 Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID"
+  };
 
-const indiaData = {
-  onoe: 45,
-  delim: 35,
-  combo: 20,
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
 
-  tn: 0.8,
-  dl: 0.6,
-  mh: 0.5
-};
+  let user = null;
 
-// 🧠 ANALYTICS
-function updateAnalytics(v){
-  let total = v.onoe + v.delim + v.combo;
+  auth.onAuthStateChanged(u => {
+    if(u){
+      user = u;
+      document.getElementById("login").style.display="none";
+      document.getElementById("dashboard").style.display="block";
+      document.getElementById("user").innerText = u.email;
+    }
+  });
 
-  document.getElementById("analytics").innerHTML =
-    "ONOE: " + (v.onoe/total*100).toFixed(1) + "%<br>" +
-    "DELIMITATION: " + (v.delim/total*100).toFixed(1) + "%<br>" +
-    "COMBINED: " + (v.combo/total*100).toFixed(1) + "%";
-}
+  function login(){
+    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+  }
 
-// 🧠 INSIGHT
-function insight(v){
-  let msg = "Balanced civic opinion";
+  function vote(type){
 
-  if(v.onoe > v.delim) msg = "ONOE leaning trend";
-  if(v.delim > v.onoe) msg = "Delimitation leaning trend";
+    if(!user) return;
 
-  document.getElementById("insight").innerText = msg;
-}
+    const ref = db.collection("votes").doc("india");
 
-// 🗺️ MAP
-let map = L.map('map').setView([20.5937, 78.9629], 5);
+    db.runTransaction(async t => {
+      const doc = await t.get(ref);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'India Civic Map'
-}).addTo(map);
+      let d = doc.data() || {onoe:0,delimitation:0,combined:0};
+      d[type] = (d[type]||0) + 1;
 
-function heat(){
-  let heatData = [
-    [13.0827, 80.2707, indiaData.tn],
-    [28.7041, 77.1025, indiaData.dl],
-    [19.0760, 72.8777, indiaData.mh]
-  ];
+      t.set(ref,d);
+    });
 
-  L.heatLayer(heatData, {radius:25}).addTo(map);
-}
+    document.getElementById("status").innerText="✔ Vote Recorded";
+  }
 
-// INIT
-updateAnalytics(indiaData);
-insight(indiaData);
-heat();
+  let bar, pie;
+
+  db.collection("votes").doc("india")
+  .onSnapshot(doc => {
+
+    let d = doc.data() || {onoe:0,delimitation:0,combined:0};
+
+    update(d);
+
+    document.getElementById("time").innerText =
+    "⏱ " + new Date().toLocaleTimeString();
+  });
+
+  function update(d){
+
+    let labels=["ONOE","Delim","Combined"];
+    let vals=[d.onoe,d.delimitation,d.combined];
+
+    if(bar) bar.destroy();
+    bar = new Chart(document.getElementById("bar"),{
+      type:"bar",
+      data:{labels,datasets:[{data:vals}]},
+      options:{animation:{duration:800}}
+    });
+
+    if(pie) pie.destroy();
+    pie = new Chart(document.getElementById("pie"),{
+      type:"pie",
+      data:{labels,datasets:[{data:vals}]}
+    });
+  }
 
 </script>
 
