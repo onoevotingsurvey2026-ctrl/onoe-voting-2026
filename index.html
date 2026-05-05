@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE vs Delimitation Public Opinion Dashboard</title>
+  <title>ONOE & Delimitation Public Opinion</title>
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+  <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body { font-family: Arial; margin:0; background:#0f172a; color:white; }
-
-    header {
+    body {
+      margin:0;
+      font-family: Arial;
+      background:#0f172a;
+      color:white;
       text-align:center;
-      padding:15px;
-      background:#111827;
     }
 
-    .live { color:#ff4d4d; font-weight:bold; }
+    header {
+      background:#111827;
+      padding:15px;
+    }
+
+    .live { color:red; }
 
     .top {
       display:flex;
@@ -26,35 +34,39 @@
       background:#1e293b;
     }
 
-    .container { text-align:center; margin-top:20px; }
-
     button {
-      margin:10px;
       padding:12px;
+      margin:10px;
       width:220px;
       border:none;
       border-radius:8px;
       cursor:pointer;
-      font-size:16px;
     }
 
     .onoe { background:#2563eb; color:white; }
     .delim { background:#16a34a; color:white; }
     .comb { background:#7c3aed; color:white; }
 
-    .chartbox { width:80%; margin:auto; margin-top:20px; }
+    .chartbox {
+      width:80%;
+      margin:auto;
+      margin-top:20px;
+    }
 
-    #login { text-align:center; margin-top:80px; }
+    .disabled {
+      opacity:0.5;
+      pointer-events:none;
+    }
 
-    .disabled { opacity:0.5; pointer-events:none; }
+    #login { margin-top:80px; }
   </style>
 </head>
 
 <body>
 
 <header>
-🗳️ ONOE vs Delimitation Public Opinion Dashboard <br>
-<span class="live">🔴 LIVE SYSTEM</span>
+🗳️ ஒரே நாடு ஒரே தேர்தல் & மறுசீரமைப்பு Public Opinion  
+<br><span class="live">🔴 LIVE</span>
 </header>
 
 <div class="top">
@@ -63,32 +75,32 @@
 </div>
 
 <div id="login">
-  <h3>Login to Vote</h3>
+  <h3>Login / உள்நுழைய</h3>
 </div>
 
-<div id="dashboard" class="container" style="display:none">
+<div id="dashboard" style="display:none">
 
   <h3>Vote Options</h3>
 
-  <button class="onoe" onclick="vote('onoe')">ONOE</button>
-  <button class="delim" onclick="vote('delimitation')">Delimitation</button>
-  <button class="comb" onclick="vote('combined')">Combined</button>
+  <button id="b1" class="onoe" onclick="vote('onoe')">ONOE</button>
+  <button id="b2" class="delim" onclick="vote('delimitation')">Delimitation</button>
+  <button id="b3" class="comb" onclick="vote('combined')">Combined</button>
 
   <p id="status"></p>
   <p id="time"></p>
 
   <div class="chartbox">
-    <canvas id="bar"></canvas>
+    <canvas id="barChart"></canvas>
   </div>
 
   <div class="chartbox">
-    <canvas id="pie"></canvas>
+    <canvas id="pieChart"></canvas>
   </div>
 
 </div>
 
 <script>
-  // 🔥 Firebase config
+  // 🔥 CONFIG (replace yours)
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -96,73 +108,102 @@
   };
 
   firebase.initializeApp(firebaseConfig);
+
   const db = firebase.firestore();
   const auth = firebase.auth();
 
   let user = null;
+  let voted = false;
 
+  // LOGIN STATE
   auth.onAuthStateChanged(u => {
-    if(u){
+    if (u) {
       user = u;
-      document.getElementById("login").style.display="none";
-      document.getElementById("dashboard").style.display="block";
+
+      document.getElementById("login").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
       document.getElementById("user").innerText = u.email;
+
+      checkVote();
     }
   });
 
-  function login(){
+  function login() {
     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
   }
 
-  function vote(type){
-
-    if(!user) return;
-
-    const ref = db.collection("votes").doc("india");
-
-    db.runTransaction(async t => {
-      const doc = await t.get(ref);
-
-      let d = doc.data() || {onoe:0,delimitation:0,combined:0};
-      d[type] = (d[type]||0) + 1;
-
-      t.set(ref,d);
+  // CHECK ALREADY VOTED
+  function checkVote() {
+    db.collection("userVotes").doc(user.uid).get().then(doc => {
+      if (doc.exists) {
+        voted = true;
+        disableButtons();
+        document.getElementById("status").innerText = "✔ Already voted";
+      }
     });
-
-    document.getElementById("status").innerText="✔ Vote Recorded";
   }
 
-  let bar, pie;
+  function disableButtons() {
+    document.getElementById("b1").classList.add("disabled");
+    document.getElementById("b2").classList.add("disabled");
+    document.getElementById("b3").classList.add("disabled");
+  }
+
+  // VOTE FUNCTION
+  function vote(type) {
+
+    if (voted) return;
+
+    const voteRef = db.collection("votes").doc("india");
+    const userRef = db.collection("userVotes").doc(user.uid);
+
+    db.runTransaction(async t => {
+
+      const doc = await t.get(voteRef);
+      let d = doc.data() || {onoe:0,delimitation:0,combined:0};
+
+      d[type] = (d[type] || 0) + 1;
+
+      t.set(voteRef, d);
+      t.set(userRef, {vote:type, email:user.email});
+
+    }).then(() => {
+      voted = true;
+      disableButtons();
+      document.getElementById("status").innerText = "✔ Vote recorded";
+    });
+  }
+
+  // LIVE UPDATE
+  let barChart, pieChart;
 
   db.collection("votes").doc("india")
   .onSnapshot(doc => {
 
     let d = doc.data() || {onoe:0,delimitation:0,combined:0};
 
-    update(d);
+    let values = [d.onoe, d.delimitation, d.combined];
+    let labels = ["ONOE","Delimitation","Combined"];
+
+    // BAR
+    if (barChart) barChart.destroy();
+    barChart = new Chart(document.getElementById("barChart"), {
+      type:"bar",
+      data:{ labels, datasets:[{data:values}] },
+      options:{ animation:{duration:800} }
+    });
+
+    // PIE
+    if (pieChart) pieChart.destroy();
+    pieChart = new Chart(document.getElementById("pieChart"), {
+      type:"pie",
+      data:{ labels, datasets:[{data:values}] }
+    });
 
     document.getElementById("time").innerText =
-    "⏱ " + new Date().toLocaleTimeString();
+      "⏱ Updated: " + new Date().toLocaleTimeString();
+
   });
-
-  function update(d){
-
-    let labels=["ONOE","Delim","Combined"];
-    let vals=[d.onoe,d.delimitation,d.combined];
-
-    if(bar) bar.destroy();
-    bar = new Chart(document.getElementById("bar"),{
-      type:"bar",
-      data:{labels,datasets:[{data:vals}]},
-      options:{animation:{duration:800}}
-    });
-
-    if(pie) pie.destroy();
-    pie = new Chart(document.getElementById("pie"),{
-      type:"pie",
-      data:{labels,datasets:[{data:vals}]}
-    });
-  }
 
 </script>
 
