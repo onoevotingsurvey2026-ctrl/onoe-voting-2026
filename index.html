@@ -1,220 +1,190 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE & Delimitation Public Opinion</title>
+  <title>ONOE LIVE Dashboard</title>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-  <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body {
-      margin:0;
-      font-family: Arial;
-      background:#0f172a;
-      color:white;
-      text-align:center;
+    body { margin:0; font-family:Arial; background:#020617; color:white; text-align:center; }
+
+    header { padding:15px; font-size:22px; border-bottom:2px solid red; }
+
+    .live { color:red; }
+
+    .top { display:flex; justify-content:space-between; padding:10px 20px; background:#0f172a; }
+
+    button { padding:10px; border:none; border-radius:6px; cursor:pointer; }
+
+    .voteBtn { width:250px; margin:10px; font-size:16px; }
+
+    .onoe{background:#2563eb;}
+    .delim{background:#16a34a;}
+    .comb{background:#7c3aed;}
+
+    .chartbox { width:90%; margin:auto; margin-top:20px; }
+
+    .ticker {
+      background:red;
+      padding:8px;
+      position:fixed;
+      bottom:0;
+      width:100%;
+      font-weight:bold;
     }
 
-    header {
-      background:#111827;
-      padding:15px;
-    }
+    #admin input { margin:5px; padding:5px; }
 
-    .live { color:#ff4d4d; font-weight:bold; }
-
-    .top {
-      display:flex;
-      justify-content:space-between;
-      padding:10px 20px;
-      background:#1e293b;
-    }
-
-    button {
-      padding:12px;
-      margin:10px;
-      width:240px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:15px;
-    }
-
-    .onoe { background:#2563eb; color:white; }
-    .delim { background:#16a34a; color:white; }
-    .comb { background:#7c3aed; color:white; }
-
-    .chartbox {
-      width:85%;
-      margin:auto;
-      margin-top:20px;
-    }
-
-    .disabled {
-      opacity:0.5;
-      pointer-events:none;
-    }
-
-    #login { margin-top:80px; }
-
-    .subtitle {
-      color:#cbd5f5;
-      font-size:14px;
-    }
   </style>
 </head>
 
 <body>
 
 <header>
-🏛️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு  
-<br>ONOE & Delimitation Public Opinion Dashboard  
+🏛️ ONOE & Delimitation Public Opinion  
 <br><span class="live">🔴 LIVE / நேரலை</span>
 </header>
 
 <div class="top">
-  <div id="user">👤 Guest / விருந்தினர்</div>
-  <button onclick="login()">🔑 Google Login / கூகுள் உள்நுழை</button>
+  <div id="user">👤 Guest</div>
+  <div>
+    <button onclick="login()">Login</button>
+    <button onclick="document.body.requestFullscreen()">📺 TV Mode</button>
+  </div>
 </div>
 
-<div id="login">
-  <h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
-  <p class="subtitle">📊 Live results updating instantly / நேரடி முடிவுகள் புதுப்பிக்கப்படுகிறது</p>
+<div id="loginBox">
+  <h3>Login to Vote</h3>
 </div>
 
 <div id="dashboard" style="display:none">
 
-  <h3>🗳️ Vote Options / வாக்கு தேர்வுகள்</h3>
-
-  <button id="b1" class="onoe" onclick="vote('onoe')">
-    ONOE / ஒரே நாடு ஒரே தேர்தல்
-  </button>
-
-  <button id="b2" class="delim" onclick="vote('delimitation')">
-    Delimitation / தொகுதி மறுசீரமைப்பு
-  </button>
-
-  <button id="b3" class="comb" onclick="vote('combined')">
-    Combined Opinion / கூட்டு கருத்து
-  </button>
+  <button class="voteBtn onoe" onclick="vote('onoe')">ONOE</button>
+  <button class="voteBtn delim" onclick="vote('delimitation')">Delimitation</button>
+  <button class="voteBtn comb" onclick="vote('combined')">Combined</button>
 
   <p id="status"></p>
   <p id="time"></p>
 
-  <div class="chartbox">
-    <canvas id="barChart"></canvas>
+  <div class="chartbox"><canvas id="bar"></canvas></div>
+  <div class="chartbox"><canvas id="pie"></canvas></div>
+
+  <!-- MAP -->
+  <h3>🌍 India View</h3>
+  <div style="background:#111827;padding:20px;border-radius:10px;">
+    🇮🇳 Map (Upgrade Ready)
   </div>
 
-  <div class="chartbox">
-    <canvas id="pieChart"></canvas>
+  <!-- ADMIN -->
+  <h3>🔐 Admin Panel</h3>
+  <div id="admin" style="display:none">
+    <input id="onoeVal" placeholder="ONOE">
+    <input id="delimVal" placeholder="Delim">
+    <input id="combVal" placeholder="Combined">
+    <button onclick="adminUpdate()">Update</button>
   </div>
 
 </div>
 
+<div class="ticker" id="ticker">📊 Live updating...</div>
+
 <script>
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID"
-  };
 
-  firebase.initializeApp(firebaseConfig);
+const firebaseConfig = {
+  apiKey:"YOUR_API_KEY",
+  authDomain:"YOUR_PROJECT.firebaseapp.com",
+  projectId:"YOUR_PROJECT_ID"
+};
 
-  const db = firebase.firestore();
-  const auth = firebase.auth();
+firebase.initializeApp(firebaseConfig);
 
-  let user = null;
-  let voted = false;
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-  auth.onAuthStateChanged(u => {
-    if (u) {
-      user = u;
+let user=null;
+let voted=false;
 
-      document.getElementById("login").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
-      document.getElementById("user").innerText = "👤 " + u.email;
+const ADMIN_EMAIL = "yourgmail@gmail.com";
 
-      checkVote();
+auth.onAuthStateChanged(u=>{
+  if(u){
+    user=u;
+
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("dashboard").style.display="block";
+    document.getElementById("user").innerText=u.email;
+
+    if(u.email===ADMIN_EMAIL){
+      document.getElementById("admin").style.display="block";
     }
+  }
+});
+
+function login(){
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+}
+
+function vote(type){
+  if(voted) return;
+
+  const ref=db.collection("votes").doc("india");
+
+  db.runTransaction(async t=>{
+    const doc=await t.get(ref);
+    let d=doc.data()||{onoe:0,delimitation:0,combined:0};
+    d[type]=(d[type]||0)+1;
+    t.set(ref,d);
   });
 
-  function login() {
-    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-  }
+  voted=true;
+  document.getElementById("status").innerText="✔ Vote Recorded";
+}
 
-  function checkVote() {
-    db.collection("userVotes").doc(user.uid).get().then(doc => {
-      if (doc.exists) {
-        voted = true;
-        disableButtons();
-        document.getElementById("status").innerText =
-          "✔ Already voted / நீங்கள் ஏற்கனவே வாக்களித்துள்ளீர்கள்";
-      }
-    });
-  }
+function adminUpdate(){
+  let o=Number(document.getElementById("onoeVal").value||0);
+  let d=Number(document.getElementById("delimVal").value||0);
+  let c=Number(document.getElementById("combVal").value||0);
 
-  function disableButtons() {
-    document.getElementById("b1").classList.add("disabled");
-    document.getElementById("b2").classList.add("disabled");
-    document.getElementById("b3").classList.add("disabled");
-  }
-
-  function vote(type) {
-
-    if (voted) return;
-
-    const voteRef = db.collection("votes").doc("india");
-    const userRef = db.collection("userVotes").doc(user.uid);
-
-    db.runTransaction(async t => {
-
-      const doc = await t.get(voteRef);
-      let d = doc.data() || {onoe:0,delimitation:0,combined:0};
-
-      d[type] = (d[type] || 0) + 1;
-
-      t.set(voteRef, d);
-      t.set(userRef, {vote:type, email:user.email});
-
-    }).then(() => {
-      voted = true;
-      disableButtons();
-      document.getElementById("status").innerText =
-        "✔ Vote recorded / உங்கள் வாக்கு பதிவு செய்யப்பட்டது";
-    });
-  }
-
-  let barChart, pieChart;
-
-  db.collection("votes").doc("india")
-  .onSnapshot(doc => {
-
-    let d = doc.data() || {onoe:0,delimitation:0,combined:0};
-
-    let values = [d.onoe, d.delimitation, d.combined];
-    let labels = ["ONOE","Delimitation","Combined"];
-
-    if (barChart) barChart.destroy();
-    barChart = new Chart(document.getElementById("barChart"), {
-      type:"bar",
-      data:{ labels, datasets:[{data:values}] },
-      options:{ animation:{duration:800} }
-    });
-
-    if (pieChart) pieChart.destroy();
-    pieChart = new Chart(document.getElementById("pieChart"), {
-      type:"pie",
-      data:{ labels, datasets:[{data:values}] }
-    });
-
-    document.getElementById("time").innerText =
-      "⏱ Updated: " + new Date().toLocaleTimeString();
-
+  db.collection("votes").doc("india").set({
+    onoe:o,
+    delimitation:d,
+    combined:c
   });
+}
+
+let bar,pie;
+
+db.collection("votes").doc("india")
+.onSnapshot(doc=>{
+
+  let d=doc.data()||{onoe:0,delimitation:0,combined:0};
+
+  let vals=[d.onoe,d.delimitation,d.combined];
+  let labels=["ONOE","Delim","Combined"];
+
+  if(bar) bar.destroy();
+  bar=new Chart(document.getElementById("bar"),{
+    type:"bar",
+    data:{labels,datasets:[{data:vals}]}
+  });
+
+  if(pie) pie.destroy();
+  pie=new Chart(document.getElementById("pie"),{
+    type:"pie",
+    data:{labels,datasets:[{data:vals}]}
+  });
+
+  document.getElementById("time").innerText=
+  new Date().toLocaleTimeString();
+
+  document.getElementById("ticker").innerText=
+  "🔴 LIVE → ONOE:"+d.onoe+" | DELIM:"+d.delimitation+" | COMB:"+d.combined;
+
+});
+
 </script>
 
 </body>
