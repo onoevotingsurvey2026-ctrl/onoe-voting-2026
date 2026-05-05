@@ -12,10 +12,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body { margin:0; font-family: Arial; background:#020617; color:white; text-align:center; }
-
+    body { margin:0; font-family:Arial; background:#020617; color:white; text-align:center; }
     header { padding:15px; border-bottom:2px solid red; }
-
     .live { color:red; }
 
     .top {
@@ -34,7 +32,6 @@
     }
 
     .voteBtn { width:260px; font-size:16px; }
-
     .onoe { background:#2563eb; }
     .delim { background:#16a34a; }
     .comb { background:#7c3aed; }
@@ -51,59 +48,39 @@
     }
 
     #loginBox { margin-top:60px; }
-    #admin input { margin:5px; padding:6px; }
   </style>
 </head>
 
 <body>
 
 <header>
-🏛️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு  
-<br>ONOE & Delimitation Public Opinion Dashboard  
+🏛️ ONOE & Delimitation Public Opinion  
 <br><span class="live">🔴 LIVE / நேரலை</span>
 </header>
 
 <div class="top">
-  <div id="user">👤 Guest / விருந்தினர்</div>
+  <div id="user">👤 Guest</div>
   <div>
-    <button onclick="login()">🔑 Google Login</button>
+    <button onclick="login()">🔑 Login</button>
     <button onclick="document.body.requestFullscreen()">📺 TV Mode</button>
   </div>
 </div>
 
 <div id="loginBox">
-  <h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
-  <p style="color:lightgray;">
-    📊 Live Results Updating Instantly / நேரடி முடிவுகள் புதுப்பிக்கப்படுகிறது
-  </p>
+  <h3>Login to Vote</h3>
 </div>
 
 <div id="dashboard" style="display:none">
 
-  <h3>🗳️ Vote Options</h3>
-
-  <button id="b1" class="voteBtn onoe" onclick="vote('onoe')">ONOE</button>
-  <button id="b2" class="voteBtn delim" onclick="vote('delimitation')">Delimitation</button>
-  <button id="b3" class="voteBtn comb" onclick="vote('combined')">Combined</button>
+  <button class="voteBtn onoe" onclick="vote('onoe')">ONOE</button>
+  <button class="voteBtn delim" onclick="vote('delimitation')">Delimitation</button>
+  <button class="voteBtn comb" onclick="vote('combined')">Combined</button>
 
   <p id="status">Not voted yet</p>
   <p id="time"></p>
 
   <div class="chartbox"><canvas id="bar"></canvas></div>
   <div class="chartbox"><canvas id="pie"></canvas></div>
-
-  <h3>🌍 India View</h3>
-  <div style="background:#111827;padding:20px;border-radius:10px;">
-    🇮🇳 Map (Upgrade Ready)
-  </div>
-
-  <h3>🔐 Admin Panel</h3>
-  <div id="admin" style="display:none">
-    <input id="onoeVal" placeholder="ONOE">
-    <input id="delimVal" placeholder="Delim">
-    <input id="combVal" placeholder="Combined">
-    <button onclick="adminUpdate()">Update</button>
-  </div>
 
 </div>
 
@@ -114,9 +91,9 @@
 <script>
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey: "PASTE_YOUR_API_KEY",
+  authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "PASTE_YOUR_PROJECT_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -127,9 +104,7 @@ const auth = firebase.auth();
 let user = null;
 let voted = false;
 
-const ADMIN_EMAIL = "yourgmail@gmail.com";
-
-// 🔥 LOGIN FIX INCLUDED
+// LOGIN FIX
 function login() {
   const provider = new firebase.auth.GoogleAuthProvider();
 
@@ -149,66 +124,39 @@ auth.onAuthStateChanged(u => {
 
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
-    document.getElementById("user").innerText = "👤 " + u.email;
-
-    if (u.email === ADMIN_EMAIL) {
-      document.getElementById("admin").style.display = "block";
-    }
+    document.getElementById("user").innerText = u.email;
 
     checkVote();
   }
 });
 
-// CHECK VOTE
+// CHECK USER VOTE
 function checkVote() {
   db.collection("userVotes").doc(user.uid).get().then(doc => {
     if (doc.exists) {
       voted = true;
-      disableButtons();
       document.getElementById("status").innerText = "Already voted";
     }
   });
-}
-
-function disableButtons() {
-  document.getElementById("b1").disabled = true;
-  document.getElementById("b2").disabled = true;
-  document.getElementById("b3").disabled = true;
 }
 
 // VOTE
 function vote(type) {
   if (voted) return;
 
-  const voteRef = db.collection("votes").doc("india");
-  const userRef = db.collection("userVotes").doc(user.uid);
+  const ref = db.collection("votes").doc("india");
 
   db.runTransaction(async t => {
-    const doc = await t.get(voteRef);
+    const doc = await t.get(ref);
     let d = doc.data() || { onoe:0, delimitation:0, combined:0 };
 
     d[type] = (d[type] || 0) + 1;
 
-    t.set(voteRef, d);
-    t.set(userRef, { vote:type, email:user.email });
-  }).then(() => {
-    voted = true;
-    disableButtons();
-    document.getElementById("status").innerText = "Vote recorded";
+    t.set(ref, d);
   });
-}
 
-// ADMIN
-function adminUpdate() {
-  let o = Number(document.getElementById("onoeVal").value || 0);
-  let d = Number(document.getElementById("delimVal").value || 0);
-  let c = Number(document.getElementById("combVal").value || 0);
-
-  db.collection("votes").doc("india").set({
-    onoe:o,
-    delimitation:d,
-    combined:c
-  });
+  voted = true;
+  document.getElementById("status").innerText = "Vote recorded";
 }
 
 // LIVE UPDATE
@@ -220,7 +168,7 @@ db.collection("votes").doc("india")
   let d = doc.data() || { onoe:0, delimitation:0, combined:0 };
 
   let values = [d.onoe, d.delimitation, d.combined];
-  let labels = ["ONOE", "Delimitation", "Combined"];
+  let labels = ["ONOE", "Delim", "Combined"];
 
   if (bar) bar.destroy();
   bar = new Chart(document.getElementById("bar"), {
@@ -235,12 +183,13 @@ db.collection("votes").doc("india")
   });
 
   document.getElementById("time").innerText =
-    "⏱ Updated: " + new Date().toLocaleTimeString();
+    new Date().toLocaleTimeString();
 
   document.getElementById("ticker").innerText =
     "🔴 LIVE → ONOE: " + d.onoe +
     " | DELIM: " + d.delimitation +
     " | COMB: " + d.combined;
+
 });
 
 </script>
