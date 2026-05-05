@@ -1,101 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE & Delimitation Public Opinion Dashboard</title>
+  <title>ONOE Vote Dashboard</title>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-  <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body {
-      margin:0;
-      font-family: Arial;
-      background:#0b1220;
-      color:white;
-      text-align:center;
-    }
+    body { margin:0; font-family:Arial; background:#0b1220; color:white; text-align:center; }
+    header { padding:15px; background:#111827; border-bottom:2px solid red; }
 
-    header {
-      padding:15px;
-      background:#111827;
-      border-bottom:2px solid red;
-    }
+    .top { display:flex; justify-content:space-between; padding:10px; background:#1f2937; }
 
-    .live { color:red; font-weight:bold; }
+    button { padding:10px; margin:5px; border:none; border-radius:6px; cursor:pointer; }
 
-    .topbar {
-      display:flex;
-      justify-content:space-between;
-      padding:10px 20px;
-      background:#1f2937;
-    }
-
-    button {
-      padding:10px;
-      margin:5px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-    }
-
-    .vote { width:240px; font-size:16px; }
-
+    .vote { width:220px; }
     .onoe { background:#2563eb; color:white; }
     .delim { background:#16a34a; color:white; }
     .comb { background:#7c3aed; color:white; }
 
+    #dashboard { display:none; }
     .box { width:90%; margin:auto; margin-top:20px; }
 
-    #loginBox { margin-top:60px; }
-
-    .ticker {
-      position:fixed;
-      bottom:0;
-      width:100%;
-      background:red;
-      padding:8px;
-      font-weight:bold;
-    }
+    .live { color:red; font-weight:bold; }
   </style>
 </head>
 
 <body>
 
 <header>
-🏛️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு  
+🏛️ ONOE & Delimitation Public Opinion Dashboard  
 <br>
-ONOE & Delimitation Public Opinion Dashboard
-<br>
-<span class="live">🔴 LIVE / நேரலை</span>
+<span class="live">🔴 LIVE</span>
 </header>
 
-<div class="topbar">
-  <div id="user">👤 Guest / விருந்தினர்</div>
-  <div>
-    <button onclick="login()">🔑 Google Login / உள்நுழைய</button>
-  </div>
+<div class="top">
+  <div id="user">👤 Guest</div>
+  <button onclick="login()">Google Login</button>
 </div>
 
 <div id="loginBox">
-  <h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
-  <p>📊 Live Results Updating Instantly</p>
+  <h3>Login to Vote</h3>
 </div>
 
-<div id="dashboard" style="display:none">
+<div id="dashboard">
 
-  <h3>🗳️ Vote Options / வாக்கு தேர்வுகள்</h3>
+  <h3>Vote Options</h3>
 
   <button class="vote onoe" onclick="vote('onoe')">ONOE</button>
   <button class="vote delim" onclick="vote('delimitation')">Delimitation</button>
   <button class="vote comb" onclick="vote('combined')">Combined</button>
 
-  <p id="status">Not voted yet</p>
-  <p id="time"></p>
+  <p id="status"></p>
 
   <div class="box">
     <canvas id="bar"></canvas>
@@ -107,16 +66,16 @@ ONOE & Delimitation Public Opinion Dashboard
 
 </div>
 
-<div class="ticker" id="ticker">
-🔴 LIVE DATA LOADING...
-</div>
-
 <script>
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  authDomain: "onoevote2026.firebaseapp.com",
+  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "onoevote2026",
+  storageBucket: "onoevote2026.firebasestorage.app",
+  messagingSenderId: "181065724520",
+  appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -127,17 +86,17 @@ const auth = firebase.auth();
 let user = null;
 let voted = false;
 
-/* 🔥 LOGIN FIX (SAFE VERSION) */
+/* 🔐 LOGIN FIX */
 function login() {
   const provider = new firebase.auth.GoogleAuthProvider();
 
   auth.signInWithPopup(provider)
-    .then(result => {
-      console.log("LOGIN SUCCESS:", result.user.email);
+    .then(res => {
+      console.log("Login success", res.user.email);
     })
-    .catch(e => {
-      console.log(e.code, e.message); // DEBUG LINE
-      alert("Login Error: " + e.message);
+    .catch(err => {
+      console.log(err.code, err.message);  // 🔴 IMPORTANT DEBUG
+      alert("Login Error: " + err.message);
     });
 }
 
@@ -157,10 +116,7 @@ auth.onAuthStateChanged(u => {
 /* CHECK VOTE */
 function checkVote() {
   db.collection("userVotes").doc(user.uid).get().then(doc => {
-    if (doc.exists) {
-      voted = true;
-      document.getElementById("status").innerText = "Already voted";
-    }
+    if (doc.exists) voted = true;
   });
 }
 
@@ -168,10 +124,10 @@ function checkVote() {
 function vote(type) {
   if (voted) return;
 
-  const ref = db.collection("votes").doc("india");
+  let ref = db.collection("votes").doc("india");
 
   db.runTransaction(async t => {
-    const doc = await t.get(ref);
+    let doc = await t.get(ref);
     let d = doc.data() || {onoe:0, delimitation:0, combined:0};
 
     d[type] = (d[type] || 0) + 1;
@@ -183,7 +139,7 @@ function vote(type) {
   document.getElementById("status").innerText = "Vote recorded";
 }
 
-/* LIVE UPDATE */
+/* LIVE */
 let bar, pie;
 
 db.collection("votes").doc("india")
@@ -192,27 +148,19 @@ db.collection("votes").doc("india")
   let d = doc.data() || {onoe:0, delimitation:0, combined:0};
 
   let values = [d.onoe, d.delimitation, d.combined];
-  let labels = ["ONOE", "Delimitation", "Combined"];
 
   if (bar) bar.destroy();
   bar = new Chart(document.getElementById("bar"), {
     type: "bar",
-    data: { labels, datasets: [{ data: values }] }
+    data: { labels:["ONOE","Delim","Comb"], datasets:[{data:values}] }
   });
 
   if (pie) pie.destroy();
   pie = new Chart(document.getElementById("pie"), {
     type: "pie",
-    data: { labels, datasets: [{ data: values }] }
+    data: { labels:["ONOE","Delim","Comb"], datasets:[{data:values}] }
   });
 
-  document.getElementById("time").innerText =
-    "⏱ " + new Date().toLocaleTimeString();
-
-  document.getElementById("ticker").innerText =
-    "🔴 LIVE → ONOE: " + d.onoe +
-    " | DELIM: " + d.delimitation +
-    " | COMB: " + d.combined;
 });
 
 </script>
