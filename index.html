@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE & Delimitation Dashboard</title>
+  <title>ECI India Voting Dashboard</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -47,41 +47,34 @@
       cursor:pointer;
     }
 
-    .vote {
-      width:220px;
-      font-size:16px;
-    }
-
+    .vote { width:220px; }
     .onoe { background:#2563eb; color:white; }
     .delim { background:#16a34a; color:white; }
     .comb { background:#7c3aed; color:white; }
+
+    #dashboard { display:none; text-align:center; }
+
+    .chart-box {
+      width:80%;
+      margin:auto;
+      margin-top:20px;
+      background:#111827;
+      padding:10px;
+      border-radius:10px;
+    }
 
     #loginBox {
       text-align:center;
       margin-top:40px;
     }
 
-    #dashboard {
-      text-align:center;
-    }
-
-    .chart-box {
-      width:80%;
-      margin:auto;
-      margin-top:20px;
-    }
-
-    #user {
-      font-weight:bold;
-    }
-
-    /* ================= MOBILE MODE ================= */
+    /* ================= MOBILE ================= */
 
     @media (max-width:768px) {
 
       .top {
         flex-direction:column;
-        align-items:center;
+        text-align:center;
       }
 
       .vote {
@@ -89,13 +82,22 @@
       }
 
       .chart-box {
-        width:98%;
-      }
-
-      header {
-        font-size:14px;
+        width:95%;
       }
     }
+
+    /* ================= HEATMAP ================= */
+
+    .state {
+      padding:10px;
+      margin:10px;
+      border-radius:6px;
+      font-weight:bold;
+    }
+
+    .low { background:#1e3a8a; }
+    .mid { background:#f59e0b; }
+    .high { background:#dc2626; }
 
   </style>
 </head>
@@ -103,31 +105,33 @@
 <body>
 
 <header>
-🏛️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு  
+🏛️ ECI India Voting Dashboard  
 <br>
-ONOE & Delimitation Public Opinion Dashboard  
+ONOE & Delimitation Public Opinion System  
 <br>
 <span class="live">🔴 LIVE / நேரலை</span>
-<p style="font-size:13px;color:#9ca3af;">
-👥 மக்கள் கருத்து சேகரிப்பு அமைப்பு | Public Opinion System
+<p style="font-size:13px;color:#aaa;">
+👥 Public Opinion + Election Analytics
 </p>
 </header>
 
 <div class="top">
+
   <div id="user">👤 Guest / விருந்தினர்</div>
 
   <div>
     <button onclick="login()">🔑 Google Login</button>
     <button onclick="document.body.requestFullscreen()">📺 TV Mode</button>
+    <button onclick="enableTV()">🔥 TV Polish</button>
   </div>
+
 </div>
 
 <div id="loginBox">
   <h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
-  <p style="color:gray;">Live results updating instantly</p>
 </div>
 
-<div id="dashboard" style="display:none">
+<div id="dashboard">
 
   <h3>🗳️ Vote Options</h3>
 
@@ -145,9 +149,18 @@ ONOE & Delimitation Public Opinion Dashboard
     <canvas id="pie"></canvas>
   </div>
 
+  <h3>🌍 India Heatmap (ECI View)</h3>
+
+  <div id="tn" class="state">Tamil Nadu</div>
+  <div id="ka" class="state">Karnataka</div>
+  <div id="kl" class="state">Kerala</div>
+  <div id="mh" class="state">Maharashtra</div>
+
 </div>
 
 <script>
+
+/* ================= FIREBASE ================= */
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
@@ -161,44 +174,53 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 let user = null;
-let voted = false;
 
-/* LOGIN */
+/* ================= LOGIN ================= */
+
 function login() {
   const provider = new firebase.auth.GoogleAuthProvider();
 
   auth.signInWithPopup(provider)
     .then(res => console.log("Login success"))
-    .catch(err => console.log(err.code, err.message));
+    .catch(err => alert(err.message));
 }
 
-/* AUTH */
+/* ================= AUTH ================= */
+
 auth.onAuthStateChanged(u => {
   if (u) {
     user = u;
+
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
-    document.getElementById("user").innerText = "👤 " + u.email;
+
+    document.getElementById("user").innerText =
+      "👤 " + u.email;
   }
 });
 
-/* VOTE */
+/* ================= VOTE ================= */
+
 function vote(type) {
+
   let ref = db.collection("votes").doc("india");
 
   db.runTransaction(async t => {
+
     let doc = await t.get(ref);
     let d = doc.data() || {onoe:0, delimitation:0, combined:0};
 
-    d[type] = (d[type] || 0) + 1;
+    d[type]++;
 
     t.set(ref, d);
+
   });
 
-  document.getElementById("status").innerText = "Vote recorded ✔";
+  document.getElementById("status").innerText = "✔ Vote recorded";
 }
 
-/* LIVE CHART */
+/* ================= CHARTS ================= */
+
 let bar, pie;
 
 db.collection("votes").doc("india")
@@ -209,24 +231,56 @@ db.collection("votes").doc("india")
   let values = [d.onoe, d.delimitation, d.combined];
 
   if (bar) bar.destroy();
+  if (pie) pie.destroy();
+
   bar = new Chart(document.getElementById("bar"), {
-    type: "bar",
-    data: {
-      labels:["ONOE","Delim","Comb"],
-      datasets:[{ data:values, backgroundColor:["#2563eb","#16a34a","#7c3aed"] }]
+    type:"bar",
+    data:{
+      labels:["ONOE","Delimitation","Combined"],
+      datasets:[{data:values, backgroundColor:["#2563eb","#16a34a","#7c3aed"]}]
     }
   });
 
-  if (pie) pie.destroy();
   pie = new Chart(document.getElementById("pie"), {
-    type: "pie",
-    data: {
-      labels:["ONOE","Delim","Comb"],
-      datasets:[{ data:values }]
+    type:"pie",
+    data:{
+      labels:["ONOE","Delimitation","Combined"],
+      datasets:[{data:values}]
     }
   });
 
 });
+
+/* ================= HEATMAP ================= */
+
+db.collection("states").onSnapshot(snap => {
+
+  snap.forEach(doc => {
+
+    let d = doc.data();
+    let total = (d.onoe||0)+(d.delimitation||0)+(d.combined||0);
+
+    let el = document.getElementById(doc.id);
+    if(!el) return;
+
+    if(total < 30) el.className = "state low";
+    else if(total < 60) el.className = "state mid";
+    else el.className = "state high";
+
+  });
+
+});
+
+/* ================= TV MODE ================= */
+
+function enableTV() {
+
+  document.documentElement.requestFullscreen();
+
+  document.body.style.background = "black";
+  document.body.style.color = "#00ff99";
+
+}
 
 </script>
 
