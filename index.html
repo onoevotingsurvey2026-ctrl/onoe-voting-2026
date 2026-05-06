@@ -4,16 +4,20 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ECI India Public Opinion Dashboard</title>
+<title>ECI India GIS Election Dashboard</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- 🌍 LEAFLET GIS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
 
-/* 🌐 BASIC */
 body{
   margin:0;
   font-family:Arial;
@@ -21,41 +25,20 @@ body{
   color:white;
 }
 
-/* 🏛️ HEADER */
 header{
   text-align:center;
-  padding:14px;
-  background:#111827;
+  padding:16px;
+  background:#0f172a;
 }
 
-/* 📺 TV TICKER */
-.ticker{
-  background:#1f2937;
-  overflow:hidden;
-  white-space:nowrap;
-  padding:8px;
-}
-
-.ticker span{
-  display:inline-block;
-  animation:scroll 10s linear infinite;
-}
-
-@keyframes scroll{
-  from{transform:translateX(100%);}
-  to{transform:translateX(-100%);}
-}
-
-/* 🔝 TOP BAR */
 .top{
   display:flex;
   justify-content:space-between;
-  padding:10px;
+  padding:12px;
   background:#1f2937;
   flex-wrap:wrap;
 }
 
-/* 🔘 BUTTONS */
 button{
   padding:10px;
   margin:5px;
@@ -68,7 +51,6 @@ button{
 .delim{background:#16a34a;color:white;}
 .comb{background:#7c3aed;color:white;}
 
-/* 📦 BOX */
 .box{
   width:80%;
   margin:auto;
@@ -78,24 +60,17 @@ button{
   margin-top:15px;
 }
 
-/* 📱 MOBILE FIX */
-@media(max-width:768px){
-
-  body{
-    font-size:14px;
-  }
-
-  button{
-    width:100%;
-    margin:6px 0;
-  }
-
-  .box{
-    width:95%;
-  }
+#map{
+  height:400px;
+  border-radius:10px;
 }
 
 #dashboard{display:none;text-align:center;}
+
+@media(max-width:768px){
+  .box{width:95%;}
+  button{width:100%;}
+}
 
 </style>
 
@@ -103,31 +78,26 @@ button{
 
 <body>
 
-<!-- 🌐 HEADER -->
+<!-- HEADER -->
 <header>
 
 🌐 Global Election Network  
-<br>
 
-🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics  
-<br>
+<h2>
+🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics
+</h2>
 
-🔴 LIVE / நேரலை  
+<p style="color:#22c55e;">
+🔴 LIVE / நேரலை
+</p>
 
-<p style="font-size:12px;color:#cbd5e1;">
-ONOE vs Delimitation vs Combined • Real-time Analytics • ECI Simulation System
+<p style="font-size:13px;color:#cbd5e1;">
+GIS + AI + Voting System Active • ONOE vs Delimitation vs Combined
 </p>
 
 </header>
 
-<!-- 📺 TV TICKER -->
-<div class="ticker">
-  <span>
-    📢 LIVE Election Running • AI Analysis Active • ONOE vs Delimitation vs Combined • ECI Simulation Mode ON • Voting System Stable • 
-  </span>
-</div>
-
-<!-- 🔝 TOP BAR -->
+<!-- TOP -->
 <div class="top">
 
 <div id="user">👤 Guest / விருந்தினர்</div>
@@ -140,7 +110,7 @@ ONOE vs Delimitation vs Combined • Real-time Analytics • ECI Simulation Syst
 </div>
 
 <!-- LOGIN -->
-<div id="loginBox" style="text-align:center;margin-top:30px;">
+<div style="text-align:center;margin-top:20px;">
 <h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
 </div>
 
@@ -164,33 +134,15 @@ ONOE vs Delimitation vs Combined • Real-time Analytics • ECI Simulation Syst
 <canvas id="pie"></canvas>
 </div>
 
-<!-- 🌍 MAP UPGRADE -->
+<!-- 🌍 INDIA GIS MAP -->
 <div class="box">
-  <h3>🌍 India Constituency Overview</h3>
-
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;">
-
-    <div style="background:#1f2937;padding:10px;border-radius:8px;">
-      🟦 North India<br>
-      ONOE Strong
-    </div>
-
-    <div style="background:#1f2937;padding:10px;border-radius:8px;">
-      🟩 South India<br>
-      Balanced
-    </div>
-
-    <div style="background:#1f2937;padding:10px;border-radius:8px;">
-      🟨 Central India<br>
-      Competitive
-    </div>
-
-  </div>
+  <h3>🌍 India GIS Election Map</h3>
+  <div id="map"></div>
 </div>
 
-<!-- 🤖 AI ENGINE -->
+<!-- 🤖 AI PREDICTION -->
 <div class="box">
-  <h3>🤖 AI Prediction Engine</h3>
+  <h3>🤖 AI Election Prediction</h3>
   <p id="ai"></p>
 </div>
 
@@ -198,7 +150,7 @@ ONOE vs Delimitation vs Combined • Real-time Analytics • ECI Simulation Syst
 
 <script>
 
-/* 🔥 FIREBASE */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -212,25 +164,24 @@ const auth = firebase.auth();
 
 let user=null;
 
-/* 🔑 LOGIN */
+/* LOGIN */
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-  .catch(e => alert(e.message));
+  auth.signInWithPopup(provider);
 }
 
-/* 🔐 AUTH */
+/* AUTH */
 auth.onAuthStateChanged(u=>{
   if(u){
     user=u;
     document.getElementById("user").innerText="👤 "+u.email;
-    document.getElementById("loginBox").style.display="none";
     document.getElementById("dashboard").style.display="block";
-    loadData();
+
+    loadMap();
   }
 });
 
-/* 🗳️ VOTE */
+/* VOTE */
 function vote(type){
 
   if(!user){
@@ -242,32 +193,10 @@ function vote(type){
     [type]: firebase.firestore.FieldValue.increment(1)
   },{merge:true});
 
-  document.getElementById("status").innerText="✔ Vote Recorded";
-
 }
 
-/* 📊 AI FUNCTION */
-function aiPredict(v){
-
-  let total = v[0]+v[1]+v[2];
-
-  if(total===0){
-    document.getElementById("ai").innerText="No data yet";
-    return;
-  }
-
-  let result =
-    "📊 Trend: ONOE " + Math.round((v[0]/total)*100) + "% | " +
-    "DELIM " + Math.round((v[1]/total)*100) + "% | " +
-    "COMB " + Math.round((v[2]/total)*100) + "%";
-
-  document.getElementById("ai").innerText = result;
-}
-
-/* 📊 CHARTS */
+/* CHARTS */
 let bar,pie;
-
-function loadData(){
 
 db.collection("votes").doc("india")
 .onSnapshot(doc=>{
@@ -292,6 +221,41 @@ db.collection("votes").doc("india")
   aiPredict(v);
 
 });
+
+/* 🤖 AI ENGINE */
+function aiPredict(v){
+
+  let total=v[0]+v[1]+v[2];
+
+  if(total===0){
+    document.getElementById("ai").innerText="No Data";
+    return;
+  }
+
+  document.getElementById("ai").innerText=
+  "ONOE " + Math.round(v[0]/total*100) + "% | " +
+  "DELIM " + Math.round(v[1]/total*100) + "% | " +
+  "COMB " + Math.round(v[2]/total*100) + "%";
+}
+
+/* 🌍 GIS MAP */
+function loadMap(){
+
+  var map = L.map('map').setView([22.9734,78.6569],5);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap'
+  }).addTo(map);
+
+  var india = L.polygon([
+    [28,77],[26,80],[22,78],[19,75],[23,72],[28,77]
+  ],{
+    color:'red',
+    fillColor:'blue',
+    fillOpacity:0.3
+  }).addTo(map);
+
+  india.bindPopup("🇮🇳 India Election Zone");
 
 }
 
