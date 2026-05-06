@@ -18,14 +18,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 
-// 🔥 🔴 VERY IMPORTANT: YOUR REAL FIREBASE CONFIG HERE
+// 🔥 YOUR REAL FIREBASE CONFIG (ALREADY CORRECT)
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_REAL_API_KEY",
-  authDomain: "PASTE_YOUR_AUTH_DOMAIN",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
-  messagingSenderId: "PASTE_YOUR_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID"
+  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  authDomain: "onoevote2026.firebaseapp.com",
+  projectId: "onoevote2026",
+  storageBucket: "onoevote2026.firebasestorage.app",
+  messagingSenderId: "181065724520",
+  appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
 
@@ -37,7 +37,7 @@ const provider = new GoogleAuthProvider();
 
 
 // =========================
-// 🔐 LOGIN FUNCTION
+// 🔐 LOGIN
 // =========================
 async function loginWithGoogle() {
   try {
@@ -46,7 +46,6 @@ async function loginWithGoogle() {
 
     console.log("LOGIN SUCCESS:", user);
 
-    // Save user
     await setDoc(doc(db, "users", user.uid), {
       name: user.displayName,
       email: user.email
@@ -63,7 +62,7 @@ async function loginWithGoogle() {
 
 
 // =========================
-// 🔐 AUTH STATE CHECK
+// 🔐 AUTH STATE
 // =========================
 onAuthStateChanged(auth, (user) => {
 
@@ -88,7 +87,7 @@ onAuthStateChanged(auth, (user) => {
 
 
 // =========================
-// 🗳 VOTE SYSTEM (LOCK)
+// 🗳 VOTE SYSTEM
 // =========================
 window.vote = async function (candidate) {
 
@@ -151,11 +150,11 @@ function listenResults() {
 
 
 // =========================
-// 🔥 BUTTON CONNECT FIX
+// 🔥 BUTTON CONNECT
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
 
-  console.log("SCRIPT LOADED");
+  console.log("SCRIPT LOADED SUCCESS");
 
   const btn = document.getElementById("loginBtn");
 
