@@ -1,33 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin Panel - ONOE Voting</title>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Voting System</title>
 
   <style>
     body {
       font-family: Arial;
       text-align: center;
-      background: #111;
+      background: #0f172a;
       color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      color: #00ffcc;
+      margin-top: 20px;
     }
 
     .box {
-      background: #222;
+      background: #1e293b;
       padding: 20px;
-      margin: 20px auto;
+      margin: 15px auto;
       width: 320px;
-      border-radius: 10px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,255,204,0.2);
     }
 
-    h2 { color: #00ffcc; }
+    .status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 
 <body>
 
-<h2>🧑‍💼 ADMIN PANEL</h2>
+<h2>🧑‍💼 ADMIN DASHBOARD</h2>
 
-<div id="status">Checking admin access...</div>
+<div id="status" class="status">Checking admin access...</div>
 
 <div class="box">
   <h3>Candidate A</h3>
@@ -44,12 +56,14 @@
   <h1 id="cCount">0</h1>
 </div>
 
+<!-- FIREBASE SCRIPT -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// 🔥 YOUR FIREBASE CONFIG (REPLACE THIS)
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_AUTH_DOMAIN",
@@ -59,6 +73,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 
 // =======================
 // 🔐 ADMIN CHECK
@@ -95,17 +110,17 @@ function startDashboard() {
 
   onSnapshot(doc(db,"results","Candidate_A"), (snap)=>{
     document.getElementById("aCount").innerText =
-      snap.exists()? snap.data().count : 0;
+      snap.exists() ? snap.data().count : 0;
   });
 
   onSnapshot(doc(db,"results","Candidate_B"), (snap)=>{
     document.getElementById("bCount").innerText =
-      snap.exists()? snap.data().count : 0;
+      snap.exists() ? snap.data().count : 0;
   });
 
   onSnapshot(doc(db,"results","Candidate_C"), (snap)=>{
     document.getElementById("cCount").innerText =
-      snap.exists()? snap.data().count : 0;
+      snap.exists() ? snap.data().count : 0;
   });
 
 }
