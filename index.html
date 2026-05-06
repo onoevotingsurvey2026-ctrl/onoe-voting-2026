@@ -1,40 +1,301 @@
-<header style="text-align:center;padding:14px;background:#0f172a;color:white;">
+<!DOCTYPE html>
+<html>
+<head>
 
-  🌐 Global Election Network  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <h2 style="margin:8px 0;">
-    🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics
-  </h2>
+<title>ECI India Public Opinion Dashboard</title>
 
-  <p style="color:#22c55e;font-weight:bold;">
-    🔴 LIVE / நேரலை
-  </p>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <p style="font-size:13px;color:#cbd5e1;">
-    📊 ONOE vs Delimitation vs Combined • Real-time Data Updating • ECI Simulation System Active • Live Election Analytics Running • Voting Active • Dashboard Stable
-  </p>
+<style>
+
+/* 🌐 BASIC */
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b1220;
+  color:white;
+}
+
+/* 🏛️ HEADER */
+header{
+  text-align:center;
+  padding:14px;
+  background:#111827;
+}
+
+/* 📺 TV TICKER */
+.ticker{
+  background:#1f2937;
+  overflow:hidden;
+  white-space:nowrap;
+  padding:8px;
+}
+
+.ticker span{
+  display:inline-block;
+  animation:scroll 10s linear infinite;
+}
+
+@keyframes scroll{
+  from{transform:translateX(100%);}
+  to{transform:translateX(-100%);}
+}
+
+/* 🔝 TOP BAR */
+.top{
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  background:#1f2937;
+  flex-wrap:wrap;
+}
+
+/* 🔘 BUTTONS */
+button{
+  padding:10px;
+  margin:5px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.onoe{background:#2563eb;color:white;}
+.delim{background:#16a34a;color:white;}
+.comb{background:#7c3aed;color:white;}
+
+/* 📦 BOX */
+.box{
+  width:80%;
+  margin:auto;
+  background:#111827;
+  padding:10px;
+  border-radius:10px;
+  margin-top:15px;
+}
+
+/* 📱 MOBILE FIX */
+@media(max-width:768px){
+
+  body{
+    font-size:14px;
+  }
+
+  button{
+    width:100%;
+    margin:6px 0;
+  }
+
+  .box{
+    width:95%;
+  }
+}
+
+#dashboard{display:none;text-align:center;}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- 🌐 HEADER -->
+<header>
+
+🌐 Global Election Network  
+<br>
+
+🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics  
+<br>
+
+🔴 LIVE / நேரலை  
+
+<p style="font-size:12px;color:#cbd5e1;">
+ONOE vs Delimitation vs Combined • Real-time Analytics • ECI Simulation System
+</p>
 
 </header>
 
-<!-- TOP CONTROL BAR -->
-<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#1f2937;flex-wrap:wrap;">
+<!-- 📺 TV TICKER -->
+<div class="ticker">
+  <span>
+    📢 LIVE Election Running • AI Analysis Active • ONOE vs Delimitation vs Combined • ECI Simulation Mode ON • Voting System Stable • 
+  </span>
+</div>
 
-  <!-- LEFT -->
-  <div style="font-size:14px;">
-    👤 Guest / விருந்தினர்
-  </div>
+<!-- 🔝 TOP BAR -->
+<div class="top">
 
-  <!-- RIGHT -->
-  <div>
-    <button onclick="login()">🔑 Google Login</button>
-    <button onclick="document.body.requestFullscreen()">📺 TV MODE</button>
-  </div>
+<div id="user">👤 Guest / விருந்தினர்</div>
+
+<div>
+<button onclick="login()">🔑 Google Login</button>
+<button onclick="document.body.requestFullscreen()">📺 TV MODE</button>
+</div>
 
 </div>
 
-<!-- LOGIN LINE -->
-<div style="text-align:center;margin-top:20px;">
-  <h3>
-    Login to Vote / வாக்களிக்க உள்நுழையவும்
-  </h3>
+<!-- LOGIN -->
+<div id="loginBox" style="text-align:center;margin-top:30px;">
+<h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
 </div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+<h3>🗳️ Voting Panel</h3>
+
+<button class="onoe" onclick="vote('onoe')">ONOE</button>
+<button class="delim" onclick="vote('delimitation')">Delimitation</button>
+<button class="comb" onclick="vote('combined')">Combined</button>
+
+<p id="status"></p>
+
+<!-- 📊 CHARTS -->
+<div class="box">
+<canvas id="bar"></canvas>
+</div>
+
+<div class="box">
+<canvas id="pie"></canvas>
+</div>
+
+<!-- 🌍 MAP UPGRADE -->
+<div class="box">
+  <h3>🌍 India Constituency Overview</h3>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;">
+
+    <div style="background:#1f2937;padding:10px;border-radius:8px;">
+      🟦 North India<br>
+      ONOE Strong
+    </div>
+
+    <div style="background:#1f2937;padding:10px;border-radius:8px;">
+      🟩 South India<br>
+      Balanced
+    </div>
+
+    <div style="background:#1f2937;padding:10px;border-radius:8px;">
+      🟨 Central India<br>
+      Competitive
+    </div>
+
+  </div>
+</div>
+
+<!-- 🤖 AI ENGINE -->
+<div class="box">
+  <h3>🤖 AI Prediction Engine</h3>
+  <p id="ai"></p>
+</div>
+
+</div>
+
+<script>
+
+/* 🔥 FIREBASE */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+let user=null;
+
+/* 🔑 LOGIN */
+function login(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+  .catch(e => alert(e.message));
+}
+
+/* 🔐 AUTH */
+auth.onAuthStateChanged(u=>{
+  if(u){
+    user=u;
+    document.getElementById("user").innerText="👤 "+u.email;
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("dashboard").style.display="block";
+    loadData();
+  }
+});
+
+/* 🗳️ VOTE */
+function vote(type){
+
+  if(!user){
+    alert("Login required");
+    return;
+  }
+
+  db.collection("votes").doc("india").set({
+    [type]: firebase.firestore.FieldValue.increment(1)
+  },{merge:true});
+
+  document.getElementById("status").innerText="✔ Vote Recorded";
+
+}
+
+/* 📊 AI FUNCTION */
+function aiPredict(v){
+
+  let total = v[0]+v[1]+v[2];
+
+  if(total===0){
+    document.getElementById("ai").innerText="No data yet";
+    return;
+  }
+
+  let result =
+    "📊 Trend: ONOE " + Math.round((v[0]/total)*100) + "% | " +
+    "DELIM " + Math.round((v[1]/total)*100) + "% | " +
+    "COMB " + Math.round((v[2]/total)*100) + "%";
+
+  document.getElementById("ai").innerText = result;
+}
+
+/* 📊 CHARTS */
+let bar,pie;
+
+function loadData(){
+
+db.collection("votes").doc("india")
+.onSnapshot(doc=>{
+
+  let d=doc.data()||{onoe:0,delimitation:0,combined:0};
+
+  let v=[d.onoe,d.delimitation,d.combined];
+
+  if(bar)bar.destroy();
+  if(pie)pie.destroy();
+
+  bar=new Chart(document.getElementById("bar"),{
+    type:"bar",
+    data:{labels:["ONOE","DELIM","COMB"],datasets:[{data:v}]}
+  });
+
+  pie=new Chart(document.getElementById("pie"),{
+    type:"pie",
+    data:{labels:["ONOE","DELIM","COMB"],datasets:[{data:v}]}
+  });
+
+  aiPredict(v);
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
