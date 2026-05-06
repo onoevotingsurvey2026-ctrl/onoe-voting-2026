@@ -20,3 +20,13 @@ console.log("SCRIPT RUNNING");
   });
 
 }
+// 🔥 FIX: Button click connect
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("loginBtn");
+
+  if (btn) {
+    btn.addEventListener("click", () => {
+      loginWithGoogle();
+    });
+  }
+});
