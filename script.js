@@ -1,10 +1,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { 
-  getFirestore, doc, setDoc, getDoc, increment, updateDoc, onSnapshot 
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  increment,
+  updateDoc,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔥 Firebase Config (REPLACE THIS)
+
+// 🔥 FIREBASE CONFIG (REPLACE THIS)
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_AUTH_DOMAIN",
@@ -18,26 +25,56 @@ const provider = new GoogleAuthProvider();
 
 
 // =========================
-// 🔐 LOGIN SYSTEM
+// 🔐 AUTH STATE (PRO UX CORE)
+// =========================
+onAuthStateChanged(auth, (user) => {
+  const status = document.getElementById("status");
+  const voteBox = document.getElementById("voteBox");
+
+  if (user) {
+    status.innerText = "✅ Logged in as " + user.displayName;
+
+    voteBox.style.opacity = "1";
+    voteBox.style.pointerEvents = "auto";
+
+    listenResults(); // start live dashboard
+
+  } else {
+    status.innerText = "🔒 Please login to vote";
+
+    voteBox.style.opacity = "0.4";
+    voteBox.style.pointerEvents = "none";
+  }
+});
+
+
+// =========================
+// 🔐 LOGIN
 // =========================
 window.loginWithGoogle = async function () {
-  const result = await signInWithPopup(auth, provider);
-  const user = result.user;
+  try {
+    document.getElementById("status").innerText = "🔄 Logging in...";
 
-  await setDoc(doc(db, "users", user.uid), {
-    name: user.displayName,
-    email: user.email
-  }, { merge: true });
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
 
-  document.getElementById("status").innerText =
-    "Logged in as: " + user.displayName;
+    await setDoc(doc(db, "users", user.uid), {
+      name: user.displayName,
+      email: user.email
+    }, { merge: true });
 
-  listenResults(); // start dashboard
+    document.getElementById("status").innerText =
+      "✅ Login successful";
+
+  } catch (error) {
+    document.getElementById("status").innerText =
+      "❌ Login failed";
+  }
 };
 
 
 // =========================
-// 🗳 VOTING SYSTEM (LOCK)
+// 🗳 VOTE SYSTEM (LOCK)
 // =========================
 window.vote = async function (candidate) {
 
@@ -52,6 +89,9 @@ window.vote = async function (candidate) {
   const voteSnap = await getDoc(voteRef);
 
   if (voteSnap.exists()) {
+    document.getElementById("status").innerText =
+      "⚠️ You already voted";
+
     alert("You already voted!");
     return;
   }
@@ -62,13 +102,15 @@ window.vote = async function (candidate) {
   });
 
   const resultRef = doc(db, "results", candidate);
+
   await updateDoc(resultRef, {
     count: increment(1)
   }).catch(async () => {
     await setDoc(resultRef, { count: 1 });
   });
 
-  alert("Vote submitted successfully!");
+  document.getElementById("status").innerText =
+    "🗳 Vote submitted successfully!";
 };
 
 
