@@ -4,17 +4,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ECI India GIS Election Dashboard</title>
+<title>ECI India Election Dashboard</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- 🌍 LEAFLET GIS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
 
@@ -29,6 +23,7 @@ header{
   text-align:center;
   padding:16px;
   background:#0f172a;
+  color:white;
 }
 
 .top{
@@ -47,25 +42,14 @@ button{
   cursor:pointer;
 }
 
-.onoe{background:#2563eb;color:white;}
-.delim{background:#16a34a;color:white;}
-.comb{background:#7c3aed;color:white;}
-
 .box{
   width:80%;
   margin:auto;
   background:#111827;
-  padding:10px;
+  padding:12px;
   border-radius:10px;
   margin-top:15px;
 }
-
-#map{
-  height:400px;
-  border-radius:10px;
-}
-
-#dashboard{display:none;text-align:center;}
 
 @media(max-width:768px){
   .box{width:95%;}
@@ -78,26 +62,26 @@ button{
 
 <body>
 
-<!-- HEADER -->
+<!-- 🟢 HEADER -->
 <header>
 
-🌐 Global Election Network  
+🌐 <b>Global Election Network</b>
 
 <h2>
 🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics
 </h2>
 
-<p style="color:#22c55e;">
+<p style="color:#22c55e;font-weight:bold;">
 🔴 LIVE / நேரலை
 </p>
 
 <p style="font-size:13px;color:#cbd5e1;">
-GIS + AI + Voting System Active • ONOE vs Delimitation vs Combined
+🌍 GIS + AI + Voting System Active • ONOE vs Delimitation vs Combined
 </p>
 
 </header>
 
-<!-- TOP -->
+<!-- TOP BAR -->
 <div class="top">
 
 <div id="user">👤 Guest / விருந்தினர்</div>
@@ -109,155 +93,89 @@ GIS + AI + Voting System Active • ONOE vs Delimitation vs Combined
 
 </div>
 
-<!-- LOGIN -->
+<!-- LOGIN TEXT -->
 <div style="text-align:center;margin-top:20px;">
 <h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard">
-
-<h3>🗳️ Voting Panel</h3>
-
-<button class="onoe" onclick="vote('onoe')">ONOE</button>
-<button class="delim" onclick="vote('delimitation')">Delimitation</button>
-<button class="comb" onclick="vote('combined')">Combined</button>
-
-<p id="status"></p>
-
-<!-- 📊 CHARTS -->
+<!-- 🟡 NRI INFO PANEL -->
 <div class="box">
-<canvas id="bar"></canvas>
-</div>
 
-<div class="box">
-<canvas id="pie"></canvas>
-</div>
+<h3>🌍 NRI Voting Information (Overseas Citizens)</h3>
 
-<!-- 🌍 INDIA GIS MAP -->
-<div class="box">
-  <h3>🌍 India GIS Election Map</h3>
-  <div id="map"></div>
-</div>
+<p>
+🟢 Indian citizen abroad (NRI):
+✔ Still Indian citizen  
+✔ Voting allowed (mostly in India constituency physically)
+</p>
 
-<!-- 🤖 AI PREDICTION -->
-<div class="box">
-  <h3>🤖 AI Election Prediction</h3>
-  <p id="ai"></p>
-</div>
+<p>
+🌍 Foreign citizenship:
+❌ Indian voting rights not allowed
+</p>
+
+<p>
+🗳️ Current system:
+- Must vote in India constituency  
+- Postal / proxy voting limited  
+</p>
+
+<p>
+🚀 Future (simulation idea):
+- Online voting (proposed)  
+- Remote secure EVM system  
+</p>
 
 </div>
 
 <script>
 
-/* FIREBASE */
+/* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
   projectId: "YOUR_PROJECT_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
 
-const db = firebase.firestore();
 const auth = firebase.auth();
 
-let user=null;
-
-/* LOGIN */
+/* 🔑 SAFE LOGIN FIX */
 function login(){
+
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider);
-}
 
-/* AUTH */
-auth.onAuthStateChanged(u=>{
-  if(u){
-    user=u;
-    document.getElementById("user").innerText="👤 "+u.email;
-    document.getElementById("dashboard").style.display="block";
+  auth.signInWithPopup(provider)
+  .then(result=>{
+    document.getElementById("user").innerText =
+      "👤 " + result.user.email;
+  })
+  .catch(error=>{
 
-    loadMap();
-  }
-});
+    console.log(error.code);
 
-/* VOTE */
-function vote(type){
+    if(error.code === "auth/popup-blocked"){
+      alert("Popup blocked. Please allow popups in browser.");
+    }
+    else if(error.code === "auth/unauthorized-domain"){
+      alert("Add this domain in Firebase Authorized Domains");
+    }
+    else{
+      alert(error.message);
+    }
 
-  if(!user){
-    alert("Login required");
-    return;
-  }
-
-  db.collection("votes").doc("india").set({
-    [type]: firebase.firestore.FieldValue.increment(1)
-  },{merge:true});
-
-}
-
-/* CHARTS */
-let bar,pie;
-
-db.collection("votes").doc("india")
-.onSnapshot(doc=>{
-
-  let d=doc.data()||{onoe:0,delimitation:0,combined:0};
-
-  let v=[d.onoe,d.delimitation,d.combined];
-
-  if(bar)bar.destroy();
-  if(pie)pie.destroy();
-
-  bar=new Chart(document.getElementById("bar"),{
-    type:"bar",
-    data:{labels:["ONOE","DELIM","COMB"],datasets:[{data:v}]}
   });
 
-  pie=new Chart(document.getElementById("pie"),{
-    type:"pie",
-    data:{labels:["ONOE","DELIM","COMB"],datasets:[{data:v}]}
-  });
+}
 
-  aiPredict(v);
-
-});
-
-/* 🤖 AI ENGINE */
-function aiPredict(v){
-
-  let total=v[0]+v[1]+v[2];
-
-  if(total===0){
-    document.getElementById("ai").innerText="No Data";
-    return;
+/* 🔐 AUTH STATE */
+auth.onAuthStateChanged(user=>{
+  if(user){
+    document.getElementById("user").innerText =
+      "👤 " + user.email;
   }
-
-  document.getElementById("ai").innerText=
-  "ONOE " + Math.round(v[0]/total*100) + "% | " +
-  "DELIM " + Math.round(v[1]/total*100) + "% | " +
-  "COMB " + Math.round(v[2]/total*100) + "%";
-}
-
-/* 🌍 GIS MAP */
-function loadMap(){
-
-  var map = L.map('map').setView([22.9734,78.6569],5);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap'
-  }).addTo(map);
-
-  var india = L.polygon([
-    [28,77],[26,80],[22,78],[19,75],[23,72],[28,77]
-  ],{
-    color:'red',
-    fillColor:'blue',
-    fillOpacity:0.3
-  }).addTo(map);
-
-  india.bindPopup("🇮🇳 India Election Zone");
-
-}
+});
 
 </script>
 
