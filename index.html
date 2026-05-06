@@ -1,191 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <title>ONOE Voting System</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #f2f2f2;
+    }
 
-<title>Global Election Network - Final Presentation</title>
+    .box {
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px gray;
+    }
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    button {
+      padding: 10px 15px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+    }
 
-<style>
+    .login {
+      background: green;
+      color: white;
+    }
 
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0b1220;
-  color:white;
-}
-
-/* HEADER */
-header{
-  text-align:center;
-  padding:18px;
-  background:#0f172a;
-}
-
-/* TOP BAR */
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px;
-  background:#1f2937;
-  flex-wrap:wrap;
-}
-
-/* BUTTON */
-button{
-  padding:10px 14px;
-  margin:5px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  background:#2563eb;
-  color:white;
-}
-
-/* BOX */
-.box{
-  width:80%;
-  margin:auto;
-  background:#111827;
-  padding:15px;
-  border-radius:10px;
-  margin-top:15px;
-}
-
-/* 📱 MOBILE POLISH (FINAL ADD) */
-@media (max-width: 768px){
-
-  body{
-    font-size:14px;
-  }
-
-  header h2{
-    font-size:18px;
-    line-height:1.4;
-  }
-
-  .top{
-    flex-direction:column;
-    gap:10px;
-    text-align:center;
-  }
-
-  button{
-    width:100%;
-    margin:6px 0;
-    font-size:14px;
-  }
-
-  .box{
-    width:95%;
-    padding:12px;
-  }
-
-}
-
-</style>
-
+    .vote {
+      background: blue;
+      color: white;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- 🟢 HEADER -->
-<header>
+  <h1>🗳 ONOE Voting System</h1>
 
-🌐 <b>Global Election Network</b>
+  <!-- LOGIN BOX -->
+  <div class="box">
+    <h3>Login</h3>
+    <button class="login" onclick="loginWithGoogle()">
+      Login with Google
+    </button>
+  </div>
 
-<h2>
-🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics
-</h2>
+  <!-- VOTING BOX -->
+  <div class="box">
+    <h3>Vote Your Candidate</h3>
 
-<p style="color:#22c55e;font-weight:bold;">
-🔴 LIVE / நேரலை
-</p>
+    <button class="vote" onclick="vote('Candidate_A')">
+      Candidate A
+    </button>
 
-<p style="font-size:13px;color:#cbd5e1;">
-🌍 GIS + AI + Voting System Active • ONOE vs Delimitation vs Combined • Real-time Analytics
-</p>
+    <button class="vote" onclick="vote('Candidate_B')">
+      Candidate B
+    </button>
 
-</header>
+    <button class="vote" onclick="vote('Candidate_C')">
+      Candidate C
+    </button>
+  </div>
 
-<!-- TOP BAR -->
-<div class="top">
+  <!-- STATUS -->
+  <div class="box">
+    <p id="status">Please login to vote</p>
+  </div>
 
-<div>
-👤 Guest / விருந்தினர்
-</div>
-
-<div>
-<button onclick="login()">🔑 Google Login</button>
-<button onclick="document.body.requestFullscreen()">📺 TV MODE</button>
-</div>
-
-</div>
-
-<!-- LOGIN TEXT -->
-<div style="text-align:center;margin-top:20px;">
-<h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
-</div>
-
-<!-- 🟡 PROJECT INFO -->
-<div class="box">
-
-<h3>📌 Project Information</h3>
-
-<p>🧠 Global Election Network – Public Opinion System</p>
-<p>👨‍💼 Project Head: N RAMAN / ந ராமன்</p>
-<p>📧 Email: onoe.voting.survey2026@gmail.com</p>
-<p>🌐 Website: https://onoevoting-ctrl.github.io/onoe-voting-2026/</p>
-<p>📞 WhatsApp: +91 8939324309 / +91 9384695599</p>
-
-</div>
-
-<!-- 🌍 NRI INFO -->
-<div class="box">
-
-<h3>🌍 NRI Voting Information</h3>
-
-<p>🟢 Indian citizen abroad: still Indian citizen, voting in India constituency</p>
-<p>🌍 Foreign citizenship: Indian voting rights not applicable</p>
-<p>🗳️ Current system: physical voting in India constituency</p>
-<p>🚀 Future: online voting simulation concept</p>
-
-</div>
-
-<script>
-
-/* FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-
-/* LOGIN */
-function login(){
-
-  const provider = new firebase.auth.GoogleAuthProvider();
-
-  auth.signInWithPopup(provider)
-  .then(user=>{
-    alert("Login Success: " + user.user.email);
-  })
-  .catch(err=>{
-    alert(err.message);
-  });
-
-}
-
-</script>
+  <!-- FIREBASE SCRIPT -->
+  <script type="module" src="script.js"></script>
 
 </body>
 </html>
