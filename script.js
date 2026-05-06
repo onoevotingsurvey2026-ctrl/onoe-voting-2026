@@ -18,13 +18,18 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 
-// 🔥 FIREBASE CONFIG (REPLACE WITH YOUR REAL VALUES)
+// 🔥 🔴 VERY IMPORTANT: YOUR REAL FIREBASE CONFIG HERE
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
+  apiKey: "PASTE_YOUR_REAL_API_KEY",
+  authDomain: "PASTE_YOUR_AUTH_DOMAIN",
+  projectId: "PASTE_YOUR_PROJECT_ID",
+  storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "PASTE_YOUR_SENDER_ID",
+  appId: "PASTE_YOUR_APP_ID"
 };
 
+
+// 🔥 INIT
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -41,6 +46,7 @@ async function loginWithGoogle() {
 
     console.log("LOGIN SUCCESS:", user);
 
+    // Save user
     await setDoc(doc(db, "users", user.uid), {
       name: user.displayName,
       email: user.email
@@ -51,13 +57,13 @@ async function loginWithGoogle() {
 
   } catch (error) {
     console.error("LOGIN ERROR:", error);
-    alert(error.message);
+    alert("Login Error: " + error.message);
   }
 }
 
 
 // =========================
-// 🔐 AUTH STATE
+// 🔐 AUTH STATE CHECK
 // =========================
 onAuthStateChanged(auth, (user) => {
 
@@ -82,7 +88,7 @@ onAuthStateChanged(auth, (user) => {
 
 
 // =========================
-// 🗳 VOTE SYSTEM
+// 🗳 VOTE SYSTEM (LOCK)
 // =========================
 window.vote = async function (candidate) {
 
@@ -97,7 +103,7 @@ window.vote = async function (candidate) {
   const voteSnap = await getDoc(voteRef);
 
   if (voteSnap.exists()) {
-    alert("You already voted!");
+    alert("⚠️ You already voted!");
     return;
   }
 
@@ -114,7 +120,7 @@ window.vote = async function (candidate) {
     await setDoc(resultRef, { count: 1 });
   });
 
-  alert("Vote submitted successfully!");
+  alert("🗳 Vote submitted successfully!");
 };
 
 
@@ -141,7 +147,6 @@ function listenResults() {
     const el = document.getElementById("cCount");
     if (el) el.innerText = snap.exists() ? snap.data().count : 0;
   });
-
 }
 
 
@@ -149,11 +154,17 @@ function listenResults() {
 // 🔥 BUTTON CONNECT FIX
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
+
+  console.log("SCRIPT LOADED");
+
   const btn = document.getElementById("loginBtn");
 
   if (btn) {
     btn.addEventListener("click", () => {
       loginWithGoogle();
     });
+  } else {
+    console.error("Login button not found");
   }
+
 });
