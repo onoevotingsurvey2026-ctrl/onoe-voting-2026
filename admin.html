@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Panel - Voting System</title>
+  <title>Admin Panel - ONOE Voting</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body {
@@ -23,12 +26,16 @@
       background: #1e293b;
       padding: 20px;
       margin: 15px auto;
-      width: 320px;
+      width: 340px;
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,255,204,0.2);
     }
 
-    .status {
+    h3 {
+      margin-bottom: 10px;
+    }
+
+    #status {
       margin-top: 10px;
       font-weight: bold;
     }
@@ -39,8 +46,9 @@
 
 <h2>🧑‍💼 ADMIN DASHBOARD</h2>
 
-<div id="status" class="status">Checking admin access...</div>
+<div id="status">Checking admin access...</div>
 
+<!-- COUNTS -->
 <div class="box">
   <h3>Candidate A</h3>
   <h1 id="aCount">0</h1>
@@ -56,6 +64,12 @@
   <h1 id="cCount">0</h1>
 </div>
 
+<!-- GRAPH -->
+<div class="box">
+  <h3>📊 Live Vote Graph</h3>
+  <canvas id="voteChart"></canvas>
+</div>
+
 <!-- FIREBASE SCRIPT -->
 <script type="module">
 
@@ -63,7 +77,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔥 YOUR FIREBASE CONFIG (REPLACE THIS)
+// 🔥 Firebase Config (REPLACE THIS)
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_AUTH_DOMAIN",
@@ -74,6 +88,34 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// =======================
+// 📊 CHART SETUP
+// =======================
+let chart;
+let a = 0, b = 0, c = 0;
+
+function initChart() {
+  const ctx = document.getElementById("voteChart");
+
+  chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Candidate A", "Candidate B", "Candidate C"],
+      datasets: [{
+        label: "Votes",
+        data: [0, 0, 0],
+        backgroundColor: ["red", "blue", "green"]
+      }]
+    }
+  });
+}
+
+function updateChart() {
+  if (chart) {
+    chart.data.datasets[0].data = [a, b, c];
+    chart.update();
+  }
+}
 
 // =======================
 // 🔐 ADMIN CHECK
@@ -94,6 +136,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("status").innerText =
       "✅ Admin Access Granted";
 
+    initChart();
     startDashboard();
 
   } else {
@@ -102,25 +145,27 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-
 // =======================
 // 📊 LIVE DASHBOARD
 // =======================
 function startDashboard() {
 
   onSnapshot(doc(db,"results","Candidate_A"), (snap)=>{
-    document.getElementById("aCount").innerText =
-      snap.exists() ? snap.data().count : 0;
+    a = snap.exists() ? snap.data().count : 0;
+    document.getElementById("aCount").innerText = a;
+    updateChart();
   });
 
   onSnapshot(doc(db,"results","Candidate_B"), (snap)=>{
-    document.getElementById("bCount").innerText =
-      snap.exists() ? snap.data().count : 0;
+    b = snap.exists() ? snap.data().count : 0;
+    document.getElementById("bCount").innerText = b;
+    updateChart();
   });
 
   onSnapshot(doc(db,"results","Candidate_C"), (snap)=>{
-    document.getElementById("cCount").innerText =
-      snap.exists() ? snap.data().count : 0;
+    c = snap.exists() ? snap.data().count : 0;
+    document.getElementById("cCount").innerText = c;
+    updateChart();
   });
 
 }
