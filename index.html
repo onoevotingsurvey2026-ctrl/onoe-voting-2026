@@ -15,14 +15,14 @@
       background: white;
       padding: 20px;
       margin: 20px auto;
-      width: 300px;
+      width: 320px;
       border-radius: 10px;
       box-shadow: 0px 0px 10px gray;
     }
 
     button {
       padding: 10px 15px;
-      margin: 10px;
+      margin: 8px;
       cursor: pointer;
       border: none;
       border-radius: 5px;
@@ -37,6 +37,11 @@
       background: blue;
       color: white;
     }
+
+    .status {
+      color: #333;
+      font-weight: bold;
+    }
   </style>
 </head>
 
@@ -44,7 +49,7 @@
 
   <h1>🗳 ONOE Voting System</h1>
 
-  <!-- LOGIN BOX -->
+  <!-- LOGIN -->
   <div class="box">
     <h3>Login</h3>
     <button class="login" onclick="loginWithGoogle()">
@@ -52,29 +57,29 @@
     </button>
   </div>
 
-  <!-- VOTING BOX -->
+  <!-- VOTING -->
   <div class="box">
     <h3>Vote Your Candidate</h3>
 
-    <button class="vote" onclick="vote('Candidate_A')">
-      Candidate A
-    </button>
-
-    <button class="vote" onclick="vote('Candidate_B')">
-      Candidate B
-    </button>
-
-    <button class="vote" onclick="vote('Candidate_C')">
-      Candidate C
-    </button>
+    <button class="vote" onclick="vote('Candidate_A')">Candidate A</button>
+    <button class="vote" onclick="vote('Candidate_B')">Candidate B</button>
+    <button class="vote" onclick="vote('Candidate_C')">Candidate C</button>
   </div>
 
   <!-- STATUS -->
   <div class="box">
-    <p id="status">Please login to vote</p>
+    <p id="status" class="status">Please login to vote</p>
   </div>
 
-  <!-- FIREBASE SCRIPT -->
+  <!-- 📊 LIVE DASHBOARD -->
+  <div class="box">
+    <h3>📊 Live Results</h3>
+    <p>Candidate A: <span id="aCount">0</span></p>
+    <p>Candidate B: <span id="bCount">0</span></p>
+    <p>Candidate C: <span id="cCount">0</span></p>
+  </div>
+
+  <!-- SCRIPT -->
   <script type="module" src="script.js"></script>
 
 </body>
