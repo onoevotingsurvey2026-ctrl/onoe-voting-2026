@@ -9,23 +9,32 @@
       font-family: Arial;
       text-align: center;
       background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      background: #111827;
+      color: white;
+      padding: 15px;
+      margin: 0;
     }
 
     .box {
       background: white;
-      padding: 20px;
-      margin: 20px auto;
       width: 320px;
+      margin: 15px auto;
+      padding: 15px;
       border-radius: 10px;
-      box-shadow: 0px 0px 10px gray;
+      box-shadow: 0 0 10px #ccc;
     }
 
     button {
       padding: 10px 15px;
       margin: 8px;
-      cursor: pointer;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
     .login {
@@ -38,49 +47,46 @@
       color: white;
     }
 
-    .status {
-      color: #333;
-      font-weight: bold;
+    #voteBox {
+      opacity: 0.5;
+      pointer-events: none;
     }
   </style>
 </head>
 
 <body>
 
-  <h1>🗳 ONOE Voting System</h1>
+<h1>🗳 ONOE Voting System</h1>
 
-  <!-- LOGIN -->
-  <div class="box">
-    <h3>Login</h3>
-    <button class="login" onclick="loginWithGoogle()">
-      Login with Google
-    </button>
-  </div>
+<!-- LOGIN -->
+<div class="box">
+  <h3>Login</h3>
+  <button class="login" onclick="loginWithGoogle()">
+    Login with Google
+  </button>
+  <p id="status">Please login to vote</p>
+</div>
 
-  <!-- VOTING -->
-  <div class="box">
-    <h3>Vote Your Candidate</h3>
+<!-- VOTING -->
+<div class="box" id="voteBox">
+  <h3>Vote Your Candidate</h3>
 
-    <button class="vote" onclick="vote('Candidate_A')">Candidate A</button>
-    <button class="vote" onclick="vote('Candidate_B')">Candidate B</button>
-    <button class="vote" onclick="vote('Candidate_C')">Candidate C</button>
-  </div>
+  <button class="vote" onclick="vote('Candidate_A')">Candidate A</button>
+  <button class="vote" onclick="vote('Candidate_B')">Candidate B</button>
+  <button class="vote" onclick="vote('Candidate_C')">Candidate C</button>
+</div>
 
-  <!-- STATUS -->
-  <div class="box">
-    <p id="status" class="status">Please login to vote</p>
-  </div>
+<!-- LIVE RESULTS -->
+<div class="box">
+  <h3>📊 LIVE RESULTS</h3>
 
-  <!-- 📊 LIVE DASHBOARD -->
-  <div class="box">
-    <h3>📊 Live Results</h3>
-    <p>Candidate A: <span id="aCount">0</span></p>
-    <p>Candidate B: <span id="bCount">0</span></p>
-    <p>Candidate C: <span id="cCount">0</span></p>
-  </div>
+  <p>Candidate A: <span id="aCount">0</span></p>
+  <p>Candidate B: <span id="bCount">0</span></p>
+  <p>Candidate C: <span id="cCount">0</span></p>
+</div>
 
-  <!-- SCRIPT -->
-  <script type="module" src="script.js"></script>
+<!-- FIREBASE SCRIPT -->
+<script type="module" src="script.js"></script>
 
 </body>
 </html>
