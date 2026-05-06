@@ -1,112 +1,98 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Voting Login System</title>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+  getFirestore, doc, setDoc, getDoc, increment, updateDoc, onSnapshot 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+// 🔥 Firebase Config (REPLACE THIS)
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+};
 
-  <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      margin-top: 60px;
-      background: #f2f2f2;
-    }
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
 
-    .card {
-      background: white;
-      width: 320px;
-      margin: auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 0px 10px #ccc;
-    }
 
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 8px 0;
-    }
+// =========================
+// 🔐 LOGIN SYSTEM
+// =========================
+window.loginWithGoogle = async function () {
+  const result = await signInWithPopup(auth, provider);
+  const user = result.user;
 
-    button {
-      padding: 10px 20px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
+  await setDoc(doc(db, "users", user.uid), {
+    name: user.displayName,
+    email: user.email
+  }, { merge: true });
 
-    #dashboard {
-      display: none;
-    }
-  </style>
-</head>
+  document.getElementById("status").innerText =
+    "Logged in as: " + user.displayName;
 
-<body>
+  listenResults(); // start dashboard
+};
 
-<h2>🗳️ Voting Login System</h2>
 
-<!-- LOGIN -->
-<div class="card" id="loginBox">
-  <h3>Login</h3>
+// =========================
+// 🗳 VOTING SYSTEM (LOCK)
+// =========================
+window.vote = async function (candidate) {
 
-  <input type="email" id="email" placeholder="Enter Email">
-  <input type="password" id="password" placeholder="Enter Password">
+  const user = auth.currentUser;
 
-  <button onclick="login()">Login</button>
-</div>
-
-<!-- DASHBOARD -->
-<div class="card" id="dashboard">
-  <h3>Welcome 🎉</h3>
-  <p>Login Successful</p>
-
-  <button onclick="logout()">Logout</button>
-</div>
-
-<script>
-  // 🔥 YOUR REAL FIREBASE CONFIG
-  const firebaseConfig = {
-    apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-    authDomain: "onoevote2026.firebaseapp.com",
-    databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "onoevote2026",
-    storageBucket: "onoevote2026.firebasestorage.app",
-    messagingSenderId: "181065724520",
-    appId: "1:181065724520:web:61a8541708b48fa51101dd"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-
-  // LOGIN
-  function login() {
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("password").value;
-
-    if (!email || !password) {
-      alert("Enter email & password");
-      return;
-    }
-
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        alert("Login Success ✅");
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-      })
-      .catch((error) => {
-        alert("Login Failed ❌\n" + error.message);
-      });
+  if (!user) {
+    alert("Please login first");
+    return;
   }
 
-  // LOGOUT
-  function logout() {
-    auth.signOut().then(() => {
-      location.reload();
-    });
-  }
-</script>
+  const voteRef = doc(db, "votes", user.uid);
+  const voteSnap = await getDoc(voteRef);
 
-</body>
-</html>
+  if (voteSnap.exists()) {
+    alert("You already voted!");
+    return;
+  }
+
+  await setDoc(voteRef, {
+    vote: candidate,
+    time: new Date()
+  });
+
+  const resultRef = doc(db, "results", candidate);
+  await updateDoc(resultRef, {
+    count: increment(1)
+  }).catch(async () => {
+    await setDoc(resultRef, { count: 1 });
+  });
+
+  alert("Vote submitted successfully!");
+};
+
+
+// =========================
+// 📊 LIVE DASHBOARD
+// =========================
+function listenResults() {
+
+  const aRef = doc(db, "results", "Candidate_A");
+  const bRef = doc(db, "results", "Candidate_B");
+  const cRef = doc(db, "results", "Candidate_C");
+
+  onSnapshot(aRef, (snap) => {
+    document.getElementById("aCount").innerText =
+      snap.exists() ? snap.data().count : 0;
+  });
+
+  onSnapshot(bRef, (snap) => {
+    document.getElementById("bCount").innerText =
+      snap.exists() ? snap.data().count : 0;
+  });
+
+  onSnapshot(cRef, (snap) => {
+    document.getElementById("cCount").innerText =
+      snap.exists() ? snap.data().count : 0;
+  });
+}
