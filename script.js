@@ -1,5 +1,5 @@
 function listenResults() {
-
+console.log("SCRIPT RUNNING");
   const aRef = doc(db, "results", "Candidate_A");
   const bRef = doc(db, "results", "Candidate_B");
   const cRef = doc(db, "results", "Candidate_C");
