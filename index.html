@@ -1,161 +1,146 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ECI India Public Opinion Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECI Live Opinion Dashboard</title>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <style>
-    body{
-      margin:0;
-      font-family:Arial;
-      background:#0b1220;
-      color:white;
-    }
+<style>
 
-    header{
-      padding:12px;
-      text-align:center;
-      background:#111827;
-      border-bottom:2px solid red;
-    }
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b1220;
+  color:white;
+}
 
-    .ticker{
-      background:#1f2937;
-      padding:8px;
-      overflow:hidden;
-      white-space:nowrap;
-    }
+/* HEADER */
+header{
+  text-align:center;
+  padding:12px;
+  background:#111827;
+}
 
-    .ticker span{
-      display:inline-block;
-      animation:scroll 12s linear infinite;
-    }
+/* TV TICKER */
+.ticker{
+  background:#1f2937;
+  overflow:hidden;
+  white-space:nowrap;
+  padding:8px;
+}
 
-    @keyframes scroll{
-      from{transform:translateX(100%);}
-      to{transform:translateX(-100%);}
-    }
+.ticker span{
+  display:inline-block;
+  animation:move 12s linear infinite;
+}
 
-    .top{
-      display:flex;
-      justify-content:space-between;
-      padding:10px;
-      background:#1f2937;
-      flex-wrap:wrap;
-    }
+@keyframes move{
+  from{transform:translateX(100%);}
+  to{transform:translateX(-100%);}
+}
 
-    button{
-      padding:10px;
-      margin:5px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-    }
+/* TOP BAR */
+.top{
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  background:#1f2937;
+  flex-wrap:wrap;
+}
 
-    .onoe{background:#2563eb;color:white;}
-    .delim{background:#16a34a;color:white;}
-    .comb{background:#7c3aed;color:white;}
+/* BUTTONS */
+button{
+  padding:10px;
+  margin:5px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
 
-    #dashboard{display:none;text-align:center;}
+.onoe{background:#2563eb;color:white;}
+.delim{background:#16a34a;color:white;}
+.comb{background:#7c3aed;color:white;}
 
-    .box{
-      width:80%;
-      margin:auto;
-      background:#111827;
-      padding:10px;
-      border-radius:10px;
-      margin-top:15px;
-    }
+/* BOX */
+.box{
+  width:80%;
+  margin:auto;
+  background:#111827;
+  padding:10px;
+  border-radius:10px;
+  margin-top:15px;
+}
 
-    #loginBox{
-      text-align:center;
-      margin-top:40px;
-    }
+/* MOBILE */
+@media(max-width:768px){
+  .box{width:95%;}
+}
 
-    @media(max-width:768px){
-      .box{width:95%;}
-      .top{flex-direction:column;text-align:center;}
-    }
-  </style>
+#dashboard{display:none;text-align:center;}
+
+</style>
+
 </head>
 
 <body>
 
 <header>
-
-  🌐 Global Election Network  
-  <br>
-
-  🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics  
-  <br>
-
-  🔴 LIVE / நேரலை
-
+🏛️ இந்திய மக்கள் கருத்து கேட்பு  
+<br>
+🔴 LIVE / நேரலை
 </header>
 
-<!-- 📺 LIVE TICKER -->
+<!-- TV TICKER -->
 <div class="ticker">
-  <span>📢 Live Election Analytics Running • ONOE vs Delimitation vs Combined • Real-time data updating • ECI Simulation System Active • </span>
+<span>📢 LIVE Election Analytics • ONOE vs Delimitation vs Combined • Real-time updating • ECI System Active • </span>
 </div>
 
+<!-- TOP -->
 <div class="top">
 
-  <div id="user">👤 Guest / விருந்தினர்</div>
+<div id="user">👤 Guest</div>
 
-  <div>
-    <button onclick="login()">🔑 Google Login</button>
-    <button onclick="document.body.requestFullscreen()">📺 TV Mode</button>
-  </div>
+<div>
+<button onclick="login()">Google Login</button>
+<button onclick="document.body.requestFullscreen()">TV MODE</button>
+</div>
 
 </div>
 
-<div id="loginBox">
-  <h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
+<!-- LOGIN INFO -->
+<div id="loginBox" style="text-align:center;margin-top:40px;">
+<h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
 </div>
 
+<!-- DASHBOARD -->
 <div id="dashboard">
 
-  <h3>🗳️ Voting Panel</h3>
+<h3>🗳️ Voting Panel</h3>
 
-  <button class="onoe" onclick="vote('onoe')">ONOE</button>
-  <button class="delim" onclick="vote('delimitation')">Delimitation</button>
-  <button class="comb" onclick="vote('combined')">Combined</button>
+<button class="onoe" onclick="vote('onoe')">ONOE</button>
+<button class="delim" onclick="vote('delimitation')">Delimitation</button>
+<button class="comb" onclick="vote('combined')">Combined</button>
 
-  <p id="status"></p>
+<p id="status"></p>
 
-  <!-- CHARTS -->
-  <div class="box">
-    <canvas id="bar"></canvas>
-  </div>
+<div class="box">
+<canvas id="bar"></canvas>
+</div>
 
-  <div class="box">
-    <canvas id="pie"></canvas>
-  </div>
-
-  <!-- ANALYTICS -->
-  <div class="box">
-    <h3>📊 Election Insight</h3>
-    <p id="predict"></p>
-  </div>
-
-  <!-- CONSTITUENCY -->
-  <div class="box">
-    <h3>🗳️ Constituency Insight</h3>
-    <p id="constituency"></p>
-  </div>
+<div class="box">
+<canvas id="pie"></canvas>
+</div>
 
 </div>
 
 <script>
 
-/* ================= FIREBASE ================= */
-
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -169,74 +154,69 @@ const auth = firebase.auth();
 
 let user=null;
 
-/* ================= LOGIN ================= */
-
+/* LOGIN */
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider);
+
+  auth.signInWithPopup(provider)
+  .catch(e => alert(e.message));
 }
 
-/* ================= AUTH ================= */
-
+/* AUTH STATE FIX */
 auth.onAuthStateChanged(u=>{
   if(u){
     user=u;
+
+    document.getElementById("user").innerText="👤 "+u.email;
     document.getElementById("loginBox").style.display="none";
     document.getElementById("dashboard").style.display="block";
-    document.getElementById("user").innerText="👤 "+u.email;
 
-    loadSystem();
+    loadData();
   }
 });
 
-/* ================= VOTE ================= */
-
+/* VOTE */
 function vote(type){
+
+  if(!user){
+    alert("Login required");
+    return;
+  }
 
   db.collection("votes").doc("india").set({
     [type]: firebase.firestore.FieldValue.increment(1)
   },{merge:true});
 
-  document.getElementById("status").innerText =
-    "✔ Vote Recorded / வாக்கு பதிவு செய்யப்பட்டது";
+  document.getElementById("status").innerText="✔ Vote Recorded";
+
 }
 
-/* ================= SYSTEM ================= */
-
+/* CHARTS */
 let bar,pie;
 
-function loadSystem(){
+function loadData(){
 
-  db.collection("votes").doc("india")
-  .onSnapshot(doc=>{
+db.collection("votes").doc("india")
+.onSnapshot(doc=>{
 
-    let d=doc.data()||{onoe:0,delimitation:0,combined:0};
+  let d=doc.data()||{onoe:0,delimitation:0,combined:0};
 
-    let values=[d.onoe,d.delimitation,d.combined];
+  let v=[d.onoe,d.delimitation,d.combined];
 
-    if(bar)bar.destroy();
-    if(pie)pie.destroy();
+  if(bar)bar.destroy();
+  if(pie)pie.destroy();
 
-    bar=new Chart(document.getElementById("bar"),{
-      type:"bar",
-      data:{labels:["ONOE","DELIM","COMB"],datasets:[{data:values}]}
-    });
-
-    pie=new Chart(document.getElementById("pie"),{
-      type:"pie",
-      data:{labels:["ONOE","DELIM","COMB"],datasets:[{data:values}]}
-    });
-
-    // 📊 SIMPLE INSIGHT ENGINE
-    let total = values.reduce((a,b)=>a+b,0);
-
-    document.getElementById("predict").innerText =
-      "Live total votes: " + total + " | System analyzing trends...";
-
-    document.getElementById("constituency").innerText =
-      "South India: ONOE strong | North: Balanced competition | AI trend: stable";
-
+  bar=new Chart(document.getElementById("bar"),{
+    type:"bar",
+    data:{labels:["ONOE","DELIM","COMB"],datasets:[{data:v}]}
   });
+
+  pie=new Chart(document.getElementById("pie"),{
+    type:"pie",
+    data:{labels:["ONOE","DELIM","COMB"],datasets:[{data:v}]}
+  });
+
+});
 
 }
 
