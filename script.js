@@ -18,7 +18,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 
-// 🔥 YOUR REAL FIREBASE CONFIG (ALREADY CORRECT)
+// 🔥 YOUR VERIFIED FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -29,7 +29,7 @@ const firebaseConfig = {
 };
 
 
-// 🔥 INIT
+// 🔥 INIT FIREBASE
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -37,7 +37,7 @@ const provider = new GoogleAuthProvider();
 
 
 // =========================
-// 🔐 LOGIN
+// 🔐 LOGIN FUNCTION
 // =========================
 async function loginWithGoogle() {
   try {
@@ -46,6 +46,7 @@ async function loginWithGoogle() {
 
     console.log("LOGIN SUCCESS:", user);
 
+    // Save user data
     await setDoc(doc(db, "users", user.uid), {
       name: user.displayName,
       email: user.email
@@ -62,7 +63,7 @@ async function loginWithGoogle() {
 
 
 // =========================
-// 🔐 AUTH STATE
+// 🔐 AUTH STATE LISTENER
 // =========================
 onAuthStateChanged(auth, (user) => {
 
@@ -87,7 +88,7 @@ onAuthStateChanged(auth, (user) => {
 
 
 // =========================
-// 🗳 VOTE SYSTEM
+// 🗳 VOTING SYSTEM (LOCK)
 // =========================
 window.vote = async function (candidate) {
 
@@ -150,11 +151,11 @@ function listenResults() {
 
 
 // =========================
-// 🔥 BUTTON CONNECT
+// 🔥 BUTTON CONNECT FIX
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
 
-  console.log("SCRIPT LOADED SUCCESS");
+  console.log("SCRIPT LOADED SUCCESSFULLY");
 
   const btn = document.getElementById("loginBtn");
 
