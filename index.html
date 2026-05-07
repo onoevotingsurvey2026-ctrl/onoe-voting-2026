@@ -10,30 +10,38 @@
   <style>
     body{
       font-family: Arial;
-      text-align:center;
-      background:#111;
+      background:#0b0f1a;
       color:white;
+      text-align:center;
+      margin:0;
     }
 
     .box{
-      margin:15px;
-      padding:15px;
-      background:#222;
-      border-radius:10px;
+      margin:20px;
+      padding:20px;
+      background:rgba(255,255,255,0.08);
+      border-radius:12px;
     }
 
     button{
-      padding:10px;
-      margin:10px;
       width:80%;
+      padding:12px;
+      margin:10px;
       border:none;
       border-radius:8px;
       font-size:16px;
+      cursor:pointer;
     }
 
-    .open{background:green;color:white;}
-    .close{background:red;color:white;}
-    .reset{background:orange;color:black;}
+    .open{background:#00c853;color:white;}
+    .close{background:#d50000;color:white;}
+    .reset{background:#ff9100;color:black;}
+
+    .status{
+      font-size:20px;
+      margin-top:10px;
+      font-weight:bold;
+    }
   </style>
 </head>
 
@@ -42,16 +50,20 @@
 <h2>👨‍💼 ADMIN CONTROL ROOM</h2>
 
 <div class="box">
+
   <h3>🗳️ Voting Control</h3>
 
-  <button class="open" onclick="setStatus('open')">OPEN VOTING</button>
-  <button class="close" onclick="setStatus('close')">CLOSE VOTING</button>
-  <button class="reset" onclick="resetVotes()">RESET SYSTEM</button>
+  <button class="open" onclick="setStatus('OPEN')">🟢 OPEN VOTING</button>
+  <button class="close" onclick="setStatus('CLOSED')">🔴 CLOSE VOTING</button>
+  <button class="reset" onclick="resetVotes()">♻️ RESET SYSTEM</button>
+
 </div>
 
 <div class="box">
+
   <h3>📊 Live Status</h3>
-  <p id="status">Loading...</p>
+  <div class="status" id="status">Loading...</div>
+
 </div>
 
 <script>
@@ -68,20 +80,27 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
+  // 🟢 OPEN / CLOSE CONTROL
   function setStatus(state){
     db.ref("system/status").set(state);
-    alert("System set to: " + state);
+    alert("Voting Status: " + state);
   }
 
+  // ♻️ RESET VOTES
   function resetVotes(){
     db.ref("votes").remove();
-    alert("All votes reset!");
+    alert("All votes reset successfully!");
   }
 
+  // 📊 LIVE STATUS MONITOR
   function monitor(){
     db.ref("system/status").on("value", snap=>{
+      let val = snap.val();
+
+      if(!val) val="NOT SET";
+
       document.getElementById("status").innerText =
-        "Voting Status: " + snap.val();
+        "SYSTEM STATUS: " + val;
     });
   }
 
