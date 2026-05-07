@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting Network</title>
+  <title>Global Voting Network - TV Mode</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -16,29 +16,28 @@
       text-align:center;
     }
 
+    /* TV MODE */
+    body.tv-mode{
+      background:black;
+    }
+
     .header{
       padding:15px;
       background:#111a33;
     }
 
-    .admin button{
-      padding:10px;
-      margin:5px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
+    .tv-header{
+      font-size:28px;
+      font-weight:bold;
+      padding:20px;
     }
-
-    .open{background:green;color:white;}
-    .close{background:red;color:white;}
-    .reset{background:orange;color:black;}
 
     .cards{
       display:flex;
       justify-content:center;
       gap:20px;
       flex-wrap:wrap;
-      margin-top:20px;
+      margin-top:30px;
     }
 
     .card{
@@ -53,15 +52,23 @@
     .blue{color:#4da6ff;}
 
     .num{
-      font-size:42px;
+      font-size:50px;
       font-weight:bold;
       margin:10px 0;
     }
 
-    .percent{
-      color:#aaa;
-      font-size:16px;
+    button{
+      padding:10px;
+      margin:5px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
     }
+
+    .open{background:green;color:white;}
+    .close{background:red;color:white;}
+    .reset{background:orange;color:black;}
+    .tvbtn{background:#333;color:white;}
   </style>
 </head>
 
@@ -73,38 +80,44 @@
   <h3>🇮🇳 INDIA PUBLIC OPINION DASHBOARD</h3>
 </div>
 
-<!-- ADMIN -->
-<div class="admin">
-  <h3>👨‍💼 ADMIN CONTROL</h3>
-
-  <button class="open" onclick="setStatus('OPEN')">🟢 OPEN VOTING</button>
-  <button class="close" onclick="setStatus('CLOSED')">🔴 CLOSE VOTING</button>
-  <button class="reset" onclick="resetVotes()">♻️ RESET</button>
-</div>
+<!-- TV BUTTON -->
+<button class="tvbtn" onclick="toggleTV()">📺 TV MODE ON/OFF</button>
 
 <hr>
 
-<!-- LIVE RESULTS -->
-<h3>📊 LIVE RESULTS</h3>
+<!-- ADMIN -->
+<h3>👨‍💼 ADMIN CONTROL</h3>
 
+<button class="open" onclick="setStatus('OPEN')">🟢 OPEN VOTING</button>
+<button class="close" onclick="setStatus('CLOSED')">🔴 CLOSE VOTING</button>
+<button class="reset" onclick="resetVotes()">♻️ RESET</button>
+
+<hr>
+
+<!-- TV TITLE -->
+<div class="tv-header">
+📺 LIVE RESULTS DASHBOARD
+</div>
+
+<!-- RESULTS -->
 <div class="cards">
 
   <div class="card green">
     🟢 A SUPPORT
     <div class="num" id="aCount">0</div>
-    <div class="percent" id="aPercent">0.0%</div>
+    <div id="aPercent">0%</div>
   </div>
 
   <div class="card red">
     🔴 B OPPOSE
     <div class="num" id="bCount">0</div>
-    <div class="percent" id="bPercent">0.0%</div>
+    <div id="bPercent">0%</div>
   </div>
 
   <div class="card blue">
     🔵 C MIXED
     <div class="num" id="cCount">0</div>
-    <div class="percent" id="cPercent">0.0%</div>
+    <div id="cPercent">0%</div>
   </div>
 
 </div>
@@ -122,6 +135,11 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+
+// TV MODE TOGGLE
+function toggleTV(){
+  document.body.classList.toggle("tv-mode");
+}
 
 // ADMIN
 function setStatus(state){
