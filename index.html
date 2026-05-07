@@ -9,10 +9,16 @@
 
   <style>
     body{
+      margin:0;
       font-family: Arial;
-      background:#0b0f1a;
+      background:#0a0f1f;
       color:white;
       text-align:center;
+    }
+
+    h2{
+      padding:15px;
+      background:#111a33;
       margin:0;
     }
 
@@ -38,9 +44,9 @@
     .reset{background:#ff9100;color:black;}
 
     .status{
-      font-size:20px;
-      margin-top:10px;
+      font-size:22px;
       font-weight:bold;
+      margin-top:10px;
     }
   </style>
 </head>
@@ -67,6 +73,7 @@
 </div>
 
 <script>
+  // 🔥 Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
     authDomain: "onoevote2026.firebaseapp.com",
@@ -83,24 +90,21 @@
   // 🟢 OPEN / CLOSE CONTROL
   function setStatus(state){
     db.ref("system/status").set(state);
-    alert("Voting Status: " + state);
+    alert("Voting set to: " + state);
   }
 
   // ♻️ RESET VOTES
   function resetVotes(){
     db.ref("votes").remove();
-    alert("All votes reset successfully!");
+    alert("All votes reset!");
   }
 
   // 📊 LIVE STATUS MONITOR
   function monitor(){
     db.ref("system/status").on("value", snap=>{
       let val = snap.val();
-
-      if(!val) val="NOT SET";
-
       document.getElementById("status").innerText =
-        "SYSTEM STATUS: " + val;
+        "SYSTEM STATUS: " + (val ? val : "NOT SET");
     });
   }
 
