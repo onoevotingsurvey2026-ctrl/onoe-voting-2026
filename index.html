@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE + DEL TV Dashboard</title>
+  <title>ONOE + DEL TV Broadcast Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -11,21 +11,25 @@
     body{
       margin:0;
       font-family:Arial;
-      background:#000;
+      background:black;
       color:white;
     }
 
+    /* TOP BAR */
     .topbar{
       background:#b30000;
       padding:10px;
       text-align:center;
       font-weight:bold;
+      animation:blink 1.5s infinite;
     }
 
+    /* HEADER */
     .header{
       text-align:center;
       padding:15px;
       background:#111;
+      box-shadow:0 0 15px red;
     }
 
     .title{
@@ -36,9 +40,15 @@
     .subtitle{
       font-size:13px;
       color:#aaa;
-      margin-top:5px;
     }
 
+    .live{
+      color:#00ff7f;
+      font-weight:bold;
+      animation:blink 1s infinite;
+    }
+
+    /* GRID */
     .grid{
       display:flex;
       justify-content:center;
@@ -61,7 +71,7 @@
     }
 
     .num{
-      font-size:60px;
+      font-size:55px;
       font-weight:bold;
       margin-top:10px;
     }
@@ -69,23 +79,42 @@
     .green{color:#00ff7f;}
     .red{color:#ff4d4d;}
 
-    .footer{
+    /* TICKER */
+    .ticker{
       position:fixed;
       bottom:0;
       width:100%;
       background:#111;
-      padding:10px;
-      text-align:center;
-      font-size:12px;
+      padding:8px;
+      overflow:hidden;
+      white-space:nowrap;
+    }
+
+    .ticker span{
+      display:inline-block;
+      padding-left:100%;
+      animation:scroll 12s linear infinite;
       color:#aaa;
     }
+
+    @keyframes scroll{
+      0%{transform:translateX(0);}
+      100%{transform:translateX(-100%);}
+    }
+
+    @keyframes blink{
+      0%{opacity:1;}
+      50%{opacity:0.3;}
+      100%{opacity:1;}
+    }
+
   </style>
 </head>
 
 <body>
 
 <div class="topbar">
-📡 LIVE TV BROADCAST | ONOE + DEL REAL TIME RESULTS
+📡 LIVE TV BROADCAST <span class="live">● LIVE</span>
 </div>
 
 <div class="header">
@@ -119,12 +148,13 @@
 
 </div>
 
-<div class="footer">
-LIVE DATA • GLOBAL VOTING NETWORK • AUTO REFRESH
+<div class="ticker">
+  <span>📡 LIVE ONOE + DEL RESULTS | GLOBAL VOTING NETWORK | REAL TIME ELECTION DASHBOARD | INDIA PUBLIC OPINION SYSTEM</span>
 </div>
 
 <script>
-/* 🔥 FIREBASE CONFIG (replace yours) */
+
+/* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -135,20 +165,35 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* 📊 LIVE LISTENER */
+/* 🎯 LIVE DATA */
 db.ref("stats").on("value", snap => {
 
   let d = snap.val() || {};
 
-  let onoe = d.ONOE || {};
-  let del = d.DEL || {};
-
-  document.getElementById("os").innerText = onoe.support || 0;
-  document.getElementById("oa").innerText = onoe.against || 0;
-  document.getElementById("ds").innerText = del.support || 0;
-  document.getElementById("da").innerText = del.against || 0;
+  animate("os", d.ONOE?.support || 0);
+  animate("oa", d.ONOE?.against || 0);
+  animate("ds", d.DEL?.support || 0);
+  animate("da", d.DEL?.against || 0);
 
 });
+
+/* 🔢 ANIMATION FUNCTION */
+function animate(id, end){
+  let el = document.getElementById(id);
+  let start = 0;
+  let step = end / 20;
+
+  let timer = setInterval(()=>{
+    start += step;
+    el.innerText = Math.floor(start);
+
+    if(start >= end){
+      el.innerText = end;
+      clearInterval(timer);
+    }
+  },30);
+}
+
 </script>
 
 </body>
