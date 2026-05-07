@@ -73,7 +73,7 @@
   <h3>🇮🇳 INDIA PUBLIC OPINION DASHBOARD</h3>
 </div>
 
-<!-- ADMIN CONTROL -->
+<!-- ADMIN -->
 <div class="admin">
   <h3>👨‍💼 ADMIN CONTROL</h3>
 
@@ -123,7 +123,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// ADMIN ACTIONS
+// ADMIN
 function setStatus(state){
   db.ref("system/status").set(state);
 }
