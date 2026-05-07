@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE + DEL Live Dashboard</title>
+  <title>TV Broadcast Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -11,94 +11,122 @@
     body{
       margin:0;
       font-family:Arial;
-      background:#0b0f1a;
+      background:black;
       color:white;
+      overflow:hidden;
+    }
+
+    /* TOP NEWS BAR */
+    .topbar{
+      background:#b30000;
+      padding:10px;
+      font-weight:bold;
       text-align:center;
+      font-size:18px;
     }
 
+    /* HEADER */
     .header{
-      padding:15px;
-      background:#111a33;
+      text-align:center;
+      padding:10px;
+      background:#111;
     }
 
+    .title{
+      font-size:22px;
+      font-weight:bold;
+    }
+
+    .subtitle{
+      font-size:14px;
+      color:#aaa;
+    }
+
+    /* GRID */
     .grid{
       display:flex;
       justify-content:center;
       gap:20px;
-      flex-wrap:wrap;
       margin-top:30px;
+      flex-wrap:wrap;
     }
 
     .card{
-      background:#1e1e1e;
+      background:#1c1c1c;
       padding:25px;
-      border-radius:14px;
+      border-radius:12px;
       width:220px;
+      text-align:center;
+      box-shadow:0 0 10px rgba(255,255,255,0.1);
     }
 
-    .title{
-      font-size:18px;
-      margin-bottom:10px;
+    .label{
+      font-size:14px;
+      color:#ccc;
     }
 
     .num{
-      font-size:50px;
+      font-size:55px;
       font-weight:bold;
+      margin-top:10px;
     }
 
-    .btn{
+    .green{color:#00ff7f;}
+    .red{color:#ff4d4d;}
+
+    /* FOOTER TICKER */
+    .footer{
+      position:fixed;
+      bottom:0;
+      width:100%;
+      background:#111;
       padding:10px;
-      margin:5px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
+      font-size:14px;
+      color:#aaa;
+      text-align:center;
     }
-
-    .green{background:green;color:white;}
-    .red{background:red;color:white;}
-    .blue{background:blue;color:white;}
   </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h2>📊 ONOE + DEL LIVE DASHBOARD</h2>
+<div class="topbar">
+  📡 LIVE ELECTION BROADCAST | ONOE + DEL RESULTS
 </div>
 
-<h3>🗳️ VOTE CONTROLS</h3>
-
-<button class="green" onclick="vote('ONOE','support')">ONOE SUPPORT</button>
-<button class="red" onclick="vote('ONOE','against')">ONOE AGAINST</button>
-<button class="green" onclick="vote('DEL','support')">DEL SUPPORT</button>
-<button class="red" onclick="vote('DEL','against')">DEL AGAINST</button>
-
-<hr>
-
-<h3>📊 LIVE RESULTS</h3>
+<div class="header">
+  <div class="title">🇮🇳 INDIA PUBLIC OPINION DASHBOARD</div>
+  <div class="subtitle">
+    ONOE (One Nation One Election) | DEL (Delimitation)
+  </div>
+</div>
 
 <div class="grid">
 
   <div class="card">
-    <div class="title">🟢 ONOE SUPPORT</div>
-    <div class="num" id="os">0</div>
+    <div class="label">🟢 ONOE SUPPORT</div>
+    <div class="num green" id="os">0</div>
   </div>
 
   <div class="card">
-    <div class="title">🔴 ONOE AGAINST</div>
-    <div class="num" id="oa">0</div>
+    <div class="label">🔴 ONOE AGAINST</div>
+    <div class="num red" id="oa">0</div>
   </div>
 
   <div class="card">
-    <div class="title">🟢 DEL SUPPORT</div>
-    <div class="num" id="ds">0</div>
+    <div class="label">🟢 DEL SUPPORT</div>
+    <div class="num green" id="ds">0</div>
   </div>
 
   <div class="card">
-    <div class="title">🔴 DEL AGAINST</div>
-    <div class="num" id="da">0</div>
+    <div class="label">🔴 DEL AGAINST</div>
+    <div class="num red" id="da">0</div>
   </div>
 
+</div>
+
+<div class="footer">
+  LIVE DATA | GLOBAL VOTING NETWORK | REAL TIME UPDATE
 </div>
 
 <script>
@@ -112,29 +140,15 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* VOTE FUNCTION */
-function vote(type, choice){
-  let id = "u_" + Date.now();
-
-  db.ref("stats/" + type + "/" + choice).transaction(val => {
-    return (val || 0) + 1;
-  });
-}
-
-/* LIVE UPDATE */
+/* LIVE DATA */
 db.ref("stats").on("value", snap => {
 
-  let data = snap.val() || {};
+  let d = snap.val() || {};
 
-  let os = data.ONOE?.support || 0;
-  let oa = data.ONOE?.against || 0;
-  let ds = data.DEL?.support || 0;
-  let da = data.DEL?.against || 0;
-
-  document.getElementById("os").innerText = os;
-  document.getElementById("oa").innerText = oa;
-  document.getElementById("ds").innerText = ds;
-  document.getElementById("da").innerText = da;
+  document.getElementById("os").innerText = d.ONOE?.support || 0;
+  document.getElementById("oa").innerText = d.ONOE?.against || 0;
+  document.getElementById("ds").innerText = d.DEL?.support || 0;
+  document.getElementById("da").innerText = d.DEL?.against || 0;
 
 });
 </script>
