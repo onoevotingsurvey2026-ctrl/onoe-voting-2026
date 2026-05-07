@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ONOE + DEL TV System</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ONOE + DEL LIVE TV SYSTEM</title>
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
   <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <!-- ✅ IMPORTANT AUTH SCRIPT -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
   <style>
@@ -18,12 +20,12 @@
       font-family:Arial;
       background:black;
       color:white;
+      text-align:center;
     }
 
     .topbar{
       background:#b30000;
       padding:10px;
-      text-align:center;
       font-weight:bold;
       animation:blink 1.5s infinite;
     }
@@ -35,40 +37,38 @@
     }
 
     .header{
-      text-align:center;
-      padding:15px;
       background:#111;
+      padding:15px;
     }
 
     .title{
-      font-size:22px;
+      font-size:24px;
       font-weight:bold;
     }
 
     .subtitle{
-      font-size:13px;
       color:#aaa;
+      margin-top:5px;
     }
 
     .grid{
       display:flex;
       justify-content:center;
-      gap:20px;
       flex-wrap:wrap;
+      gap:20px;
       margin-top:30px;
     }
 
     .card{
       background:#1c1c1c;
+      width:220px;
       padding:20px;
       border-radius:12px;
-      width:220px;
-      text-align:center;
     }
 
     .label{
       color:#ccc;
-      font-size:14px;
+      font-size:15px;
     }
 
     .num{
@@ -77,28 +77,30 @@
       margin-top:10px;
     }
 
-    .green{color:#00ff7f;}
-    .red{color:#ff4d4d;}
+    .green{
+      color:#00ff7f;
+    }
+
+    .red{
+      color:#ff4d4d;
+    }
 
     button{
-      padding:10px;
-      margin:5px;
+      padding:10px 20px;
       border:none;
       border-radius:8px;
       cursor:pointer;
-    }
-
-    .y{
+      margin-top:20px;
       background:orange;
       color:black;
+      font-weight:bold;
     }
 
     #adminPanel{
       display:none;
-      text-align:center;
+      background:#111;
       margin-top:20px;
       padding:20px;
-      background:#111;
     }
 
     .ticker{
@@ -106,9 +108,9 @@
       bottom:0;
       width:100%;
       background:#111;
-      padding:8px;
       overflow:hidden;
       white-space:nowrap;
+      padding:8px;
     }
 
     .ticker span{
@@ -133,77 +135,146 @@
 </div>
 
 <div class="header">
-  <div class="title">🇮🇳 INDIA PUBLIC OPINION DASHBOARD</div>
-  <div class="subtitle">
-    ONOE (One Nation One Election) | DEL (Delimitation)
+
+  <div class="title">
+    🇮🇳 INDIA PUBLIC OPINION DASHBOARD
   </div>
+
+  <div class="subtitle">
+    ONOE (One Nation One Election)
+    |
+    DEL (Delimitation)
+  </div>
+
 </div>
 
-<!-- DASHBOARD -->
+<!-- LIVE DASHBOARD -->
+
 <div class="grid">
 
   <div class="card">
-    <div class="label">🟢 ONOE SUPPORT</div>
-    <div class="num green" id="os">0</div>
+
+    <div class="label">
+      🟢 ONOE SUPPORT
+    </div>
+
+    <div class="num green" id="os">
+      0
+    </div>
+
   </div>
 
   <div class="card">
-    <div class="label">🔴 ONOE AGAINST</div>
-    <div class="num red" id="oa">0</div>
+
+    <div class="label">
+      🔴 ONOE AGAINST
+    </div>
+
+    <div class="num red" id="oa">
+      0
+    </div>
+
   </div>
 
   <div class="card">
-    <div class="label">🟢 DEL SUPPORT</div>
-    <div class="num green" id="ds">0</div>
+
+    <div class="label">
+      🟢 DEL SUPPORT
+    </div>
+
+    <div class="num green" id="ds">
+      0
+    </div>
+
   </div>
 
   <div class="card">
-    <div class="label">🔴 DEL AGAINST</div>
-    <div class="num red" id="da">0</div>
+
+    <div class="label">
+      🔴 DEL AGAINST
+    </div>
+
+    <div class="num red" id="da">
+      0
+    </div>
+
   </div>
 
 </div>
 
 <!-- ADMIN LOGIN -->
-<div style="text-align:center;margin-top:20px;">
-  <button onclick="adminLogin()" class="y">
-    🔐 ADMIN LOGIN
-  </button>
-</div>
+
+<button onclick="adminLogin()">
+  🔐 ADMIN LOGIN
+</button>
 
 <!-- ADMIN PANEL -->
+
 <div id="adminPanel">
 
-  <h2>👨‍💼 ADMIN CONTROL ROOM</h2>
+  <h2>
+    👨‍💼 ADMIN CONTROL ROOM
+  </h2>
 
-  <p>✅ Admin Access Granted</p>
+  <p>
+    ✅ ADMIN ACCESS GRANTED
+  </p>
 
 </div>
 
-<!-- TICKER -->
+<!-- NEWS TICKER -->
+
 <div class="ticker">
+
   <span>
-    📡 LIVE ONOE + DEL RESULTS | GLOBAL VOTING NETWORK | REAL TIME BROADCAST
+    📡 LIVE ONOE + DEL RESULTS
+    |
+    GLOBAL VOTING NETWORK
+    |
+    REAL TIME BROADCAST
+    |
+    INDIA PUBLIC OPINION DASHBOARD
   </span>
+
 </div>
 
 <script>
 
 /* FIREBASE CONFIG */
+
 const firebaseConfig = {
 
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "YOUR_DB_URL",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey:
+  "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+
+  authDomain:
+  "onoevote2026.firebaseapp.com",
+
+  databaseURL:
+  "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+  projectId:
+  "onoevote2026",
+
+  storageBucket:
+  "onoevote2026.firebasestorage.app",
+
+  messagingSenderId:
+  "181065724520",
+
+  appId:
+  "1:181065724520:web:f72a93869786373c1101dd"
 
 };
+
+/* INIT */
 
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 
 /* LIVE DATA */
+
 db.ref("stats").on("value", snap => {
 
   let d = snap.val() || {};
@@ -223,18 +294,30 @@ db.ref("stats").on("value", snap => {
 });
 
 /* ADMIN EMAIL */
-const ADMIN_EMAIL = "youradmin@gmail.com";
+
+const ADMIN_EMAIL =
+"yourgmail@gmail.com";
 
 /* LOGIN */
+
 function adminLogin(){
 
   const provider =
     new firebase.auth.GoogleAuthProvider();
 
   firebase.auth()
-  .signInWithPopup(provider)
+    .signInWithRedirect(provider);
 
-  .then((result)=>{
+}
+
+/* AFTER LOGIN */
+
+firebase.auth()
+.getRedirectResult()
+
+.then((result)=>{
+
+  if(result.user){
 
     const user = result.user;
 
@@ -248,21 +331,21 @@ function adminLogin(){
     }
 
     document.getElementById("adminPanel")
-    .style.display = "block";
+      .style.display = "block";
 
     alert("✅ Admin Login Success");
 
-  })
+  }
 
-  .catch((error)=>{
+})
 
-    alert(error.message);
+.catch((error)=>{
 
-    console.log(error);
+  console.log(error);
 
-  });
+  alert(error.message);
 
-}
+});
 
 </script>
 
