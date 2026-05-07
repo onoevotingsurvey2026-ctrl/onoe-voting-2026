@@ -1,41 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting Network</title>
+  <title>Live Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body{
       font-family: Arial;
       text-align:center;
-      margin:0;
       background:#f4f6f9;
     }
-
-    header{
-      background:#002b5c;
-      color:white;
-      padding:15px;
-      font-size:18px;
-    }
-
-    button{
-      padding:10px;
-      margin:8px;
-      width:80%;
-      border:none;
-      border-radius:6px;
-      font-size:16px;
-    }
-
-    .login{
-      background:#ff9800;
-      color:white;
-    }
-
-    .a{background:#4CAF50;color:white;}
-    .b{background:#f44336;color:white;}
-    .c{background:#2196F3;color:white;}
 
     .box{
       background:white;
@@ -43,39 +22,27 @@
       padding:15px;
       border-radius:10px;
     }
+
+    canvas{
+      max-width:100%;
+    }
   </style>
 </head>
 
 <body>
 
-<header>
-  GLOBAL VOTING NETWORK<br>
-  🇮🇳 INDIA PUBLIC OPINION DASHBOARD
-</header>
+<h2>📊 LIVE VOTING DASHBOARD</h2>
 
 <div class="box">
-  <h3>Login to Vote</h3>
-  <button class="login" onclick="login()">🔐 Google Login</button>
-  <p id="user"></p>
+  <canvas id="pieChart"></canvas>
 </div>
 
 <div class="box">
-  <h3>Vote (A / B / C)</h3>
-
-  <button class="a" onclick="vote('A')">🟢 Candidate A - Support</button>
-  <button class="b" onclick="vote('B')">🔴 Candidate B - Oppose</button>
-  <button class="c" onclick="vote('C')">🔵 Candidate C - Mixed</button>
-
-  <p id="status"></p>
+  <canvas id="barChart"></canvas>
 </div>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-  // 🔥 YOUR FIREBASE CONFIG
+  // 🔥 Firebase Config (same as your project)
   const firebaseConfig = {
     apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
     authDomain: "onoevote2026.firebaseapp.com",
@@ -86,44 +53,66 @@
     appId: "1:181065724520:web:f72a93869786373c1101dd"
   };
 
-  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
-
-  const auth = firebase.auth();
   const db = firebase.database();
 
-  let currentUser = null;
+  let pieChart, barChart;
 
-  // 🔐 LOGIN
-  function login(){
-    const provider = new firebase.auth.GoogleAuthProvider();
+  function updateCharts(a,b,c){
 
-    auth.signInWithPopup(provider)
-    .then(result => {
-      currentUser = result.user;
-      document.getElementById("user").innerText =
-        "Logged in as: " + currentUser.email;
-    })
-    .catch(err => {
-      alert(err.message);
+    // PIE
+    pieChart.data.datasets[0].data = [a,b,c];
+    pieChart.update();
+
+    // BAR
+    barChart.data.datasets[0].data = [a,b,c];
+    barChart.update();
+  }
+
+  function loadVotes(){
+
+    db.ref("votes").on("value", snapshot => {
+
+      let data = snapshot.val();
+
+      let a=0,b=0,c=0;
+
+      for(let key in data){
+        if(data[key].vote=="A") a++;
+        if(data[key].vote=="B") b++;
+        if(data[key].vote=="C") c++;
+      }
+
+      updateCharts(a,b,c);
     });
   }
 
-  // 🗳️ VOTE FUNCTION
-  function vote(choice){
+  window.onload = function(){
 
-    if(!currentUser){
-      alert("Please login first!");
-      return;
-    }
-
-    db.ref("votes/" + currentUser.uid).set({
-      email: currentUser.email,
-      vote: choice
+    pieChart = new Chart(document.getElementById("pieChart"), {
+      type: "pie",
+      data: {
+        labels: ["A - Support", "B - Oppose", "C - Mixed"],
+        datasets: [{
+          data: [0,0,0],
+          backgroundColor: ["green","red","blue"]
+        }]
+      }
     });
 
-    document.getElementById("status").innerText =
-      "Vote submitted: " + choice;
+    barChart = new Chart(document.getElementById("barChart"), {
+      type: "bar",
+      data: {
+        labels: ["A","B","C"],
+        datasets: [{
+          label: "Votes",
+          data: [0,0,0],
+          backgroundColor: ["green","red","blue"]
+        }]
+      }
+    });
+
+    loadVotes();
   }
 
 </script>
