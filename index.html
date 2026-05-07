@@ -1,48 +1,103 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live Dashboard</title>
+  <title>TV Mode Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     body{
+      margin:0;
       font-family: Arial;
+      background: #0b1a33;
+      color:white;
       text-align:center;
-      background:#f4f6f9;
     }
 
-    .box{
-      background:white;
-      margin:15px;
-      padding:15px;
-      border-radius:10px;
+    .header{
+      padding:20px;
+      background: rgba(255,255,255,0.05);
+      font-size:22px;
+      font-weight:bold;
     }
 
-    canvas{
-      max-width:100%;
+    .grid{
+      display:flex;
+      justify-content:space-around;
+      margin-top:40px;
+      flex-wrap:wrap;
+    }
+
+    .card{
+      width:30%;
+      min-width:250px;
+      padding:30px;
+      margin:10px;
+      border-radius:15px;
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 15px rgba(255,255,255,0.1);
+    }
+
+    .num{
+      font-size:60px;
+      font-weight:bold;
+      margin-top:10px;
+    }
+
+    .a{border-top:5px solid #00ff7f;}
+    .b{border-top:5px solid #ff4d4d;}
+    .c{border-top:5px solid #4da6ff;}
+
+    .label{
+      font-size:20px;
+      margin-top:10px;
+    }
+
+    .footer{
+      position:fixed;
+      bottom:0;
+      width:100%;
+      padding:10px;
+      background: rgba(255,255,255,0.05);
+      font-size:14px;
     }
   </style>
 </head>
 
 <body>
 
-<h2>📊 LIVE VOTING DASHBOARD</h2>
-
-<div class="box">
-  <canvas id="pieChart"></canvas>
+<div class="header">
+📺 LIVE TV MODE DASHBOARD<br>
+🇮🇳 INDIA PUBLIC OPINION RESULTS
 </div>
 
-<div class="box">
-  <canvas id="barChart"></canvas>
+<div class="grid">
+
+  <div class="card a">
+    <div class="label">🟢 A - Support</div>
+    <div class="num" id="a">0</div>
+  </div>
+
+  <div class="card b">
+    <div class="label">🔴 B - Oppose</div>
+    <div class="num" id="b">0</div>
+  </div>
+
+  <div class="card c">
+    <div class="label">🔵 C - Mixed</div>
+    <div class="num" id="c">0</div>
+  </div>
+
+</div>
+
+<div class="footer">
+🌍 GLOBAL VOTING NETWORK | LIVE REAL-TIME DATA
 </div>
 
 <script>
-  // 🔥 Firebase Config (same as your project)
+  // 🔥 Firebase Config (your project)
   const firebaseConfig = {
     apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
     authDomain: "onoevote2026.firebaseapp.com",
@@ -56,20 +111,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  let pieChart, barChart;
-
-  function updateCharts(a,b,c){
-
-    // PIE
-    pieChart.data.datasets[0].data = [a,b,c];
-    pieChart.update();
-
-    // BAR
-    barChart.data.datasets[0].data = [a,b,c];
-    barChart.update();
-  }
-
-  function loadVotes(){
+  function loadData(){
 
     db.ref("votes").on("value", snapshot => {
 
@@ -83,38 +125,13 @@
         if(data[key].vote=="C") c++;
       }
 
-      updateCharts(a,b,c);
+      document.getElementById("a").innerText = a;
+      document.getElementById("b").innerText = b;
+      document.getElementById("c").innerText = c;
     });
   }
 
-  window.onload = function(){
-
-    pieChart = new Chart(document.getElementById("pieChart"), {
-      type: "pie",
-      data: {
-        labels: ["A - Support", "B - Oppose", "C - Mixed"],
-        datasets: [{
-          data: [0,0,0],
-          backgroundColor: ["green","red","blue"]
-        }]
-      }
-    });
-
-    barChart = new Chart(document.getElementById("barChart"), {
-      type: "bar",
-      data: {
-        labels: ["A","B","C"],
-        datasets: [{
-          label: "Votes",
-          data: [0,0,0],
-          backgroundColor: ["green","red","blue"]
-        }]
-      }
-    });
-
-    loadVotes();
-  }
-
+  loadData();
 </script>
 
 </body>
