@@ -1,115 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Admin Control Room</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div style="display:flex;justify-content:center;gap:15px;margin-top:20px;flex-wrap:wrap">
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <div style="background:#1e1e1e;padding:20px;border-radius:12px;color:#00ff7f;min-width:150px">
+    🟢 A SUPPORT<br><br>
+    <span id="aCount" style="font-size:28px;font-weight:bold">0</span><br>
+    <small id="aPercent">0%</small>
+  </div>
 
-  <style>
-    body{
-      margin:0;
-      font-family: Arial;
-      background:#0a0f1f;
-      color:white;
-      text-align:center;
-    }
+  <div style="background:#1e1e1e;padding:20px;border-radius:12px;color:#ff4d4d;min-width:150px">
+    🔴 B OPPOSE<br><br>
+    <span id="bCount" style="font-size:28px;font-weight:bold">0</span><br>
+    <small id="bPercent">0%</small>
+  </div>
 
-    h2{
-      padding:15px;
-      background:#111a33;
-      margin:0;
-    }
-
-    .box{
-      margin:20px;
-      padding:20px;
-      background:rgba(255,255,255,0.08);
-      border-radius:12px;
-    }
-
-    button{
-      width:80%;
-      padding:12px;
-      margin:10px;
-      border:none;
-      border-radius:8px;
-      font-size:16px;
-      cursor:pointer;
-    }
-
-    .open{background:#00c853;color:white;}
-    .close{background:#d50000;color:white;}
-    .reset{background:#ff9100;color:black;}
-
-    .status{
-      font-size:22px;
-      font-weight:bold;
-      margin-top:10px;
-    }
-  </style>
-</head>
-
-<body>
-
-<h2>👨‍💼 ADMIN CONTROL ROOM</h2>
-
-<div class="box">
-
-  <h3>🗳️ Voting Control</h3>
-
-  <button class="open" onclick="setStatus('OPEN')">🟢 OPEN VOTING</button>
-  <button class="close" onclick="setStatus('CLOSED')">🔴 CLOSE VOTING</button>
-  <button class="reset" onclick="resetVotes()">♻️ RESET SYSTEM</button>
+  <div style="background:#1e1e1e;padding:20px;border-radius:12px;color:#4da6ff;min-width:150px">
+    🔵 C MIXED<br><br>
+    <span id="cCount" style="font-size:28px;font-weight:bold">0</span><br>
+    <small id="cPercent">0%</small>
+  </div>
 
 </div>
-
-<div class="box">
-
-  <h3>📊 Live Status</h3>
-  <div class="status" id="status">Loading...</div>
-
-</div>
-
-<script>
-  // 🔥 Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-    authDomain: "onoevote2026.firebaseapp.com",
-    databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "onoevote2026",
-    storageBucket: "onoevote2026.firebasestorage.app",
-    messagingSenderId: "181065724520",
-    appId: "1:181065724520:web:f72a93869786373c1101dd"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  // 🟢 OPEN / CLOSE CONTROL
-  function setStatus(state){
-    db.ref("system/status").set(state);
-    alert("Voting set to: " + state);
-  }
-
-  // ♻️ RESET VOTES
-  function resetVotes(){
-    db.ref("votes").remove();
-    alert("All votes reset!");
-  }
-
-  // 📊 LIVE STATUS MONITOR
-  function monitor(){
-    db.ref("system/status").on("value", snap=>{
-      let val = snap.val();
-      document.getElementById("status").innerText =
-        "SYSTEM STATUS: " + (val ? val : "NOT SET");
-    });
-  }
-
-  monitor();
-</script>
-
-</body>
-</html>
