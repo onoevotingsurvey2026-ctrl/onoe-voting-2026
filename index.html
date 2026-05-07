@@ -18,7 +18,7 @@
       background:#111a33;
     }
 
-    .tv-btn{
+    .tv-toggle{
       padding:10px;
       margin:10px;
       background:#333;
@@ -33,6 +33,7 @@
       margin:5px;
       border:none;
       border-radius:8px;
+      cursor:pointer;
     }
 
     .open{background:green;color:white;}
@@ -59,13 +60,14 @@
     .blue{color:#4da6ff;}
 
     .num{
-      font-size:45px;
+      font-size:50px;
       font-weight:bold;
       margin:10px 0;
     }
 
     .percent{
       color:#aaa;
+      font-size:16px;
     }
 
     body.tv-mode{
@@ -76,17 +78,18 @@
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <h2>📡 GLOBAL VOTING NETWORK</h2>
   <h3>🇮🇳 INDIA PUBLIC OPINION DASHBOARD</h3>
 </div>
 
-<!-- TV MODE -->
-<button class="tv-btn" onclick="document.body.classList.toggle('tv-mode')">
+<!-- TV MODE BUTTON -->
+<button class="tv-toggle" onclick="document.body.classList.toggle('tv-mode')">
 📺 TV MODE ON/OFF
 </button>
 
-<!-- ADMIN -->
+<!-- ADMIN CONTROL -->
 <div class="admin">
   <h3>👨‍💼 ADMIN CONTROL</h3>
 
@@ -97,7 +100,9 @@
 
 <hr>
 
-<!-- DASHBOARD -->
+<!-- LIVE RESULTS -->
+<h3>📺 LIVE RESULTS DASHBOARD</h3>
+
 <div class="cards">
 
   <div class="card green">
