@@ -21,7 +21,7 @@
       background:#111a33;
     }
 
-    button{
+    .admin button{
       padding:10px;
       margin:5px;
       border:none;
@@ -67,21 +67,24 @@
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <h2>📡 GLOBAL VOTING NETWORK</h2>
   <h3>🇮🇳 INDIA PUBLIC OPINION DASHBOARD</h3>
 </div>
 
-<!-- ADMIN -->
-<h3>👨‍💼 ADMIN CONTROL</h3>
+<!-- ADMIN CONTROL -->
+<div class="admin">
+  <h3>👨‍💼 ADMIN CONTROL</h3>
 
-<button class="open" onclick="setStatus('OPEN')">🟢 OPEN VOTING</button>
-<button class="close" onclick="setStatus('CLOSED')">🔴 CLOSE VOTING</button>
-<button class="reset" onclick="resetVotes()">♻️ RESET</button>
+  <button class="open" onclick="setStatus('OPEN')">🟢 OPEN VOTING</button>
+  <button class="close" onclick="setStatus('CLOSED')">🔴 CLOSE VOTING</button>
+  <button class="reset" onclick="resetVotes()">♻️ RESET</button>
+</div>
 
 <hr>
 
-<!-- RESULTS -->
+<!-- LIVE RESULTS -->
 <h3>📊 LIVE RESULTS</h3>
 
 <div class="cards">
@@ -89,19 +92,19 @@
   <div class="card green">
     🟢 A SUPPORT
     <div class="num" id="aCount">0</div>
-    <div class="percent" id="aPercent">0%</div>
+    <div class="percent" id="aPercent">0.0%</div>
   </div>
 
   <div class="card red">
     🔴 B OPPOSE
     <div class="num" id="bCount">0</div>
-    <div class="percent" id="bPercent">0%</div>
+    <div class="percent" id="bPercent">0.0%</div>
   </div>
 
   <div class="card blue">
     🔵 C MIXED
     <div class="num" id="cCount">0</div>
-    <div class="percent" id="cPercent">0%</div>
+    <div class="percent" id="cPercent">0.0%</div>
   </div>
 
 </div>
@@ -129,7 +132,7 @@ function resetVotes(){
   db.ref("votes").remove();
 }
 
-// LIVE STATS
+// LIVE DATA
 db.ref("votes").on("value", snap=>{
 
   let data = snap.val() || {};
