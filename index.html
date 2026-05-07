@@ -18,6 +18,11 @@
       background:#111a33;
     }
 
+    .section{
+      margin-top:15px;
+      font-weight:bold;
+    }
+
     .cards{
       display:flex;
       justify-content:center;
@@ -59,19 +64,26 @@
     .open{background:green;color:white;}
     .close{background:red;color:white;}
     .reset{background:orange;color:black;}
+
+    body.tv{
+      background:black;
+    }
   </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <h2>📡 GLOBAL VOTING NETWORK</h2>
   <h3>🇮🇳 INDIA PUBLIC OPINION DASHBOARD</h3>
 </div>
 
-<h3>📺 TV MODE ON/OFF</h3>
+<!-- TV MODE -->
+<div class="section">📺 TV MODE ON/OFF</div>
 
-<h3>👨‍💼 ADMIN CONTROL</h3>
+<!-- ADMIN -->
+<div class="section">👨‍💼 ADMIN CONTROL</div>
 
 <button class="open">🟢 OPEN VOTING</button>
 <button class="close">🔴 CLOSE VOTING</button>
@@ -79,7 +91,8 @@
 
 <hr>
 
-<h3>📺 LIVE RESULTS DASHBOARD</h3>
+<!-- RESULTS -->
+<div class="section">📺 LIVE RESULTS DASHBOARD</div>
 
 <div class="cards">
 
