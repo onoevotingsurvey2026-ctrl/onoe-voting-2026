@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting Network LIVE</title>
+  <title>Global Voting Network</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -16,7 +16,7 @@
       text-align:center;
     }
 
-    body.tv{
+    body.tv-mode{
       background:black;
     }
 
@@ -25,7 +25,11 @@
       background:#111a33;
     }
 
-    .controls button{
+    .topbar{
+      margin:10px;
+    }
+
+    button{
       padding:10px;
       margin:5px;
       border:none;
@@ -36,7 +40,7 @@
     .open{background:green;color:white;}
     .close{background:red;color:white;}
     .reset{background:orange;color:black;}
-    .tvbtn{background:#333;color:white;}
+    .tv{background:#333;color:white;}
 
     .cards{
       display:flex;
@@ -65,19 +69,22 @@
 
     .percent{
       color:#aaa;
+      font-size:16px;
     }
   </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <h2>📡 GLOBAL VOTING NETWORK</h2>
   <h3>🇮🇳 INDIA PUBLIC OPINION DASHBOARD</h3>
 </div>
 
-<div class="controls">
-  <button class="tvbtn" onclick="document.body.classList.toggle('tv')">📺 TV MODE</button>
+<!-- CONTROLS -->
+<div class="topbar">
+  <button class="tv" onclick="toggleTV()">📺 TV MODE</button>
   <button class="open" onclick="setStatus('OPEN')">🟢 OPEN</button>
   <button class="close" onclick="setStatus('CLOSED')">🔴 CLOSE</button>
   <button class="reset" onclick="resetVotes()">♻️ RESET</button>
@@ -122,6 +129,11 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+
+/* TV MODE */
+function toggleTV(){
+  document.body.classList.toggle("tv-mode");
+}
 
 /* ADMIN */
 function setStatus(state){
