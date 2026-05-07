@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting Network</title>
+  <title>ONOE + DEL Live Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -16,33 +16,12 @@
       text-align:center;
     }
 
-    body.tv-mode{
-      background:black;
-    }
-
     .header{
       padding:15px;
       background:#111a33;
     }
 
-    .topbar{
-      margin:10px;
-    }
-
-    button{
-      padding:10px;
-      margin:5px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-    }
-
-    .open{background:green;color:white;}
-    .close{background:red;color:white;}
-    .reset{background:orange;color:black;}
-    .tv{background:#333;color:white;}
-
-    .cards{
+    .grid{
       display:flex;
       justify-content:center;
       gap:20px;
@@ -54,64 +33,70 @@
       background:#1e1e1e;
       padding:25px;
       border-radius:14px;
-      min-width:180px;
+      width:220px;
     }
 
-    .green{color:#00ff7f;}
-    .red{color:#ff4d4d;}
-    .blue{color:#4da6ff;}
+    .title{
+      font-size:18px;
+      margin-bottom:10px;
+    }
 
     .num{
-      font-size:55px;
+      font-size:50px;
       font-weight:bold;
-      margin:10px 0;
     }
 
-    .percent{
-      color:#aaa;
-      font-size:16px;
+    .btn{
+      padding:10px;
+      margin:5px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
     }
+
+    .green{background:green;color:white;}
+    .red{background:red;color:white;}
+    .blue{background:blue;color:white;}
   </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
-  <h2>📡 GLOBAL VOTING NETWORK</h2>
-  <h3>🇮🇳 INDIA PUBLIC OPINION DASHBOARD</h3>
+  <h2>📊 ONOE + DEL LIVE DASHBOARD</h2>
 </div>
 
-<!-- CONTROLS -->
-<div class="topbar">
-  <button class="tv" onclick="toggleTV()">📺 TV MODE</button>
-  <button class="open" onclick="setStatus('OPEN')">🟢 OPEN</button>
-  <button class="close" onclick="setStatus('CLOSED')">🔴 CLOSE</button>
-  <button class="reset" onclick="resetVotes()">♻️ RESET</button>
-</div>
+<h3>🗳️ VOTE CONTROLS</h3>
+
+<button class="green" onclick="vote('ONOE','support')">ONOE SUPPORT</button>
+<button class="red" onclick="vote('ONOE','against')">ONOE AGAINST</button>
+<button class="green" onclick="vote('DEL','support')">DEL SUPPORT</button>
+<button class="red" onclick="vote('DEL','against')">DEL AGAINST</button>
 
 <hr>
 
 <h3>📊 LIVE RESULTS</h3>
 
-<div class="cards">
+<div class="grid">
 
-  <div class="card green">
-    🟢 A SUPPORT
-    <div class="num" id="aCount">0</div>
-    <div class="percent" id="aPercent">0.0%</div>
+  <div class="card">
+    <div class="title">🟢 ONOE SUPPORT</div>
+    <div class="num" id="os">0</div>
   </div>
 
-  <div class="card red">
-    🔴 B OPPOSE
-    <div class="num" id="bCount">0</div>
-    <div class="percent" id="bPercent">0.0%</div>
+  <div class="card">
+    <div class="title">🔴 ONOE AGAINST</div>
+    <div class="num" id="oa">0</div>
   </div>
 
-  <div class="card blue">
-    🔵 C MIXED
-    <div class="num" id="cCount">0</div>
-    <div class="percent" id="cPercent">0.0%</div>
+  <div class="card">
+    <div class="title">🟢 DEL SUPPORT</div>
+    <div class="num" id="ds">0</div>
+  </div>
+
+  <div class="card">
+    <div class="title">🔴 DEL AGAINST</div>
+    <div class="num" id="da">0</div>
   </div>
 
 </div>
@@ -121,51 +106,35 @@ const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
   databaseURL: "YOUR_DB_URL",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  projectId: "YOUR_PROJECT_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* TV MODE */
-function toggleTV(){
-  document.body.classList.toggle("tv-mode");
+/* VOTE FUNCTION */
+function vote(type, choice){
+  let id = "u_" + Date.now();
+
+  db.ref("stats/" + type + "/" + choice).transaction(val => {
+    return (val || 0) + 1;
+  });
 }
 
-/* ADMIN */
-function setStatus(state){
-  db.ref("system/status").set(state);
-}
-
-function resetVotes(){
-  db.ref("votes").remove();
-}
-
-/* LIVE SYSTEM */
-db.ref("votes").on("value", snap => {
+/* LIVE UPDATE */
+db.ref("stats").on("value", snap => {
 
   let data = snap.val() || {};
 
-  let a=0,b=0,c=0;
+  let os = data.ONOE?.support || 0;
+  let oa = data.ONOE?.against || 0;
+  let ds = data.DEL?.support || 0;
+  let da = data.DEL?.against || 0;
 
-  Object.values(data).forEach(v=>{
-    if(v.vote==="A") a++;
-    if(v.vote==="B") b++;
-    if(v.vote==="C") c++;
-  });
-
-  let total = a+b+c || 1;
-
-  document.getElementById("aCount").innerText = a;
-  document.getElementById("bCount").innerText = b;
-  document.getElementById("cCount").innerText = c;
-
-  document.getElementById("aPercent").innerText = ((a/total)*100).toFixed(1)+"%";
-  document.getElementById("bPercent").innerText = ((b/total)*100).toFixed(1)+"%";
-  document.getElementById("cPercent").innerText = ((c/total)*100).toFixed(1)+"%";
+  document.getElementById("os").innerText = os;
+  document.getElementById("oa").innerText = oa;
+  document.getElementById("ds").innerText = ds;
+  document.getElementById("da").innerText = da;
 
 });
 </script>
