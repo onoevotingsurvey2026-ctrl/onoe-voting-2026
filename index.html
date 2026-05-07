@@ -4,11 +4,15 @@
   <title>ONOE + DEL TV System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <!-- ✅ IMPORTANT AUTH SCRIPT -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
   <style>
+
     body{
       margin:0;
       font-family:Arial;
@@ -16,7 +20,6 @@
       color:white;
     }
 
-    /* TOP BAR */
     .topbar{
       background:#b30000;
       padding:10px;
@@ -31,17 +34,22 @@
       100%{opacity:1;}
     }
 
-    /* HEADER */
     .header{
       text-align:center;
       padding:15px;
       background:#111;
     }
 
-    .title{font-size:22px;font-weight:bold;}
-    .subtitle{font-size:13px;color:#aaa;}
+    .title{
+      font-size:22px;
+      font-weight:bold;
+    }
 
-    /* GRID */
+    .subtitle{
+      font-size:13px;
+      color:#aaa;
+    }
+
     .grid{
       display:flex;
       justify-content:center;
@@ -58,20 +66,19 @@
       text-align:center;
     }
 
-    .label{color:#ccc;font-size:14px;}
-    .num{font-size:55px;font-weight:bold;margin-top:10px;}
+    .label{
+      color:#ccc;
+      font-size:14px;
+    }
+
+    .num{
+      font-size:55px;
+      font-weight:bold;
+      margin-top:10px;
+    }
 
     .green{color:#00ff7f;}
     .red{color:#ff4d4d;}
-
-    /* ADMIN */
-    #adminPanel{
-      display:none;
-      text-align:center;
-      padding:20px;
-      background:#0f0f0f;
-      margin-top:20px;
-    }
 
     button{
       padding:10px;
@@ -81,19 +88,27 @@
       cursor:pointer;
     }
 
-    .g{background:green;color:white;}
-    .r{background:red;color:white;}
-    .y{background:orange;color:black;}
+    .y{
+      background:orange;
+      color:black;
+    }
 
-    /* TICKER */
+    #adminPanel{
+      display:none;
+      text-align:center;
+      margin-top:20px;
+      padding:20px;
+      background:#111;
+    }
+
     .ticker{
       position:fixed;
       bottom:0;
       width:100%;
       background:#111;
       padding:8px;
-      white-space:nowrap;
       overflow:hidden;
+      white-space:nowrap;
     }
 
     .ticker span{
@@ -119,10 +134,12 @@
 
 <div class="header">
   <div class="title">🇮🇳 INDIA PUBLIC OPINION DASHBOARD</div>
-  <div class="subtitle">ONOE (One Nation One Election) | DEL (Delimitation)</div>
+  <div class="subtitle">
+    ONOE (One Nation One Election) | DEL (Delimitation)
+  </div>
 </div>
 
-<!-- LIVE DASHBOARD -->
+<!-- DASHBOARD -->
 <div class="grid">
 
   <div class="card">
@@ -149,7 +166,9 @@
 
 <!-- ADMIN LOGIN -->
 <div style="text-align:center;margin-top:20px;">
-  <button onclick="adminLogin()" class="y">🔐 ADMIN LOGIN</button>
+  <button onclick="adminLogin()" class="y">
+    🔐 ADMIN LOGIN
+  </button>
 </div>
 
 <!-- ADMIN PANEL -->
@@ -157,93 +176,92 @@
 
   <h2>👨‍💼 ADMIN CONTROL ROOM</h2>
 
-  <button class="g" onclick="setStatus('OPEN')">🟢 OPEN VOTING</button>
-  <button class="r" onclick="setStatus('CLOSED')">🔴 CLOSE VOTING</button>
-  <button class="y" onclick="resetVotes()">♻️ RESET SYSTEM</button>
-
-  <hr>
-
-  <h3>📊 LIVE STATS</h3>
-
-  ONOE Support: <span id="a1">0</span><br>
-  ONOE Against: <span id="a2">0</span><br>
-  DEL Support: <span id="a3">0</span><br>
-  DEL Against: <span id="a4">0</span>
+  <p>✅ Admin Access Granted</p>
 
 </div>
 
 <!-- TICKER -->
 <div class="ticker">
-  <span>📡 LIVE ONOE + DEL RESULTS | GLOBAL VOTING NETWORK | REAL TIME BROADCAST | INDIA PUBLIC OPINION DASHBOARD</span>
+  <span>
+    📡 LIVE ONOE + DEL RESULTS | GLOBAL VOTING NETWORK | REAL TIME BROADCAST
+  </span>
 </div>
 
 <script>
 
-/* 🔥 FIREBASE CONFIG */
+/* FIREBASE CONFIG */
 const firebaseConfig = {
+
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
   databaseURL: "YOUR_DB_URL",
   projectId: "YOUR_PROJECT_ID"
+
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.database();
 
-/* 📊 LIVE DATA */
+/* LIVE DATA */
 db.ref("stats").on("value", snap => {
 
   let d = snap.val() || {};
 
-  let os = d.ONOE?.support || 0;
-  let oa = d.ONOE?.against || 0;
-  let ds = d.DEL?.support || 0;
-  let da = d.DEL?.against || 0;
+  document.getElementById("os").innerText =
+    d.ONOE?.support || 0;
 
-  document.getElementById("os").innerText = os;
-  document.getElementById("oa").innerText = oa;
-  document.getElementById("ds").innerText = ds;
-  document.getElementById("da").innerText = da;
+  document.getElementById("oa").innerText =
+    d.ONOE?.against || 0;
 
-  document.getElementById("a1").innerText = os;
-  document.getElementById("a2").innerText = oa;
-  document.getElementById("a3").innerText = ds;
-  document.getElementById("a4").innerText = da;
+  document.getElementById("ds").innerText =
+    d.DEL?.support || 0;
+
+  document.getElementById("da").innerText =
+    d.DEL?.against || 0;
 
 });
 
-/* 🔐 ADMIN LOGIN */
+/* ADMIN EMAIL */
 const ADMIN_EMAIL = "youradmin@gmail.com";
 
+/* LOGIN */
 function adminLogin(){
-  const provider = new firebase.auth.GoogleAuthProvider();
 
-  firebase.auth().signInWithPopup(provider)
-  .then(res=>{
+  const provider =
+    new firebase.auth.GoogleAuthProvider();
 
-    if(res.user.email !== ADMIN_EMAIL){
+  firebase.auth()
+  .signInWithPopup(provider)
+
+  .then((result)=>{
+
+    const user = result.user;
+
+    if(user.email !== ADMIN_EMAIL){
+
       alert("❌ Access Denied");
+
       firebase.auth().signOut();
+
       return;
     }
 
-    document.getElementById("adminPanel").style.display="block";
-    alert("✅ Admin Access Granted");
+    document.getElementById("adminPanel")
+    .style.display = "block";
+
+    alert("✅ Admin Login Success");
+
+  })
+
+  .catch((error)=>{
+
+    alert(error.message);
+
+    console.log(error);
 
   });
-}
 
-/* ⚡ CONTROL FUNCTIONS */
-function setStatus(status){
-  firebase.database().ref("system/status").set(status);
-  alert("System: " + status);
-}
-
-function resetVotes(){
-  firebase.database().ref("stats").set({
-    ONOE:{support:0,against:0},
-    DEL:{support:0,against:0}
-  });
 }
 
 </script>
