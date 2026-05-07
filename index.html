@@ -1,94 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>ONOE Voting System</title>
+  <title>Global Voting Network</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body {
+    body{
       font-family: Arial;
-      text-align: center;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 0;
+      text-align:center;
+      margin:0;
+      background:#f4f6f9;
     }
 
-    h1 {
-      background: #111827;
-      color: white;
-      padding: 15px;
-      margin: 0;
+    header{
+      background:#002b5c;
+      color:white;
+      padding:15px;
+      font-size:18px;
     }
 
-    .box {
-      background: white;
-      width: 320px;
-      margin: 15px auto;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #ccc;
+    button{
+      padding:10px;
+      margin:8px;
+      width:80%;
+      border:none;
+      border-radius:6px;
+      font-size:16px;
     }
 
-    button {
-      padding: 10px 15px;
-      margin: 8px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+    .login{
+      background:#ff9800;
+      color:white;
     }
 
-    .login {
-      background: green;
-      color: white;
-    }
+    .a{background:#4CAF50;color:white;}
+    .b{background:#f44336;color:white;}
+    .c{background:#2196F3;color:white;}
 
-    .vote {
-      background: blue;
-      color: white;
-    }
-
-    #voteBox {
-      opacity: 0.5;
-      pointer-events: none;
+    .box{
+      background:white;
+      margin:15px;
+      padding:15px;
+      border-radius:10px;
     }
   </style>
 </head>
 
 <body>
 
-<h1>🗳 ONOE Voting System</h1>
+<header>
+  GLOBAL VOTING NETWORK<br>
+  🇮🇳 INDIA PUBLIC OPINION DASHBOARD
+</header>
 
-<!-- LOGIN -->
 <div class="box">
-  <h3>Login</h3>
-
-  <!-- ✅ REAL LOGIN BUTTON -->
-  <button class="login" id="loginBtn">
-  Login with Google
-</button>
-  <p id="status">Please login to vote</p>
+  <h3>Login to Vote</h3>
+  <button class="login" onclick="login()">🔐 Google Login</button>
+  <p id="user"></p>
 </div>
 
-<!-- VOTING -->
-<div class="box" id="voteBox">
-  <h3>Vote Your Candidate</h3>
-
-  <button class="vote" onclick="vote('Candidate_A')">Candidate A</button>
-  <button class="vote" onclick="vote('Candidate_B')">Candidate B</button>
-  <button class="vote" onclick="vote('Candidate_C')">Candidate C</button>
-</div>
-
-<!-- LIVE RESULTS -->
 <div class="box">
-  <h3>📊 LIVE RESULTS</h3>
+  <h3>Vote (A / B / C)</h3>
 
-  <p>Candidate A: <span id="aCount">0</span></p>
-  <p>Candidate B: <span id="bCount">0</span></p>
-  <p>Candidate C: <span id="cCount">0</span></p>
+  <button class="a" onclick="vote('A')">🟢 Candidate A - Support</button>
+  <button class="b" onclick="vote('B')">🔴 Candidate B - Oppose</button>
+  <button class="c" onclick="vote('C')">🔵 Candidate C - Mixed</button>
+
+  <p id="status"></p>
 </div>
 
-<!-- 🔥 FIREBASE SCRIPT -->
-<script type="module" src="script.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  // 🔥 YOUR FIREBASE CONFIG
+  const firebaseConfig = {
+    apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+    authDomain: "onoevote2026.firebaseapp.com",
+    databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "onoevote2026",
+    storageBucket: "onoevote2026.firebasestorage.app",
+    messagingSenderId: "181065724520",
+    appId: "1:181065724520:web:f72a93869786373c1101dd"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  let currentUser = null;
+
+  // 🔐 LOGIN
+  function login(){
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    auth.signInWithPopup(provider)
+    .then(result => {
+      currentUser = result.user;
+      document.getElementById("user").innerText =
+        "Logged in as: " + currentUser.email;
+    })
+    .catch(err => {
+      alert(err.message);
+    });
+  }
+
+  // 🗳️ VOTE FUNCTION
+  function vote(choice){
+
+    if(!currentUser){
+      alert("Please login first!");
+      return;
+    }
+
+    db.ref("votes/" + currentUser.uid).set({
+      email: currentUser.email,
+      vote: choice
+    });
+
+    document.getElementById("status").innerText =
+      "Vote submitted: " + choice;
+  }
+
+</script>
 
 </body>
 </html>
