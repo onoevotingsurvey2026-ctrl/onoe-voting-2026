@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting Network - TV Mode</title>
+  <title>Global Voting Network</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <style>
     body{
@@ -16,21 +13,31 @@
       text-align:center;
     }
 
-    /* TV MODE */
-    body.tv-mode{
-      background:black;
-    }
-
     .header{
       padding:15px;
       background:#111a33;
     }
 
-    .tv-header{
-      font-size:28px;
-      font-weight:bold;
-      padding:20px;
+    .tv-btn{
+      padding:10px;
+      margin:10px;
+      background:#333;
+      color:white;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
     }
+
+    .admin button{
+      padding:10px;
+      margin:5px;
+      border:none;
+      border-radius:8px;
+    }
+
+    .open{background:green;color:white;}
+    .close{background:red;color:white;}
+    .reset{background:orange;color:black;}
 
     .cards{
       display:flex;
@@ -52,129 +59,66 @@
     .blue{color:#4da6ff;}
 
     .num{
-      font-size:50px;
+      font-size:45px;
       font-weight:bold;
       margin:10px 0;
     }
 
-    button{
-      padding:10px;
-      margin:5px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
+    .percent{
+      color:#aaa;
     }
 
-    .open{background:green;color:white;}
-    .close{background:red;color:white;}
-    .reset{background:orange;color:black;}
-    .tvbtn{background:#333;color:white;}
+    body.tv-mode{
+      background:black;
+    }
   </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <h2>📡 GLOBAL VOTING NETWORK</h2>
   <h3>🇮🇳 INDIA PUBLIC OPINION DASHBOARD</h3>
 </div>
 
-<!-- TV BUTTON -->
-<button class="tvbtn" onclick="toggleTV()">📺 TV MODE ON/OFF</button>
-
-<hr>
+<!-- TV MODE -->
+<button class="tv-btn" onclick="document.body.classList.toggle('tv-mode')">
+📺 TV MODE ON/OFF
+</button>
 
 <!-- ADMIN -->
-<h3>👨‍💼 ADMIN CONTROL</h3>
+<div class="admin">
+  <h3>👨‍💼 ADMIN CONTROL</h3>
 
-<button class="open" onclick="setStatus('OPEN')">🟢 OPEN VOTING</button>
-<button class="close" onclick="setStatus('CLOSED')">🔴 CLOSE VOTING</button>
-<button class="reset" onclick="resetVotes()">♻️ RESET</button>
+  <button class="open">🟢 OPEN VOTING</button>
+  <button class="close">🔴 CLOSE VOTING</button>
+  <button class="reset">♻️ RESET</button>
+</div>
 
 <hr>
 
-<!-- TV TITLE -->
-<div class="tv-header">
-📺 LIVE RESULTS DASHBOARD
-</div>
-
-<!-- RESULTS -->
+<!-- DASHBOARD -->
 <div class="cards">
 
   <div class="card green">
     🟢 A SUPPORT
-    <div class="num" id="aCount">0</div>
-    <div id="aPercent">0%</div>
+    <div class="num">0</div>
+    <div class="percent">0.0%</div>
   </div>
 
   <div class="card red">
     🔴 B OPPOSE
-    <div class="num" id="bCount">0</div>
-    <div id="bPercent">0%</div>
+    <div class="num">0</div>
+    <div class="percent">0.0%</div>
   </div>
 
   <div class="card blue">
     🔵 C MIXED
-    <div class="num" id="cCount">0</div>
-    <div id="cPercent">0%</div>
+    <div class="num">0</div>
+    <div class="percent">0.0%</div>
   </div>
 
 </div>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// TV MODE TOGGLE
-function toggleTV(){
-  document.body.classList.toggle("tv-mode");
-}
-
-// ADMIN
-function setStatus(state){
-  db.ref("system/status").set(state);
-}
-
-function resetVotes(){
-  db.ref("votes").remove();
-}
-
-// LIVE DATA
-db.ref("votes").on("value", snap=>{
-
-  let data = snap.val() || {};
-
-  let a=0,b=0,c=0;
-
-  Object.values(data).forEach(v=>{
-    if(v.vote==="A") a++;
-    if(v.vote==="B") b++;
-    if(v.vote==="C") c++;
-  });
-
-  let total = a+b+c || 1;
-
-  document.getElementById("aCount").innerText = a;
-  document.getElementById("bCount").innerText = b;
-  document.getElementById("cCount").innerText = c;
-
-  document.getElementById("aPercent").innerText = ((a/total)*100).toFixed(1)+"%";
-  document.getElementById("bPercent").innerText = ((b/total)*100).toFixed(1)+"%";
-  document.getElementById("cPercent").innerText = ((c/total)*100).toFixed(1)+"%";
-
-});
-</script>
 
 </body>
 </html>
