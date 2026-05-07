@@ -18,28 +18,6 @@
       background:#111a33;
     }
 
-    .tv-toggle{
-      padding:10px;
-      margin:10px;
-      background:#333;
-      color:white;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-    }
-
-    .admin button{
-      padding:10px;
-      margin:5px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-    }
-
-    .open{background:green;color:white;}
-    .close{background:red;color:white;}
-    .reset{background:orange;color:black;}
-
     .cards{
       display:flex;
       justify-content:center;
@@ -70,37 +48,37 @@
       font-size:16px;
     }
 
-    body.tv-mode{
-      background:black;
+    button{
+      padding:10px;
+      margin:5px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
     }
+
+    .open{background:green;color:white;}
+    .close{background:red;color:white;}
+    .reset{background:orange;color:black;}
   </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <h2>📡 GLOBAL VOTING NETWORK</h2>
   <h3>🇮🇳 INDIA PUBLIC OPINION DASHBOARD</h3>
 </div>
 
-<!-- TV MODE BUTTON -->
-<button class="tv-toggle" onclick="document.body.classList.toggle('tv-mode')">
-📺 TV MODE ON/OFF
-</button>
+<h3>📺 TV MODE ON/OFF</h3>
 
-<!-- ADMIN CONTROL -->
-<div class="admin">
-  <h3>👨‍💼 ADMIN CONTROL</h3>
+<h3>👨‍💼 ADMIN CONTROL</h3>
 
-  <button class="open">🟢 OPEN VOTING</button>
-  <button class="close">🔴 CLOSE VOTING</button>
-  <button class="reset">♻️ RESET</button>
-</div>
+<button class="open">🟢 OPEN VOTING</button>
+<button class="close">🔴 CLOSE VOTING</button>
+<button class="reset">♻️ RESET</button>
 
 <hr>
 
-<!-- LIVE RESULTS -->
 <h3>📺 LIVE RESULTS DASHBOARD</h3>
 
 <div class="cards">
