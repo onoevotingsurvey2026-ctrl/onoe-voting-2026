@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live TV Mode</title>
+  <title>Admin Control Room</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -9,92 +9,52 @@
 
   <style>
     body{
-      margin:0;
       font-family: Arial;
-      background:#050c1a;
-      color:white;
       text-align:center;
-      overflow:hidden;
+      background:#111;
+      color:white;
     }
 
-    .header{
-      padding:20px;
-      font-size:24px;
-      background:rgba(255,255,255,0.05);
+    .box{
+      margin:15px;
+      padding:15px;
+      background:#222;
+      border-radius:10px;
     }
 
-    .container{
-      display:flex;
-      justify-content:space-around;
-      margin-top:60px;
-      flex-wrap:wrap;
-    }
-
-    .card{
-      width:30%;
-      min-width:250px;
-      padding:30px;
-      margin:10px;
-      border-radius:15px;
-      background:rgba(255,255,255,0.08);
-      box-shadow:0 0 20px rgba(255,255,255,0.1);
-      transition:0.5s;
-    }
-
-    .num{
-      font-size:70px;
-      font-weight:bold;
-      margin-top:10px;
-      transition:0.5s;
-    }
-
-    .a{border-top:5px solid #00ff7f;}
-    .b{border-top:5px solid #ff4d4d;}
-    .c{border-top:5px solid #4da6ff;}
-
-    .footer{
-      position:fixed;
-      bottom:0;
-      width:100%;
+    button{
       padding:10px;
-      font-size:14px;
-      background:rgba(255,255,255,0.05);
+      margin:10px;
+      width:80%;
+      border:none;
+      border-radius:8px;
+      font-size:16px;
     }
+
+    .open{background:green;color:white;}
+    .close{background:red;color:white;}
+    .reset{background:orange;color:black;}
   </style>
 </head>
 
 <body>
 
-<div class="header">
-📺 LIVE TV BROADCAST MODE<br>
-🇮🇳 INDIA PUBLIC OPINION DASHBOARD
+<h2>👨‍💼 ADMIN CONTROL ROOM</h2>
+
+<div class="box">
+  <h3>🗳️ Voting Control</h3>
+
+  <button class="open" onclick="setStatus('open')">OPEN VOTING</button>
+  <button class="close" onclick="setStatus('close')">CLOSE VOTING</button>
+  <button class="reset" onclick="resetVotes()">RESET SYSTEM</button>
 </div>
 
-<div class="container">
-
-  <div class="card a">
-    🟢 A - SUPPORT
-    <div class="num" id="a">0</div>
-  </div>
-
-  <div class="card b">
-    🔴 B - OPPOSE
-    <div class="num" id="b">0</div>
-  </div>
-
-  <div class="card c">
-    🔵 C - MIXED
-    <div class="num" id="c">0</div>
-  </div>
-
-</div>
-
-<div class="footer">
-🌐 GLOBAL VOTING NETWORK | LIVE REAL-TIME BROADCAST
+<div class="box">
+  <h3>📊 Live Status</h3>
+  <p id="status">Loading...</p>
 </div>
 
 <script>
-  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
     authDomain: "onoevote2026.firebaseapp.com",
@@ -108,46 +68,24 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // 🎯 Smooth animation function
-  function animateValue(id, start, end, duration) {
-    let obj = document.getElementById(id);
-    let range = end - start;
-    let current = start;
-    let stepTime = Math.abs(Math.floor(duration / range));
-    
-    let timer = setInterval(function() {
-      current += 1;
-      obj.innerText = current;
-      if (current >= end) {
-        clearInterval(timer);
-      }
-    }, 20);
+  function setStatus(state){
+    db.ref("system/status").set(state);
+    alert("System set to: " + state);
   }
 
-  let oldA=0, oldB=0, oldC=0;
+  function resetVotes(){
+    db.ref("votes").remove();
+    alert("All votes reset!");
+  }
 
-  function loadData(){
-    db.ref("votes").on("value", snapshot => {
-
-      let data = snapshot.val();
-      let a=0,b=0,c=0;
-
-      for(let key in data){
-        if(data[key].vote=="A") a++;
-        if(data[key].vote=="B") b++;
-        if(data[key].vote=="C") c++;
-      }
-
-      // 🎬 animate counters
-      animateValue("a", oldA, a, 1000);
-      animateValue("b", oldB, b, 1000);
-      animateValue("c", oldC, c, 1000);
-
-      oldA=a; oldB=b; oldC=c;
+  function monitor(){
+    db.ref("system/status").on("value", snap=>{
+      document.getElementById("status").innerText =
+        "Voting Status: " + snap.val();
     });
   }
 
-  loadData();
+  monitor();
 </script>
 
 </body>
