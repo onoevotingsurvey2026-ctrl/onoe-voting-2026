@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting Network</title>
+  <title>Global Voting Network LIVE</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -16,8 +16,7 @@
       text-align:center;
     }
 
-    /* TV MODE */
-    body.tv-mode{
+    body.tv{
       background:black;
     }
 
@@ -37,7 +36,7 @@
     .open{background:green;color:white;}
     .close{background:red;color:white;}
     .reset{background:orange;color:black;}
-    .tv{background:#333;color:white;}
+    .tvbtn{background:#333;color:white;}
 
     .cards{
       display:flex;
@@ -66,7 +65,6 @@
 
     .percent{
       color:#aaa;
-      font-size:16px;
     }
   </style>
 </head>
@@ -78,9 +76,8 @@
   <h3>🇮🇳 INDIA PUBLIC OPINION DASHBOARD</h3>
 </div>
 
-<!-- CONTROLS -->
 <div class="controls">
-  <button class="tv" onclick="toggleTV()">📺 TV MODE</button>
+  <button class="tvbtn" onclick="document.body.classList.toggle('tv')">📺 TV MODE</button>
   <button class="open" onclick="setStatus('OPEN')">🟢 OPEN</button>
   <button class="close" onclick="setStatus('CLOSED')">🔴 CLOSE</button>
   <button class="reset" onclick="resetVotes()">♻️ RESET</button>
@@ -126,11 +123,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* TV MODE */
-function toggleTV(){
-  document.body.classList.toggle("tv-mode");
-}
-
 /* ADMIN */
 function setStatus(state){
   db.ref("system/status").set(state);
@@ -140,28 +132,28 @@ function resetVotes(){
   db.ref("votes").remove();
 }
 
-/* LIVE COUNTER (FIXED NO REPEAT ISSUE) */
+/* LIVE SYSTEM */
 db.ref("votes").on("value", snap => {
 
   let data = snap.val() || {};
 
-  let a = 0, b = 0, c = 0;
+  let a=0,b=0,c=0;
 
-  Object.values(data).forEach(v => {
-    if(v.vote === "A") a++;
-    if(v.vote === "B") b++;
-    if(v.vote === "C") c++;
+  Object.values(data).forEach(v=>{
+    if(v.vote==="A") a++;
+    if(v.vote==="B") b++;
+    if(v.vote==="C") c++;
   });
 
-  let total = a + b + c || 1;
+  let total = a+b+c || 1;
 
   document.getElementById("aCount").innerText = a;
   document.getElementById("bCount").innerText = b;
   document.getElementById("cCount").innerText = c;
 
-  document.getElementById("aPercent").innerText = ((a/total)*100).toFixed(1) + "%";
-  document.getElementById("bPercent").innerText = ((b/total)*100).toFixed(1) + "%";
-  document.getElementById("cPercent").innerText = ((c/total)*100).toFixed(1) + "%";
+  document.getElementById("aPercent").innerText = ((a/total)*100).toFixed(1)+"%";
+  document.getElementById("bPercent").innerText = ((b/total)*100).toFixed(1)+"%";
+  document.getElementById("cPercent").innerText = ((c/total)*100).toFixed(1)+"%";
 
 });
 </script>
