@@ -1,232 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- HEADER -->
+<header style="text-align:center;padding:18px;background:#0f172a;color:white;">
 
-<title>TV Broadcast Voting Dashboard</title>
+  🌐 <b>Global Election Network</b>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <h2 style="margin:10px 0;">
+    🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics
+  </h2>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <p style="color:#22c55e;font-weight:bold;font-size:16px;">
+    🔴 LIVE / நேரலை
+  </p>
 
-<style>
+  <p style="font-size:13px;color:#cbd5e1;line-height:1.6;">
+    🌍 GIS + AI + Voting System Active • ONOE vs Delimitation vs Combined • Real-time Analytics Running
+  </p>
 
-/* 🌌 BACKGROUND */
-body {
-  margin: 0;
-  font-family: Arial;
-  background: radial-gradient(circle at top, #0f172a, #000);
-  color: white;
-  overflow-x: hidden;
-}
+</header>
 
-/* 📡 LIVE TOP BAR */
-.topbar {
-  background: rgba(255,255,255,0.05);
-  padding: 10px;
-  text-align: center;
-  font-weight: bold;
-  color: #00ffcc;
-  box-shadow: 0 0 20px #00ffcc33;
-}
+<!-- TOP BAR -->
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#1f2937;flex-wrap:wrap;">
 
-/* 🧊 GLASS CARD */
-.container {
-  max-width: 1000px;
-  margin: auto;
-  padding: 15px;
-}
-
-.card {
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(12px);
-  border-radius: 15px;
-  padding: 15px;
-  margin: 10px;
-  text-align: center;
-  box-shadow: 0 0 20px rgba(0,255,204,0.1);
-  transition: 0.3s;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 25px rgba(0,255,204,0.3);
-}
-
-/* 🔢 NUMBERS */
-.card h2 {
-  margin: 5px;
-  font-size: 18px;
-}
-
-.card p {
-  font-size: 28px;
-  font-weight: bold;
-  color: #00ffcc;
-}
-
-/* 📰 NEWS TICKER */
-.ticker {
-  background: rgba(255,255,255,0.05);
-  padding: 10px;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.ticker-text {
-  display: inline-block;
-  animation: scroll 10s linear infinite;
-  color: #ffcc00;
-}
-
-@keyframes scroll {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-/* 🔘 BUTTONS */
-.buttons {
-  text-align: center;
-  margin-top: 10px;
-}
-
-button {
-  padding: 10px 15px;
-  margin: 5px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background: rgba(0,255,204,0.2);
-  color: white;
-  transition: 0.2s;
-}
-
-button:active {
-  transform: scale(0.9);
-}
-
-/* 📱 MOBILE */
-@media(max-width:768px){
-  .card p { font-size: 22px; }
-}
-
-</style>
-</head>
-
-<body>
-
-<div class="topbar">
-📺 TV BROADCAST LIVE VOTING NETWORK • INDIA ECI PUBLIC SURVEY • 🔴 LIVE
-</div>
-
-<!-- 📰 NEWS TICKER -->
-<div class="ticker">
-  <div class="ticker-text">
-    📢 ONOE Voting Live • 🌍 Global Public Survey Running • 🗳️ Delimitation Debate Active • 📊 Real-time Results Updating • 🔥 ECI Dashboard Broadcast Mode
+  <div>
+    👤 Guest / விருந்தினர்
   </div>
-</div>
 
-<div class="container">
-
-<!-- CARDS -->
-<div class="card"><h2>ONOE Support</h2><p id="onoeSupport">0</p></div>
-<div class="card"><h2>ONOE Against</h2><p id="onoeAgainst">0</p></div>
-<div class="card"><h2>Del Support</h2><p id="delSupport">0</p></div>
-<div class="card"><h2>Del Against</h2><p id="delAgainst">0</p></div>
-
-<!-- CHART -->
-<div class="card">
-<canvas id="chart"></canvas>
-</div>
-
-<!-- BUTTONS -->
-<div class="buttons">
-
-<button onclick="vote('onoeSupport', this)">👇 ONOE Support</button>
-<button onclick="vote('onoeAgainst', this)">👇 ONOE Against</button>
-<button onclick="vote('delSupport', this)">👇 Del Support</button>
-<button onclick="vote('delAgainst', this)">👇 Del Against</button>
-
-<br><br>
-
-<button onclick="resetVotes()">🔄 Reset Votes</button>
+  <div>
+    <button onclick="login()">🔑 Google Login</button>
+    <button onclick="document.body.requestFullscreen()">📺 TV MODE</button>
+  </div>
 
 </div>
 
+<!-- LOGIN -->
+<div style="text-align:center;margin-top:18px;">
+  <h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
 </div>
 
-<script>
+<!-- 📌 PROJECT INFO -->
+<div style="width:80%;margin:auto;background:#111827;padding:15px;border-radius:10px;margin-top:20px;">
 
-// 🔥 Firebase
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID"
-};
+  <h3>📌 Project Information</h3>
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const ref = db.collection("votes").doc("global");
+  <p>🧠 Global Election Network – Public Opinion System</p>
 
-// 📊 CHART
-let chart = new Chart(document.getElementById("chart"), {
-  type: "bar",
-  data: {
-    labels: ["ONOE Support","ONOE Against","Del Support","Del Against"],
-    datasets: [{
-      label: "Votes",
-      data: [0,0,0,0],
-      backgroundColor: ["#00ffcc","#ff4444","#00ccff","#ffcc00"]
-    }]
-  }
-});
+  <p>👨‍💼 Project Head: N RAMAN / ந ராமன்</p>
 
-// 🔴 LIVE SYNC
-ref.onSnapshot((doc) => {
-  if (!doc.exists) return;
-  let d = doc.data();
+  <p>📧 Email: onoe.voting.survey2026@gmail.com</p>
 
-  let values = [
-    d.onoeSupport || 0,
-    d.onoeAgainst || 0,
-    d.delSupport || 0,
-    d.delAgainst || 0
-  ];
+  <p>🌐 Website: https://onoevoting-ctrl.github.io/onoe-voting-2026/</p>
 
-  document.getElementById("onoeSupport").innerText = values[0];
-  document.getElementById("onoeAgainst").innerText = values[1];
-  document.getElementById("delSupport").innerText = values[2];
-  document.getElementById("delAgainst").innerText = values[3];
+  <p>📞 WhatsApp: +91 8939324309 / +91 9384695599</p>
 
-  chart.data.datasets[0].data = values;
-  chart.update();
-});
+</div>
 
-// 🟢 VOTE
-function vote(field, btn) {
-  ref.update({
-    [field]: firebase.firestore.FieldValue.increment(1)
-  });
+<!-- 🌍 NRI INFO -->
+<div style="width:80%;margin:auto;background:#111827;padding:15px;border-radius:10px;margin-top:15px;">
 
-  btn.innerHTML = "✔ Voted";
-  btn.disabled = true;
-}
+  <h3>🌍 NRI Voting Information</h3>
 
-// 🔵 RESET
-function resetVotes() {
-  ref.set({
-    onoeSupport: 0,
-    onoeAgainst: 0,
-    delSupport: 0,
-    delAgainst: 0
-  });
-}
+  <p>🟢 Indian citizen abroad: still Indian citizen, voting in India constituency</p>
 
-</script>
+  <p>🌍 Foreign citizenship: Indian voting rights not applicable</p>
 
-</body>
-</html>
+  <p>🗳️ Current system: physical voting in India constituency</p>
+
+  <p>🚀 Future: online voting simulation concept</p>
+
+</div>
