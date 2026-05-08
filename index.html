@@ -1,68 +1,183 @@
-<header style="text-align:center;padding:16px;background:#0f172a;color:white;">
+<!DOCTYPE html>
+<html>
+<head>
 
-  🌐 <b>Global Election Network</b>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <h2 style="margin:10px 0;">
-    🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics
-  </h2>
+<title>ECI India Election Dashboard</title>
 
-  <p style="color:#22c55e;font-weight:bold;font-size:16px;">
-    🔴 LIVE / நேரலை
-  </p>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-  <p style="font-size:13px;color:#cbd5e1;line-height:1.6;">
-    🌍 GIS + AI + Voting System Active • ONOE vs Delimitation vs Combined • Real-time Election Analytics Running
-  </p>
+<style>
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b1220;
+  color:white;
+}
+
+header{
+  text-align:center;
+  padding:16px;
+  background:#0f172a;
+  color:white;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  padding:12px;
+  background:#1f2937;
+  flex-wrap:wrap;
+}
+
+button{
+  padding:10px;
+  margin:5px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.box{
+  width:80%;
+  margin:auto;
+  background:#111827;
+  padding:12px;
+  border-radius:10px;
+  margin-top:15px;
+}
+
+@media(max-width:768px){
+  .box{width:95%;}
+  button{width:100%;}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- 🟢 HEADER -->
+<header>
+
+🌐 <b>Global Election Network</b>
+
+<h2>
+🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics
+</h2>
+
+<p style="color:#22c55e;font-weight:bold;">
+🔴 LIVE / நேரலை
+</p>
+
+<p style="font-size:13px;color:#cbd5e1;">
+🌍 GIS + AI + Voting System Active • ONOE vs Delimitation vs Combined
+</p>
 
 </header>
 
 <!-- TOP BAR -->
-<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#1f2937;flex-wrap:wrap;">
+<div class="top">
 
-  <div style="font-size:14px;">
-    👤 Guest / விருந்தினர்
-  </div>
+<div id="user">👤 Guest / விருந்தினர்</div>
 
-  <div>
-    <button onclick="login()">🔑 Google Login</button>
-    <button onclick="document.body.requestFullscreen()">📺 TV MODE</button>
-  </div>
+<div>
+<button onclick="login()">🔑 Google Login</button>
+<button onclick="document.body.requestFullscreen()">📺 TV MODE</button>
+</div>
 
 </div>
 
 <!-- LOGIN TEXT -->
-<div style="text-align:center;margin-top:18px;">
-  <h3 style="margin:0;">
-    Login to Vote / வாக்களிக்க உள்நுழையவும்
-  </h3>
+<div style="text-align:center;margin-top:20px;">
+<h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
 </div>
 
-<!-- 🌍 NRI INFO BOX -->
-<div style="width:80%;margin:auto;background:#111827;padding:15px;border-radius:10px;margin-top:20px;">
+<!-- 🟡 NRI INFO PANEL -->
+<div class="box">
 
-  <h3>🌍 NRI Voting Information (Overseas Citizens)</h3>
+<h3>🌍 NRI Voting Information (Overseas Citizens)</h3>
 
-  <p>
-    🟢 <b>Indian citizen abroad (NRI):</b><br>
-    ✔ Still Indian citizen<br>
-    ✔ Voting allowed (mostly in India constituency physically)
-  </p>
+<p>
+🟢 Indian citizen abroad (NRI):
+✔ Still Indian citizen  
+✔ Voting allowed (mostly in India constituency physically)
+</p>
 
-  <p>
-    🌍 <b>Foreign citizenship:</b><br>
-    ❌ Indian voting rights not allowed
-  </p>
+<p>
+🌍 Foreign citizenship:
+❌ Indian voting rights not allowed
+</p>
 
-  <p>
-    🗳️ <b>Current system:</b><br>
-    - Must vote in India constituency<br>
-    - Postal / proxy voting limited
-  </p>
+<p>
+🗳️ Current system:
+- Must vote in India constituency  
+- Postal / proxy voting limited  
+</p>
 
-  <p>
-    🚀 <b>Future (simulation idea):</b><br>
-    - Online voting (proposed)<br>
-    - Remote secure EVM system
-  </p>
+<p>
+🚀 Future (simulation idea):
+- Online voting (proposed)  
+- Remote secure EVM system  
+</p>
 
 </div>
+
+<script>
+
+/* 🔥 FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+
+/* 🔑 SAFE LOGIN FIX */
+function login(){
+
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  auth.signInWithPopup(provider)
+  .then(result=>{
+    document.getElementById("user").innerText =
+      "👤 " + result.user.email;
+  })
+  .catch(error=>{
+
+    console.log(error.code);
+
+    if(error.code === "auth/popup-blocked"){
+      alert("Popup blocked. Please allow popups in browser.");
+    }
+    else if(error.code === "auth/unauthorized-domain"){
+      alert("Add this domain in Firebase Authorized Domains");
+    }
+    else{
+      alert(error.message);
+    }
+
+  });
+
+}
+
+/* 🔐 AUTH STATE */
+auth.onAuthStateChanged(user=>{
+  if(user){
+    document.getElementById("user").innerText =
+      "👤 " + user.email;
+  }
+});
+
+</script>
+
+</body>
+</html>
