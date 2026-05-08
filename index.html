@@ -1,181 +1,181 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ECI India Election Dashboard</title>
+<title>ONOE TV Voting Dashboard</title>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <style>
 
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0b1220;
-  color:white;
+/* 🌌 Background */
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
 }
 
-header{
-  text-align:center;
-  padding:16px;
-  background:#0f172a;
-  color:white;
+/* 📺 HEADER */
+.header {
+  background: #111827;
+  padding: 15px;
+  text-align: center;
+  font-weight: bold;
+  color: #00ffcc;
 }
 
-.top{
-  display:flex;
-  justify-content:space-between;
-  padding:12px;
-  background:#1f2937;
-  flex-wrap:wrap;
+/* 📦 CONTAINER */
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 15px;
 }
 
-button{
-  padding:10px;
-  margin:5px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
+/* 🧊 BOX STYLE */
+.box {
+  background: rgba(255,255,255,0.05);
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,255,204,0.1);
 }
 
-.box{
-  width:80%;
-  margin:auto;
-  background:#111827;
-  padding:12px;
-  border-radius:10px;
-  margin-top:15px;
+.box h3 {
+  margin: 5px;
 }
 
+.box p {
+  font-size: 28px;
+  color: #00ffcc;
+  font-weight: bold;
+}
+
+/* 🔘 BUTTONS */
+.buttons {
+  text-align: center;
+  margin-top: 15px;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #1e3a8a;
+  color: white;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+/* 📱 MOBILE */
 @media(max-width:768px){
-  .box{width:95%;}
-  button{width:100%;}
+  .box p { font-size: 22px; }
 }
 
 </style>
-
 </head>
 
 <body>
 
-<!-- 🟢 HEADER -->
-<header>
-
-🌐 <b>Global Election Network</b>
-
-<h2>
-🏛️ இந்திய மக்கள் கருத்து கேட்பு - Indian Citizen Public Opinion & Election Analytics
-</h2>
-
-<p style="color:#22c55e;font-weight:bold;">
-🔴 LIVE / நேரலை
-</p>
-
-<p style="font-size:13px;color:#cbd5e1;">
-🌍 GIS + AI + Voting System Active • ONOE vs Delimitation vs Combined
-</p>
-
-</header>
-
-<!-- TOP BAR -->
-<div class="top">
-
-<div id="user">👤 Guest / விருந்தினர்</div>
-
-<div>
-<button onclick="login()">🔑 Google Login</button>
-<button onclick="document.body.requestFullscreen()">📺 TV MODE</button>
+<div class="header">
+📺 ONOE LIVE TV VOTING DASHBOARD • INDIA ECI SURVEY
 </div>
 
-</div>
+<div class="container">
 
-<!-- LOGIN TEXT -->
-<div style="text-align:center;margin-top:20px;">
-<h3>Login to Vote / வாக்களிக்க உள்நுழையவும்</h3>
-</div>
-
-<!-- 🟡 NRI INFO PANEL -->
+<!-- VALUES -->
 <div class="box">
+<h3>ONOE Support</h3>
+<p id="onoeSupport">0</p>
+</div>
 
-<h3>🌍 NRI Voting Information (Overseas Citizens)</h3>
+<div class="box">
+<h3>ONOE Against</h3>
+<p id="onoeAgainst">0</p>
+</div>
 
-<p>
-🟢 Indian citizen abroad (NRI):
-✔ Still Indian citizen  
-✔ Voting allowed (mostly in India constituency physically)
-</p>
+<div class="box">
+<h3>Delimitation Support</h3>
+<p id="delSupport">0</p>
+</div>
 
-<p>
-🌍 Foreign citizenship:
-❌ Indian voting rights not allowed
-</p>
+<div class="box">
+<h3>Delimitation Against</h3>
+<p id="delAgainst">0</p>
+</div>
 
-<p>
-🗳️ Current system:
-- Must vote in India constituency  
-- Postal / proxy voting limited  
-</p>
+<!-- BUTTONS -->
+<div class="buttons">
 
-<p>
-🚀 Future (simulation idea):
-- Online voting (proposed)  
-- Remote secure EVM system  
-</p>
+<button onclick="vote('onoeSupport', this)">👇 ONOE Support</button>
+<button onclick="vote('onoeAgainst', this)">👇 ONOE Against</button>
+
+<button onclick="vote('delSupport', this)">👇 Del Support</button>
+<button onclick="vote('delAgainst', this)">👇 Del Against</button>
+
+<br><br>
+
+<button onclick="resetVotes()">🔄 Reset Votes</button>
+
+</div>
 
 </div>
 
 <script>
 
-/* 🔥 FIREBASE CONFIG */
+// 🔥 Firebase config
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
   projectId: "YOUR_PROJECT_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-const auth = firebase.auth();
+// 🌍 GLOBAL DOC
+const ref = db.collection("votes").doc("global");
 
-/* 🔑 SAFE LOGIN FIX */
-function login(){
+// 🔴 LIVE SYNC
+ref.onSnapshot((doc) => {
+  if (!doc.exists) return;
 
-  const provider = new firebase.auth.GoogleAuthProvider();
+  let d = doc.data();
 
-  auth.signInWithPopup(provider)
-  .then(result=>{
-    document.getElementById("user").innerText =
-      "👤 " + result.user.email;
-  })
-  .catch(error=>{
+  document.getElementById("onoeSupport").innerText = d.onoeSupport || 0;
+  document.getElementById("onoeAgainst").innerText = d.onoeAgainst || 0;
+  document.getElementById("delSupport").innerText = d.delSupport || 0;
+  document.getElementById("delAgainst").innerText = d.delAgainst || 0;
+});
 
-    console.log(error.code);
-
-    if(error.code === "auth/popup-blocked"){
-      alert("Popup blocked. Please allow popups in browser.");
-    }
-    else if(error.code === "auth/unauthorized-domain"){
-      alert("Add this domain in Firebase Authorized Domains");
-    }
-    else{
-      alert(error.message);
-    }
-
+// 🟢 VOTE FUNCTION
+function vote(field, btn) {
+  ref.update({
+    [field]: firebase.firestore.FieldValue.increment(1)
   });
 
+  btn.innerHTML = "✔ Voted";
+  btn.disabled = true;
 }
 
-/* 🔐 AUTH STATE */
-auth.onAuthStateChanged(user=>{
-  if(user){
-    document.getElementById("user").innerText =
-      "👤 " + user.email;
-  }
-});
+// 🔵 RESET FUNCTION
+function resetVotes() {
+  ref.set({
+    onoeSupport: 0,
+    onoeAgainst: 0,
+    delSupport: 0,
+    delAgainst: 0
+  });
+}
 
 </script>
 
