@@ -3,109 +3,103 @@
 
 <head>
 
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>ONOE Voting Dashboard 2026</title>
+<title>ONOE Voting Dashboard 2026</title>
 
-  <!-- FIREBASE -->
+<!-- FIREBASE -->
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-  <style>
+<style>
 
-    body{
-      margin:0;
-      padding:0;
-      font-family:Arial, sans-serif;
-      background:#0f172a;
-      color:white;
-      text-align:center;
-      overflow-x:hidden;
-    }
+body{
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+  background:#0f172a;
+  color:white;
+  text-align:center;
+  overflow-x:hidden;
+}
 
-    header{
-      background:#111827;
-      padding:20px;
-    }
+header{
+  background:#111827;
+  padding:20px;
+}
 
-    h1{
-      color:#22c55e;
-      font-size:28px;
-    }
+h1{
+  color:#22c55e;
+}
 
-    h2{
-      color:#facc15;
-    }
+.box{
+  background:#1e293b;
+  margin:20px;
+  padding:20px;
+  border-radius:12px;
+}
 
-    .box{
-      background:#1e293b;
-      margin:20px;
-      padding:20px;
-      border-radius:12px;
-      box-shadow:0 0 10px rgba(0,0,0,0.5);
-    }
+button{
+  padding:12px 20px;
+  margin:10px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+  font-weight:bold;
+}
 
-    button{
-      padding:12px 20px;
-      margin:10px;
-      border:none;
-      border-radius:8px;
-      font-size:16px;
-      cursor:pointer;
-      font-weight:bold;
-    }
+.loginBtn{
+  background:#2563eb;
+  color:white;
+}
 
-    .supportBtn{
-      background:#22c55e;
-      color:white;
-    }
+.logoutBtn{
+  background:#f97316;
+  color:white;
+}
 
-    .againstBtn{
-      background:#ef4444;
-      color:white;
-    }
+.supportBtn{
+  background:#22c55e;
+  color:white;
+}
 
-    .loginBtn{
-      background:#3b82f6;
-      color:white;
-    }
+.againstBtn{
+  background:#ef4444;
+  color:white;
+}
 
-    .logoutBtn{
-      background:#f97316;
-      color:white;
-    }
+.count{
+  font-size:32px;
+  color:#facc15;
+  font-weight:bold;
+}
 
-    .count{
-      font-size:30px;
-      color:#facc15;
-      font-weight:bold;
-    }
+#loginStatus{
+  color:#22c55e;
+  font-weight:bold;
+  margin-top:10px;
+}
 
-    #loginStatus{
-      color:#22c55e;
-      font-weight:bold;
-      margin-top:10px;
-    }
+.live{
+  color:red;
+  animation:blink 1s infinite;
+  font-weight:bold;
+}
 
-    .live{
-      color:red;
-      font-weight:bold;
-      animation:blink 1s infinite;
-    }
+@keyframes blink{
+  50%{
+    opacity:0;
+  }
+}
 
-    @keyframes blink{
-      50%{
-        opacity:0;
-      }
-    }
-
-  </style>
+</style>
 
 </head>
 
@@ -113,308 +107,338 @@
 
 <header>
 
-  <h1>🌐 Global Election Network</h1>
+<h1>🌐 Global Election Network</h1>
 
-  <h2>🏛️ Indian Citizen Public Opinion Dashboard 2026</h2>
+<h2>🏛️ Indian Citizen Public Opinion Dashboard 2026</h2>
 
-  <div class="live">🔴 LIVE VOTING ACTIVE</div>
+<div class="live">🔴 LIVE VOTING ACTIVE</div>
 
 </header>
 
 <br>
 
 <button class="loginBtn" onclick="login()">
-  LOGIN WITH GMAIL
+LOGIN WITH GMAIL
 </button>
 
 <button class="logoutBtn" onclick="logout()">
-  LOGOUT
+LOGOUT
 </button>
 
 <p id="loginStatus"></p>
 
 <div class="box">
 
-  <h2>🗳️ ONE NATION ONE ELECTION (ONOE)</h2>
+<h2>🗳️ ONE NATION ONE ELECTION</h2>
 
-  <p>
-    👍 SUPPORT :
-    <span class="count" id="onoeSupport">0</span>
-  </p>
+<p>
+👍 SUPPORT :
+<span class="count" id="onoeSupport">0</span>
+</p>
 
-  <p>
-    👎 AGAINST :
-    <span class="count" id="onoeAgainst">0</span>
-  </p>
+<p>
+👎 AGAINST :
+<span class="count" id="onoeAgainst">0</span>
+</p>
 
-  <button class="supportBtn" onclick="voteONOESupport()">
-    👍 Support ONOE
-  </button>
+<button class="supportBtn" onclick="voteONOESupport()">
+👍 Support ONOE
+</button>
 
-  <button class="againstBtn" onclick="voteONOEAgainst()">
-    👎 Against ONOE
-  </button>
+<button class="againstBtn" onclick="voteONOEAgainst()">
+👎 Against ONOE
+</button>
 
 </div>
 
 <div class="box">
 
-  <h2>📊 DELIMITATION OPINION</h2>
+<h2>📊 DELIMITATION OPINION</h2>
 
-  <p>
-    👍 SUPPORT :
-    <span class="count" id="delSupport">0</span>
-  </p>
+<p>
+👍 SUPPORT :
+<span class="count" id="delSupport">0</span>
+</p>
 
-  <p>
-    👎 AGAINST :
-    <span class="count" id="delAgainst">0</span>
-  </p>
+<p>
+👎 AGAINST :
+<span class="count" id="delAgainst">0</span>
+</p>
 
-  <button class="supportBtn" onclick="voteDelSupport()">
-    👍 Support Delimitation
-  </button>
+<button class="supportBtn" onclick="voteDelSupport()">
+👍 Support Delimitation
+</button>
 
-  <button class="againstBtn" onclick="voteDelAgainst()">
-    👎 Against Delimitation
-  </button>
+<button class="againstBtn" onclick="voteDelAgainst()">
+👎 Against Delimitation
+</button>
 
 </div>
 
 <script>
 
-  // FIREBASE CONFIG
+ // =========================
+ // FIREBASE CONFIG
+ // =========================
 
-  const firebaseConfig = {
+ const firebaseConfig = {
 
-    apiKey: "YOUR_API_KEY",
+   apiKey: "PASTE_YOUR_API_KEY",
 
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
+   authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
 
-    projectId: "YOUR_PROJECT_ID",
+   projectId: "PASTE_YOUR_PROJECT_ID",
 
-    storageBucket: "YOUR_PROJECT.appspot.com",
+   storageBucket: "PASTE_YOUR_PROJECT.appspot.com",
 
-    messagingSenderId: "YOUR_SENDER_ID",
+   messagingSenderId: "PASTE_YOUR_SENDER_ID",
 
-    appId: "YOUR_APP_ID"
+   appId: "PASTE_YOUR_APP_ID"
 
-  };
+ };
 
-  // INITIALIZE
+ firebase.initializeApp(firebaseConfig);
 
-  firebase.initializeApp(firebaseConfig);
+ const auth = firebase.auth();
 
-  const auth = firebase.auth();
+ const db = firebase.firestore();
 
-  const db = firebase.firestore();
+ // =========================
+ // AUTH STATE
+ // =========================
 
-  // LOGIN
+ auth.onAuthStateChanged((user)=>{
 
-  function login(){
+   if(user){
 
-    const provider = new firebase.auth.GoogleAuthProvider();
+     document.getElementById("loginStatus").innerHTML =
+     "✅ Logged in : " + user.email;
 
-    auth.signInWithPopup(provider)
+   }else{
 
-    .then((result)=>{
+     document.getElementById("loginStatus").innerHTML =
+     "❌ Not Logged In";
 
-      const user = result.user;
+   }
 
-      document.getElementById("loginStatus").innerHTML =
-      "✅ Logged in : " + user.email;
+ });
 
-    })
+ // =========================
+ // LOGIN
+ // =========================
 
-    .catch((error)=>{
+ function login(){
 
-      alert(error.message);
+   const provider =
+   new firebase.auth.GoogleAuthProvider();
 
-    });
+   auth.signInWithPopup(provider)
 
-  }
+   .then((result)=>{
 
-  // LOGOUT
+     alert("✅ Login Successful");
 
-  function logout(){
+   })
 
-    auth.signOut()
+   .catch((error)=>{
 
-    .then(()=>{
+     alert(error.message);
 
-      document.getElementById("loginStatus").innerHTML = "";
+   });
 
-      alert("Logged out");
+ }
 
-    });
+ // =========================
+ // LOGOUT
+ // =========================
 
-  }
+ function logout(){
 
-  // LIVE FETCH
+   auth.signOut()
 
-  db.collection("votes")
-    .doc("india")
-    .onSnapshot((doc)=>{
+   .then(()=>{
 
-      if(doc.exists){
+     alert("Logged out");
 
-        const data = doc.data();
+   });
 
-        document.getElementById("onoeSupport").innerHTML =
-        data.onoeSupport || 0;
+ }
 
-        document.getElementById("onoeAgainst").innerHTML =
-        data.onoeAgainst || 0;
+ // =========================
+ // LIVE DATABASE FETCH
+ // =========================
 
-        document.getElementById("delSupport").innerHTML =
-        data.delSupport || 0;
+ db.collection("votes")
+ .doc("india")
+ .onSnapshot((doc)=>{
 
-        document.getElementById("delAgainst").innerHTML =
-        data.delAgainst || 0;
+   if(doc.exists){
 
-      }
+     const data = doc.data();
 
-    });
+     document.getElementById("onoeSupport").innerHTML =
+     data.onoeSupport || 0;
 
-  // ONOE SUPPORT
+     document.getElementById("onoeAgainst").innerHTML =
+     data.onoeAgainst || 0;
 
-  function voteONOESupport(){
+     document.getElementById("delSupport").innerHTML =
+     data.delSupport || 0;
 
-    if(!auth.currentUser){
+     document.getElementById("delAgainst").innerHTML =
+     data.delAgainst || 0;
 
-      alert("Please login first");
+   }
 
-      return;
+ });
 
-    }
+ // =========================
+ // ONOE SUPPORT
+ // =========================
 
-    db.collection("votes")
-      .doc("india")
-      .update({
+ function voteONOESupport(){
 
-        onoeSupport:
-        firebase.firestore.FieldValue.increment(1)
+   if(!auth.currentUser){
 
-      })
+     alert("Please login first");
 
-      .then(()=>{
+     return;
 
-        alert("✅ Vote Recorded");
+   }
 
-      })
+   db.collection("votes")
+   .doc("india")
+   .update({
 
-      .catch((error)=>{
+     onoeSupport:
+     firebase.firestore.FieldValue.increment(1)
 
-        alert(error.message);
+   })
 
-      });
+   .then(()=>{
 
-  }
+     alert("✅ Vote Recorded");
 
-  // ONOE AGAINST
+   })
 
-  function voteONOEAgainst(){
+   .catch((error)=>{
 
-    if(!auth.currentUser){
+     alert(error.message);
 
-      alert("Please login first");
+   });
 
-      return;
+ }
 
-    }
+ // =========================
+ // ONOE AGAINST
+ // =========================
 
-    db.collection("votes")
-      .doc("india")
-      .update({
+ function voteONOEAgainst(){
 
-        onoeAgainst:
-        firebase.firestore.FieldValue.increment(1)
+   if(!auth.currentUser){
 
-      })
+     alert("Please login first");
 
-      .then(()=>{
+     return;
 
-        alert("✅ Vote Recorded");
+   }
 
-      })
+   db.collection("votes")
+   .doc("india")
+   .update({
 
-      .catch((error)=>{
+     onoeAgainst:
+     firebase.firestore.FieldValue.increment(1)
 
-        alert(error.message);
+   })
 
-      });
+   .then(()=>{
 
-  }
+     alert("✅ Vote Recorded");
 
-  // DELIMITATION SUPPORT
+   })
 
-  function voteDelSupport(){
+   .catch((error)=>{
 
-    if(!auth.currentUser){
+     alert(error.message);
 
-      alert("Please login first");
+   });
 
-      return;
+ }
 
-    }
+ // =========================
+ // DELIMITATION SUPPORT
+ // =========================
 
-    db.collection("votes")
-      .doc("india")
-      .update({
+ function voteDelSupport(){
 
-        delSupport:
-        firebase.firestore.FieldValue.increment(1)
+   if(!auth.currentUser){
 
-      })
+     alert("Please login first");
 
-      .then(()=>{
+     return;
 
-        alert("✅ Vote Recorded");
+   }
 
-      })
+   db.collection("votes")
+   .doc("india")
+   .update({
 
-      .catch((error)=>{
+     delSupport:
+     firebase.firestore.FieldValue.increment(1)
 
-        alert(error.message);
+   })
 
-      });
+   .then(()=>{
 
-  }
+     alert("✅ Vote Recorded");
 
-  // DELIMITATION AGAINST
+   })
 
-  function voteDelAgainst(){
+   .catch((error)=>{
 
-    if(!auth.currentUser){
+     alert(error.message);
 
-      alert("Please login first");
+   });
 
-      return;
+ }
 
-    }
+ // =========================
+ // DELIMITATION AGAINST
+ // =========================
 
-    db.collection("votes")
-      .doc("india")
-      .update({
+ function voteDelAgainst(){
 
-        delAgainst:
-        firebase.firestore.FieldValue.increment(1)
+   if(!auth.currentUser){
 
-      })
+     alert("Please login first");
 
-      .then(()=>{
+     return;
 
-        alert("✅ Vote Recorded");
+   }
 
-      })
+   db.collection("votes")
+   .doc("india")
+   .update({
 
-      .catch((error)=>{
+     delAgainst:
+     firebase.firestore.FieldValue.increment(1)
 
-        alert(error.message);
+   })
 
-      });
+   .then(()=>{
 
-  }
+     alert("✅ Vote Recorded");
+
+   })
+
+   .catch((error)=>{
+
+     alert(error.message);
+
+   });
+
+ }
 
 </script>
 
