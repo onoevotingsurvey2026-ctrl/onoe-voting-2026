@@ -39,6 +39,10 @@
       font-size:28px;
     }
 
+    h2{
+      color:#facc15;
+    }
+
     .box{
       background:#1e293b;
       margin:20px;
@@ -69,6 +73,11 @@
 
     .loginBtn{
       background:#3b82f6;
+      color:white;
+    }
+
+    .logoutBtn{
+      background:#f97316;
       color:white;
     }
 
@@ -116,6 +125,10 @@
 
 <button class="loginBtn" onclick="login()">
   LOGIN WITH GMAIL
+</button>
+
+<button class="logoutBtn" onclick="logout()">
+  LOGOUT
 </button>
 
 <p id="loginStatus"></p>
@@ -188,6 +201,8 @@
 
   };
 
+  // INITIALIZE
+
   firebase.initializeApp(firebaseConfig);
 
   const auth = firebase.auth();
@@ -214,6 +229,22 @@
     .catch((error)=>{
 
       alert(error.message);
+
+    });
+
+  }
+
+  // LOGOUT
+
+  function logout(){
+
+    auth.signOut()
+
+    .then(()=>{
+
+      document.getElementById("loginStatus").innerHTML = "";
+
+      alert("Logged out");
 
     });
 
@@ -315,7 +346,7 @@
 
   }
 
-  // DEL SUPPORT
+  // DELIMITATION SUPPORT
 
   function voteDelSupport(){
 
@@ -350,7 +381,7 @@
 
   }
 
-  // DEL AGAINST
+  // DELIMITATION AGAINST
 
   function voteDelAgainst(){
 
