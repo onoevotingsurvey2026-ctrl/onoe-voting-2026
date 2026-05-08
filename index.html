@@ -4,82 +4,47 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ONOE TV Live Dashboard</title>
+<title>ONOE Live TV Voting Dashboard</title>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <style>
 
-/* 🌌 TV BACKGROUND */
 body {
   margin: 0;
   font-family: Arial;
-  background: radial-gradient(circle at top, #0f172a, #000);
-  color: #00ffcc;
+  background: #0f172a;
+  color: white;
 }
 
-/* 📺 HEADER */
 .header {
   text-align: center;
-  padding: 12px;
-  font-weight: bold;
+  padding: 15px;
   background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(10px);
   color: #00ffcc;
 }
 
-/* 🧊 GLASS CARDS */
 .container {
-  max-width: 900px;
+  max-width: 800px;
   margin: auto;
-  padding: 10px;
+  padding: 15px;
 }
 
 .card {
   background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(12px);
-  border-radius: 12px;
   padding: 15px;
   margin: 10px 0;
-  border: 1px solid rgba(0,255,204,0.2);
+  border-radius: 10px;
   text-align: center;
-}
-
-.card h3 {
-  margin: 5px;
-  font-size: 18px;
+  border: 1px solid rgba(0,255,204,0.2);
 }
 
 .card p {
-  font-size: 26px;
-  font-weight: bold;
-}
-
-/* 📰 TICKER */
-.ticker {
-  overflow: hidden;
-  white-space: nowrap;
-  background: rgba(255,255,255,0.05);
-  padding: 8px;
-}
-
-.ticker-text {
-  display: inline-block;
-  animation: move 10s linear infinite;
-  color: #ffcc00;
-}
-
-@keyframes move {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-/* 🔘 BUTTONS */
-.buttons {
-  text-align: center;
-  margin-top: 10px;
+  font-size: 24px;
+  color: #00ffcc;
 }
 
 button {
@@ -87,18 +52,14 @@ button {
   margin: 5px;
   border: none;
   border-radius: 8px;
-  background: rgba(0,255,204,0.15);
-  color: white;
   cursor: pointer;
+  background: #1e3a8a;
+  color: white;
 }
 
-button:active {
-  transform: scale(0.95);
-}
-
-/* 📱 MOBILE */
-@media(max-width:768px){
-  .card p { font-size: 20px; }
+.loginBox {
+  text-align: center;
+  margin-top: 20px;
 }
 
 </style>
@@ -107,58 +68,50 @@ button:active {
 <body>
 
 <div class="header">
-📺 ONOE LIVE TV VOTING DASHBOARD • INDIA ECI PUBLIC SURVEY 🔴 LIVE
+📺 ONOE LIVE TV VOTING DASHBOARD • INDIA SURVEY 🔴 LIVE
 </div>
 
-<div class="ticker">
-  <div class="ticker-text">
-    📢 ONOE Voting Live • 🌍 India Public Survey Running • 🗳️ Delimitation Debate Active • 📊 Real-time Results Updating
-  </div>
+<!-- 🔐 LOGIN SECTION -->
+<div class="loginBox">
+  <button onclick="login()">🔐 Login with Google</button>
+  <p id="userInfo"></p>
 </div>
 
 <div class="container">
 
-<!-- CARDS -->
 <div class="card">
 <h3>ONOE Support</h3>
 <p id="onoeSupport">0 (0%)</p>
+<button onclick="vote('onoeSupport')">👇 Vote</button>
 </div>
 
 <div class="card">
 <h3>ONOE Against</h3>
 <p id="onoeAgainst">0 (0%)</p>
+<button onclick="vote('onoeAgainst')">👇 Vote</button>
 </div>
 
 <div class="card">
-<h3>Delimitation Support</h3>
+<h3>Del Support</h3>
 <p id="delSupport">0 (0%)</p>
+<button onclick="vote('delSupport')">👇 Vote</button>
 </div>
 
 <div class="card">
-<h3>Delimitation Against</h3>
+<h3>Del Against</h3>
 <p id="delAgainst">0 (0%)</p>
+<button onclick="vote('delAgainst')">👇 Vote</button>
 </div>
 
-<!-- BUTTONS -->
-<div class="buttons">
-
-<button onclick="vote('onoeSupport', this)">👇 ONOE Support</button>
-<button onclick="vote('onoeAgainst', this)">👇 ONOE Against</button>
-
-<button onclick="vote('delSupport', this)">👇 Del Support</button>
-<button onclick="vote('delAgainst', this)">👇 Del Against</button>
-
-<br><br>
+<br>
 
 <button onclick="resetVotes()">🔄 Reset Votes</button>
 
 </div>
 
-</div>
-
 <script>
 
-// 🔥 FIREBASE CONFIG
+// 🔥 Firebase config (replace yours)
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -166,51 +119,65 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
 
+const auth = firebase.auth();
+const db = firebase.firestore();
 const ref = db.collection("votes").doc("global");
 
-// 🔴 LIVE SYNC + PERCENTAGE
+// 🔐 LOGIN
+function login() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  auth.signInWithPopup(provider)
+  .then((result) => {
+    document.getElementById("userInfo").innerText =
+      "Welcome: " + result.user.displayName;
+  })
+  .catch((error) => {
+    alert(error.message);
+  });
+}
+
+// 📊 LIVE UPDATE
 ref.onSnapshot((doc) => {
   if (!doc.exists) return;
 
   let d = doc.data();
 
-  let onoeSupport = d.onoeSupport || 0;
-  let onoeAgainst = d.onoeAgainst || 0;
-  let delSupport = d.delSupport || 0;
-  let delAgainst = d.delAgainst || 0;
+  let a = d.onoeSupport || 0;
+  let b = d.onoeAgainst || 0;
+  let c = d.delSupport || 0;
+  let d1 = d.delAgainst || 0;
 
-  let total = onoeSupport + onoeAgainst + delSupport + delAgainst;
+  let total = a + b + c + d1;
 
   function pct(v){
     return total ? ((v/total)*100).toFixed(1) : 0;
   }
 
-  document.getElementById("onoeSupport").innerText =
-    onoeSupport + " (" + pct(onoeSupport) + "%)";
-
-  document.getElementById("onoeAgainst").innerText =
-    onoeAgainst + " (" + pct(onoeAgainst) + "%)";
-
-  document.getElementById("delSupport").innerText =
-    delSupport + " (" + pct(delSupport) + "%)";
-
-  document.getElementById("delAgainst").innerText =
-    delAgainst + " (" + pct(delAgainst) + "%)";
+  document.getElementById("onoeSupport").innerText = a + " (" + pct(a) + "%)";
+  document.getElementById("onoeAgainst").innerText = b + " (" + pct(b) + "%)";
+  document.getElementById("delSupport").innerText = c + " (" + pct(c) + "%)";
+  document.getElementById("delAgainst").innerText = d1 + " (" + pct(d1) + "%)";
 });
 
-// 🟢 VOTE FUNCTION
-function vote(field, btn) {
+// 🗳️ VOTE FUNCTION
+function vote(field) {
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Please login first");
+    return;
+  }
+
   ref.update({
     [field]: firebase.firestore.FieldValue.increment(1)
   });
 
-  btn.innerHTML = "✔ Voted";
-  btn.disabled = true;
 }
 
-// 🔵 RESET
+// 🔄 RESET
 function resetVotes() {
   ref.set({
     onoeSupport: 0,
