@@ -4,43 +4,63 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Glass Voting Network Dashboard</title>
+<title>TV Broadcast Voting Dashboard</title>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-/* 🌈 Background */
+
+/* 🌌 BACKGROUND */
 body {
   margin: 0;
   font-family: Arial;
-  background: linear-gradient(135deg, #1e3a8a, #0f172a);
+  background: radial-gradient(circle at top, #0f172a, #000);
   color: white;
+  overflow-x: hidden;
 }
 
-/* 🧊 Glass Container */
+/* 📡 LIVE TOP BAR */
+.topbar {
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  color: #00ffcc;
+  box-shadow: 0 0 20px #00ffcc33;
+}
+
+/* 🧊 GLASS CARD */
 .container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: auto;
-  padding: 20px;
+  padding: 15px;
 }
 
-/* 🧊 Glass Card */
 .card {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
   backdrop-filter: blur(12px);
   border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 15px;
+  padding: 15px;
+  margin: 10px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(0,255,204,0.1);
+  transition: 0.3s;
 }
 
-/* Numbers */
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 25px rgba(0,255,204,0.3);
+}
+
+/* 🔢 NUMBERS */
 .card h2 {
-  margin: 5px 0;
-  font-size: 22px;
+  margin: 5px;
+  font-size: 18px;
 }
 
 .card p {
@@ -49,94 +69,99 @@ body {
   color: #00ffcc;
 }
 
-/* 🟢 Support Buttons */
-.support-btn {
-  padding: 12px 18px;
-  margin: 8px;
+/* 📰 NEWS TICKER */
+.ticker {
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-text {
+  display: inline-block;
+  animation: scroll 10s linear infinite;
+  color: #ffcc00;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* 🔘 BUTTONS */
+.buttons {
+  text-align: center;
+  margin-top: 10px;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 5px;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
-  background: rgba(255,255,255,0.2);
+  background: rgba(0,255,204,0.2);
   color: white;
   transition: 0.2s;
 }
 
-/* 👇 PRESS DOWN EFFECT */
-.support-btn:active {
-  transform: translateY(5px);
-  background: rgba(0,255,204,0.3);
+button:active {
+  transform: scale(0.9);
 }
 
-/* Layout */
-.btn-group {
-  text-align: center;
-  margin-top: 15px;
-}
-
-/* 📱 Mobile */
+/* 📱 MOBILE */
 @media(max-width:768px){
   .card p { font-size: 22px; }
 }
+
 </style>
 </head>
 
 <body>
 
+<div class="topbar">
+📺 TV BROADCAST LIVE VOTING NETWORK • INDIA ECI PUBLIC SURVEY • 🔴 LIVE
+</div>
+
+<!-- 📰 NEWS TICKER -->
+<div class="ticker">
+  <div class="ticker-text">
+    📢 ONOE Voting Live • 🌍 Global Public Survey Running • 🗳️ Delimitation Debate Active • 📊 Real-time Results Updating • 🔥 ECI Dashboard Broadcast Mode
+  </div>
+</div>
+
 <div class="container">
 
-  <div class="card">
-    <h2>🗳️ ONOE Support</h2>
-    <p id="onoeSupport">0</p>
-  </div>
+<!-- CARDS -->
+<div class="card"><h2>ONOE Support</h2><p id="onoeSupport">0</p></div>
+<div class="card"><h2>ONOE Against</h2><p id="onoeAgainst">0</p></div>
+<div class="card"><h2>Del Support</h2><p id="delSupport">0</p></div>
+<div class="card"><h2>Del Against</h2><p id="delAgainst">0</p></div>
 
-  <div class="card">
-    <h2>🗳️ ONOE Against</h2>
-    <p id="onoeAgainst">0</p>
-  </div>
+<!-- CHART -->
+<div class="card">
+<canvas id="chart"></canvas>
+</div>
 
-  <div class="card">
-    <h2>🗳️ Delimitation Support</h2>
-    <p id="delSupport">0</p>
-  </div>
+<!-- BUTTONS -->
+<div class="buttons">
 
-  <div class="card">
-    <h2>🗳️ Delimitation Against</h2>
-    <p id="delAgainst">0</p>
-  </div>
+<button onclick="vote('onoeSupport', this)">👇 ONOE Support</button>
+<button onclick="vote('onoeAgainst', this)">👇 ONOE Against</button>
+<button onclick="vote('delSupport', this)">👇 Del Support</button>
+<button onclick="vote('delAgainst', this)">👇 Del Against</button>
 
-  <!-- Buttons -->
-  <div class="btn-group">
+<br><br>
 
-    <button class="support-btn" onclick="vote('onoeSupport', this)">
-      👇 ONOE Support
-    </button>
+<button onclick="resetVotes()">🔄 Reset Votes</button>
 
-    <button class="support-btn" onclick="vote('onoeAgainst', this)">
-      👇 ONOE Against
-    </button>
-
-    <button class="support-btn" onclick="vote('delSupport', this)">
-      👇 Del Support
-    </button>
-
-    <button class="support-btn" onclick="vote('delAgainst', this)">
-      👇 Del Against
-    </button>
-
-    <br><br>
-
-    <button class="support-btn" onclick="resetVotes()">
-      🔄 Reset Votes
-    </button>
-
-  </div>
+</div>
 
 </div>
 
 <script>
 
-// 🔥 Firebase config
+// 🔥 Firebase
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -145,37 +170,49 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-// 🌍 GLOBAL DOC
 const ref = db.collection("votes").doc("global");
 
-// 🔴 LIVE SYNC
-ref.onSnapshot((doc) => {
-  if (doc.exists) {
-    let d = doc.data();
-
-    document.getElementById("onoeSupport").innerText = d.onoeSupport || 0;
-    document.getElementById("onoeAgainst").innerText = d.onoeAgainst || 0;
-    document.getElementById("delSupport").innerText = d.delSupport || 0;
-    document.getElementById("delAgainst").innerText = d.delAgainst || 0;
+// 📊 CHART
+let chart = new Chart(document.getElementById("chart"), {
+  type: "bar",
+  data: {
+    labels: ["ONOE Support","ONOE Against","Del Support","Del Against"],
+    datasets: [{
+      label: "Votes",
+      data: [0,0,0,0],
+      backgroundColor: ["#00ffcc","#ff4444","#00ccff","#ffcc00"]
+    }]
   }
 });
 
-// 🟢 VOTE FUNCTION
+// 🔴 LIVE SYNC
+ref.onSnapshot((doc) => {
+  if (!doc.exists) return;
+  let d = doc.data();
+
+  let values = [
+    d.onoeSupport || 0,
+    d.onoeAgainst || 0,
+    d.delSupport || 0,
+    d.delAgainst || 0
+  ];
+
+  document.getElementById("onoeSupport").innerText = values[0];
+  document.getElementById("onoeAgainst").innerText = values[1];
+  document.getElementById("delSupport").innerText = values[2];
+  document.getElementById("delAgainst").innerText = values[3];
+
+  chart.data.datasets[0].data = values;
+  chart.update();
+});
+
+// 🟢 VOTE
 function vote(field, btn) {
   ref.update({
     [field]: firebase.firestore.FieldValue.increment(1)
-  }).catch(() => {
-    ref.set({
-      onoeSupport: 0,
-      onoeAgainst: 0,
-      delSupport: 0,
-      delAgainst: 0
-    }).then(() => vote(field, btn));
   });
 
-  // UI feedback
-  btn.innerHTML = "👇 Voted";
+  btn.innerHTML = "✔ Voted";
   btn.disabled = true;
 }
 
