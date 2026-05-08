@@ -6,13 +6,12 @@
 
 <title>ONOE Live TV Voting Dashboard</title>
 
-<!-- Firebase -->
+<!-- Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <style>
-
 body {
   margin: 0;
   font-family: Arial;
@@ -25,6 +24,7 @@ body {
   padding: 15px;
   background: rgba(255,255,255,0.05);
   color: #00ffcc;
+  font-size: 18px;
 }
 
 .container {
@@ -61,17 +61,16 @@ button {
   text-align: center;
   margin-top: 20px;
 }
-
 </style>
 </head>
 
 <body>
 
 <div class="header">
-📺 ONOE LIVE TV VOTING DASHBOARD • INDIA SURVEY 🔴 LIVE
+📺 ONOE LIVE TV VOTING DASHBOARD • INDIA PUBLIC SURVEY 🔴 LIVE
 </div>
 
-<!-- 🔐 LOGIN SECTION -->
+<!-- LOGIN -->
 <div class="loginBox">
   <button onclick="login()">🔐 Login with Google</button>
   <p id="userInfo"></p>
@@ -92,30 +91,33 @@ button {
 </div>
 
 <div class="card">
-<h3>Del Support</h3>
+<h3>Delimitation Support</h3>
 <p id="delSupport">0 (0%)</p>
 <button onclick="vote('delSupport')">👇 Vote</button>
 </div>
 
 <div class="card">
-<h3>Del Against</h3>
+<h3>Delimitation Against</h3>
 <p id="delAgainst">0 (0%)</p>
 <button onclick="vote('delAgainst')">👇 Vote</button>
 </div>
 
 <br>
-
 <button onclick="resetVotes()">🔄 Reset Votes</button>
 
 </div>
 
 <script>
 
-// 🔥 Firebase config (replace yours)
+// 🔥 FIREBASE CONFIG (UPDATED CORRECT)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  authDomain: "onoevote2026.firebaseapp.com",
+  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "onoevote2026",
+  storageBucket: "onoevote2026.firebasestorage.app",
+  messagingSenderId: "181065724520",
+  appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -135,10 +137,11 @@ function login() {
   })
   .catch((error) => {
     alert(error.message);
+    console.log(error.code);
   });
 }
 
-// 📊 LIVE UPDATE
+// 📊 LIVE DATA
 ref.onSnapshot((doc) => {
   if (!doc.exists) return;
 
@@ -161,7 +164,7 @@ ref.onSnapshot((doc) => {
   document.getElementById("delAgainst").innerText = d1 + " (" + pct(d1) + "%)";
 });
 
-// 🗳️ VOTE FUNCTION
+// 🗳️ VOTE
 function vote(field) {
 
   const user = auth.currentUser;
