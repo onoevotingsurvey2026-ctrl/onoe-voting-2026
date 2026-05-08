@@ -4,8 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>ONOE Voting Dashboard</title>
+<title>Voting Dashboard</title>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -34,21 +33,19 @@ button{
   border-radius:10px;
   font-size:18px;
   cursor:pointer;
-  z-index:9999;
-  position:relative;
 }
 
-.login{
+.loginBtn{
   background:#2563eb;
   color:white;
 }
 
-.logout{
+.logoutBtn{
   background:#f97316;
   color:white;
 }
 
-.vote{
+.voteBtn{
   background:#22c55e;
   color:white;
 }
@@ -61,24 +58,9 @@ button{
 }
 
 .count{
-  font-size:30px;
+  font-size:28px;
   color:#facc15;
   font-weight:bold;
-}
-
-#status{
-  margin-top:10px;
-  color:#22c55e;
-}
-
-.live{
-  color:red;
-  font-weight:bold;
-  animation:blink 1s infinite;
-}
-
-@keyframes blink{
-  50%{opacity:0;}
 }
 
 </style>
@@ -89,40 +71,40 @@ button{
 
 <header>
 <h1>🌐 Voting Dashboard</h1>
-<div class="live">🔴 LIVE</div>
 </header>
 
-<!-- LOGIN -->
-<button class="login" onclick="login()">LOGIN WITH GOOGLE</button>
-<button class="logout" onclick="logout()">LOGOUT</button>
+<button class="loginBtn" onclick="login()">LOGIN</button>
+<button class="logoutBtn" onclick="logout()">LOGOUT</button>
 
 <p id="status">Not Logged In</p>
 
-<!-- ONOE -->
 <div class="box">
+
 <h2>ONOE</h2>
 
-<p>Support: <span id="onoeSupport" class="count">0</span></p>
-<p>Against: <span id="onoeAgainst" class="count">0</span></p>
+<p>Support: <span id="onoeSupport">0</span></p>
+<p>Against: <span id="onoeAgainst">0</span></p>
 
-<button class="vote" onclick="vote('onoeSupport')">Support</button>
-<button class="vote" onclick="vote('onoeAgainst')">Against</button>
+<button class="voteBtn" onclick="vote('onoeSupport')">Support</button>
+<button class="voteBtn" onclick="vote('onoeAgainst')">Against</button>
+
 </div>
 
-<!-- DELIMITATION -->
 <div class="box">
+
 <h2>Delimitation</h2>
 
-<p>Support: <span id="delSupport" class="count">0</span></p>
-<p>Against: <span id="delAgainst" class="count">0</span></p>
+<p>Support: <span id="delSupport">0</span></p>
+<p>Against: <span id="delAgainst">0</span></p>
 
-<button class="vote" onclick="vote('delSupport')">Support</button>
-<button class="vote" onclick="vote('delAgainst')">Against</button>
+<button class="voteBtn" onclick="vote('delSupport')">Support</button>
+<button class="voteBtn" onclick="vote('delAgainst')">Against</button>
+
 </div>
 
 <script>
 
-  // FIREBASE CONFIG (REPLACE THIS)
+  // Firebase Config (REPLACE THIS)
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "onoevote2026.firebaseapp.com",
@@ -137,21 +119,32 @@ button{
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // LOGIN
+  // ======================
+  // LOGIN FUNCTION
+  // ======================
   function login(){
-    const provider = new firebase.auth.GoogleAuthProvider();
+
+    const provider =
+    new firebase.auth.GoogleAuthProvider();
 
     auth.signInWithRedirect(provider);
+
   }
 
-  // LOGOUT
+  // ======================
+  // LOGOUT FUNCTION
+  // ======================
   function logout(){
+
     auth.signOut().then(()=>{
       alert("Logged out");
     });
+
   }
 
-  // USER STATUS
+  // ======================
+  // AUTH STATUS
+  // ======================
   auth.onAuthStateChanged(user=>{
     if(user){
       document.getElementById("status").innerText =
@@ -162,7 +155,9 @@ button{
     }
   });
 
+  // ======================
   // LIVE DATA
+  // ======================
   db.collection("votes").doc("india")
   .onSnapshot(doc=>{
     if(doc.exists){
@@ -175,7 +170,9 @@ button{
     }
   });
 
+  // ======================
   // VOTE FUNCTION
+  // ======================
   function vote(field){
 
     if(!auth.currentUser){
@@ -185,10 +182,6 @@ button{
 
     db.collection("votes").doc("india").update({
       [field]: firebase.firestore.FieldValue.increment(1)
-    }).then(()=>{
-      alert("Vote Recorded");
-    }).catch(err=>{
-      alert(err.message);
     });
 
   }
