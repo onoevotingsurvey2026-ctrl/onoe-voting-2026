@@ -22,9 +22,9 @@
 body{
   margin:0;
   padding:0;
-  font-family:Arial,sans-serif;
   background:#0f172a;
   color:white;
+  font-family:Arial,sans-serif;
   text-align:center;
   overflow-x:hidden;
 }
@@ -46,13 +46,13 @@ h1{
 }
 
 button{
-  padding:12px 20px;
+  padding:15px 20px;
   margin:10px;
   border:none;
-  border-radius:8px;
-  font-size:16px;
-  cursor:pointer;
+  border-radius:10px;
+  font-size:18px;
   font-weight:bold;
+  cursor:pointer;
 }
 
 .loginBtn{
@@ -76,21 +76,21 @@ button{
 }
 
 .count{
-  font-size:32px;
   color:#facc15;
+  font-size:32px;
   font-weight:bold;
 }
 
 #loginStatus{
+  margin-top:10px;
   color:#22c55e;
   font-weight:bold;
-  margin-top:10px;
 }
 
 .live{
   color:red;
-  animation:blink 1s infinite;
   font-weight:bold;
+  animation:blink 1s infinite;
 }
 
 @keyframes blink{
@@ -125,7 +125,9 @@ LOGIN WITH GMAIL
 LOGOUT
 </button>
 
-<p id="loginStatus"></p>
+<p id="loginStatus">
+❌ Not Logged In
+</p>
 
 <div class="box">
 
@@ -185,17 +187,21 @@ LOGOUT
 
    apiKey: "PASTE_YOUR_API_KEY",
 
-   authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
+   authDomain: "onoevote2026.firebaseapp.com",
 
-   projectId: "PASTE_YOUR_PROJECT_ID",
+   projectId: "onoevote2026",
 
-   storageBucket: "PASTE_YOUR_PROJECT.appspot.com",
+   storageBucket: "onoevote2026.appspot.com",
 
    messagingSenderId: "PASTE_YOUR_SENDER_ID",
 
    appId: "PASTE_YOUR_APP_ID"
 
  };
+
+ // =========================
+ // INITIALIZE FIREBASE
+ // =========================
 
  firebase.initializeApp(firebaseConfig);
 
@@ -204,46 +210,17 @@ LOGOUT
  const db = firebase.firestore();
 
  // =========================
- // AUTH STATE
- // =========================
-
- auth.onAuthStateChanged((user)=>{
-
-   if(user){
-
-     document.getElementById("loginStatus").innerHTML =
-     "✅ Logged in : " + user.email;
-
-   }else{
-
-     document.getElementById("loginStatus").innerHTML =
-     "❌ Not Logged In";
-
-   }
-
- });
-
- // =========================
  // LOGIN
  // =========================
 
  function login(){
 
-   const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
-};
+   alert("Login button clicked");
 
-   .catch((error)=>{
+   const provider =
+   new firebase.auth.GoogleAuthProvider();
 
-     alert(error.message);
-
-   });
+   auth.signInWithRedirect(provider);
 
  }
 
@@ -257,6 +234,9 @@ LOGOUT
 
    .then(()=>{
 
+     document.getElementById("loginStatus").innerHTML =
+     "❌ Not Logged In";
+
      alert("Logged out");
 
    });
@@ -264,7 +244,22 @@ LOGOUT
  }
 
  // =========================
- // LIVE DATABASE FETCH
+ // AUTH STATE
+ // =========================
+
+ auth.onAuthStateChanged((user)=>{
+
+   if(user){
+
+     document.getElementById("loginStatus").innerHTML =
+     "✅ Logged in : " + user.email;
+
+   }
+
+ });
+
+ // =========================
+ // LIVE DATABASE
  // =========================
 
  db.collection("votes")
@@ -295,16 +290,16 @@ LOGOUT
  // ONOE SUPPORT
  // =========================
 
- function login(){
+ function voteONOESupport(){
 
-  alert("Login button clicked");
+   if(!auth.currentUser){
 
-  const provider =
-  new firebase.auth.GoogleAuthProvider();
+     alert("Please login first");
 
-  auth.signInWithRedirect(provider);
+     return;
 
-}
+   }
+
    db.collection("votes")
    .doc("india")
    .update({
