@@ -1,29 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Test Login Button</title>
+<title>ONOE Voting Dashboard</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <style>
 
 body{
-  background:black;
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
   color:white;
   text-align:center;
-  padding-top:100px;
-  font-family:Arial;
+}
+
+header{
+  padding:20px;
+  background:#111827;
 }
 
 button{
-  padding:20px;
-  font-size:22px;
-  background:blue;
-  color:white;
+  padding:15px 20px;
+  margin:10px;
   border:none;
   border-radius:10px;
+  font-size:18px;
+  cursor:pointer;
+  z-index:9999;
+  position:relative;
+}
+
+.login{
+  background:#2563eb;
+  color:white;
+}
+
+.logout{
+  background:#f97316;
+  color:white;
+}
+
+.vote{
+  background:#22c55e;
+  color:white;
+}
+
+.box{
+  background:#1e293b;
+  margin:20px;
+  padding:20px;
+  border-radius:12px;
+}
+
+.count{
+  font-size:30px;
+  color:#facc15;
+  font-weight:bold;
+}
+
+#status{
+  margin-top:10px;
+  color:#22c55e;
+}
+
+.live{
+  color:red;
+  font-weight:bold;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  50%{opacity:0;}
 }
 
 </style>
@@ -32,25 +87,113 @@ button{
 
 <body>
 
-<h1>BUTTON TEST</h1>
+<header>
+<h1>🌐 Voting Dashboard</h1>
+<div class="live">🔴 LIVE</div>
+</header>
 
-<button onclick="login()" style="padding:20px;font-size:20px;">
-LOGIN TEST
-</button>
+<!-- LOGIN -->
+<button class="login" onclick="login()">LOGIN WITH GOOGLE</button>
+<button class="logout" onclick="logout()">LOGOUT</button>
+
+<p id="status">Not Logged In</p>
+
+<!-- ONOE -->
+<div class="box">
+<h2>ONOE</h2>
+
+<p>Support: <span id="onoeSupport" class="count">0</span></p>
+<p>Against: <span id="onoeAgainst" class="count">0</span></p>
+
+<button class="vote" onclick="vote('onoeSupport')">Support</button>
+<button class="vote" onclick="vote('onoeAgainst')">Against</button>
+</div>
+
+<!-- DELIMITATION -->
+<div class="box">
+<h2>Delimitation</h2>
+
+<p>Support: <span id="delSupport" class="count">0</span></p>
+<p>Against: <span id="delAgainst" class="count">0</span></p>
+
+<button class="vote" onclick="vote('delSupport')">Support</button>
+<button class="vote" onclick="vote('delAgainst')">Against</button>
+</div>
 
 <script>
-function login(){
-  alert("BUTTON WORKS");
-}
-</script>
-function testButton(){
 
-  alert("BUTTON WORKING SUCCESS");
+  // FIREBASE CONFIG (REPLACE THIS)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "onoevote2026.firebaseapp.com",
+    projectId: "onoevote2026",
+    storageBucket: "onoevote2026.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
 
-}
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // LOGIN
+  function login(){
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    auth.signInWithRedirect(provider);
+  }
+
+  // LOGOUT
+  function logout(){
+    auth.signOut().then(()=>{
+      alert("Logged out");
+    });
+  }
+
+  // USER STATUS
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      document.getElementById("status").innerText =
+      "Logged in: " + user.email;
+    }else{
+      document.getElementById("status").innerText =
+      "Not Logged In";
+    }
+  });
+
+  // LIVE DATA
+  db.collection("votes").doc("india")
+  .onSnapshot(doc=>{
+    if(doc.exists){
+      const d = doc.data();
+
+      document.getElementById("onoeSupport").innerText = d.onoeSupport || 0;
+      document.getElementById("onoeAgainst").innerText = d.onoeAgainst || 0;
+      document.getElementById("delSupport").innerText = d.delSupport || 0;
+      document.getElementById("delAgainst").innerText = d.delAgainst || 0;
+    }
+  });
+
+  // VOTE FUNCTION
+  function vote(field){
+
+    if(!auth.currentUser){
+      alert("Please login first");
+      return;
+    }
+
+    db.collection("votes").doc("india").update({
+      [field]: firebase.firestore.FieldValue.increment(1)
+    }).then(()=>{
+      alert("Vote Recorded");
+    }).catch(err=>{
+      alert(err.message);
+    });
+
+  }
 
 </script>
 
 </body>
-
 </html>
