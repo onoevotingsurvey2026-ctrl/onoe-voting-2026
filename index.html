@@ -1,150 +1,473 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LIVE TV VOTING DASHBOARD • INDIA PUBLIC SURVEY</title>
 
-<title>TV Voting Dashboard UI</title>
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<style>
+  <!-- CHART -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-/* 🌌 BACKGROUND */
-body {
-  margin: 0;
-  font-family: Arial;
-  background: radial-gradient(circle at top, #0f172a, #000);
-  color: white;
-}
+  <style>
 
-/* 📺 HEADER */
-.header {
-  text-align: center;
-  padding: 12px;
-  font-weight: bold;
-  color: #00ffcc;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(10px);
-}
+    body{
+      margin:0;
+      padding:0;
+      font-family:Arial;
+      background:#0f172a;
+      color:white;
+      text-align:center;
+    }
 
-/* 📰 TICKER */
-.ticker {
-  overflow: hidden;
-  white-space: nowrap;
-  background: rgba(255,255,255,0.05);
-  padding: 8px;
-}
+    .header{
+      background:#111827;
+      padding:20px;
+      font-size:28px;
+      font-weight:bold;
+      border-bottom:3px solid red;
+    }
 
-.ticker-text {
-  display: inline-block;
-  animation: move 12s linear infinite;
-  color: #ffcc00;
-}
+    .live{
+      color:red;
+      animation:blink 1s infinite;
+    }
 
-@keyframes move {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
+    @keyframes blink{
+      50%{opacity:0.3;}
+    }
 
-/* 📦 MAIN GRID */
-.container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 15px;
-}
+    .ticker{
+      background:#1e293b;
+      padding:12px;
+      font-size:18px;
+      overflow:hidden;
+      white-space:nowrap;
+    }
 
-/* 🟦 ONOE CARD */
-.card-onoe {
-  background: rgba(0,150,255,0.1);
-  border: 1px solid rgba(0,150,255,0.3);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 15px;
-  margin: 10px;
-  width: 300px;
-  text-align: center;
-}
+    .section{
+      background:#1e293b;
+      margin:20px;
+      padding:20px;
+      border-radius:15px;
+      box-shadow:0 0 10px rgba(255,255,255,0.1);
+    }
 
-/* 🟨 DEL CARD */
-.card-del {
-  background: rgba(255,200,0,0.1);
-  border: 1px solid rgba(255,200,0,0.3);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 15px;
-  margin: 10px;
-  width: 300px;
-  text-align: center;
-}
+    h2{
+      color:#38bdf8;
+    }
 
-/* 🔢 NUMBERS */
-.value {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 10px 0;
-  color: #00ffcc;
-}
+    .count{
+      font-size:24px;
+      margin:10px;
+    }
 
-/* 🔘 BUTTONS */
-button {
-  padding: 8px 12px;
-  margin: 5px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background: rgba(255,255,255,0.1);
-  color: white;
-}
+    button{
+      padding:12px 25px;
+      margin:10px;
+      border:none;
+      border-radius:10px;
+      font-size:18px;
+      cursor:pointer;
+    }
 
-button:hover {
-  background: rgba(0,255,204,0.2);
-}
+    .support{
+      background:#22c55e;
+      color:white;
+    }
 
-/* 📱 MOBILE */
-@media(max-width:768px){
-  .card-onoe, .card-del {
-    width: 90%;
-  }
-}
+    .against{
+      background:#ef4444;
+      color:white;
+    }
 
-</style>
+    .login{
+      background:#3b82f6;
+      color:white;
+    }
+
+    .logout{
+      background:#f59e0b;
+      color:black;
+    }
+
+    .userBox{
+      margin:15px;
+      font-size:18px;
+    }
+
+    canvas{
+      max-width:500px;
+      margin:auto;
+    }
+
+    .footer{
+      margin-top:30px;
+      padding:20px;
+      background:#111827;
+      font-size:14px;
+    }
+
+  </style>
 </head>
 
 <body>
 
-<div class="header">
-📺 LIVE TV VOTING DASHBOARD • INDIA PUBLIC SURVEY 🔴
-</div>
+  <!-- HEADER -->
+  <div class="header">
+    LIVE TV VOTING DASHBOARD • INDIA PUBLIC SURVEY
+    <span class="live"> 🔴 LIVE</span>
+  </div>
 
-<div class="ticker">
-  <div class="ticker-text">
+  <!-- TICKER -->
+  <div class="ticker">
     📢 ONOE LIVE VOTING • 🌍 INDIA SURVEY ACTIVE • 🗳️ DELIMITATION DEBATE RUNNING • 📊 REAL TIME ANALYTICS
   </div>
-</div>
 
-<div class="container">
+  <!-- LOGIN -->
+  <div style="margin-top:20px;">
 
-<!-- 🟦 ONOE -->
-<div class="card-onoe">
-  <h3>ONOE SECTION</h3>
-  <div class="value">Support: 0</div>
-  <div class="value">Against: 0</div>
+    <button class="login" onclick="login()">
+      🔐 Login with Gmail
+    </button>
 
-  <button>👇 Support</button>
-  <button>👇 Against</button>
-</div>
+    <button class="logout" onclick="logout()">
+      🚪 Logout
+    </button>
 
-<!-- 🟨 DEL -->
-<div class="card-del">
-  <h3>DELIMITATION SECTION</h3>
-  <div class="value">Support: 0</div>
-  <div class="value">Against: 0</div>
+  </div>
 
-  <button>👇 Support</button>
-  <button>👇 Against</button>
-</div>
+  <!-- USER -->
+  <div class="userBox" id="userInfo">
+    Not Logged In
+  </div>
 
-</div>
+  <!-- ONOE -->
+  <div class="section">
+
+    <h2>ONOE SECTION</h2>
+
+    <div class="count">
+      Support: <span id="onoeSupport">0</span>
+    </div>
+
+    <div class="count">
+      Against: <span id="onoeAgainst">0</span>
+    </div>
+
+    <button class="support" onclick="voteONOE('support')">
+      👇 Support
+    </button>
+
+    <button class="against" onclick="voteONOE('against')">
+      👇 Against
+    </button>
+
+  </div>
+
+  <!-- DEL -->
+  <div class="section">
+
+    <h2>DELIMITATION SECTION</h2>
+
+    <div class="count">
+      Support: <span id="delSupport">0</span>
+    </div>
+
+    <div class="count">
+      Against: <span id="delAgainst">0</span>
+    </div>
+
+    <button class="support" onclick="voteDEL('support')">
+      👇 Support
+    </button>
+
+    <button class="against" onclick="voteDEL('against')">
+      👇 Against
+    </button>
+
+  </div>
+
+  <!-- PIE CHART -->
+  <div class="section">
+
+    <h2>LIVE ANALYTICS</h2>
+
+    <canvas id="voteChart"></canvas>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+
+    🌐 ONOE Voting Survey 2026 <br><br>
+
+    📧 onoevotingsurvey2026@gmail.com <br>
+    📱 +91 8939324309 / +91 9384695599
+
+  </div>
+
+<script>
+
+  // FIREBASE CONFIG
+  const firebaseConfig = {
+
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID"
+
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const db = firebase.firestore();
+
+  // AUTH
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  // LOGIN
+  function login(){
+
+    firebase.auth()
+      .signInWithPopup(provider)
+      .then((result)=>{
+
+        alert("Login Success");
+
+      })
+      .catch((error)=>{
+
+        console.error(error);
+
+        alert("Login Failed");
+
+      });
+
+  }
+
+  // LOGOUT
+  function logout(){
+
+    firebase.auth().signOut();
+
+  }
+
+  // USER STATUS
+  firebase.auth().onAuthStateChanged(user=>{
+
+    if(user){
+
+      document.getElementById("userInfo").innerHTML =
+        "Logged In: " + user.email;
+
+    } else {
+
+      document.getElementById("userInfo").innerHTML =
+        "Not Logged In";
+
+    }
+
+  });
+
+  // PIE CHART
+  let chart;
+
+  function initChart(){
+
+    const ctx =
+      document.getElementById('voteChart')
+      .getContext('2d');
+
+    chart = new Chart(ctx, {
+
+      type:'pie',
+
+      data:{
+        labels:[
+          'ONOE Support',
+          'ONOE Against',
+          'DEL Support',
+          'DEL Against'
+        ],
+
+        datasets:[{
+          data:[0,0,0,0],
+
+          backgroundColor:[
+            '#22c55e',
+            '#ef4444',
+            '#3b82f6',
+            '#f59e0b'
+          ]
+        }]
+      }
+
+    });
+
+  }
+
+  initChart();
+
+  // LIVE LISTENER
+  db.collection("votes")
+    .doc("global")
+    .onSnapshot(doc=>{
+
+      if(!doc.exists) return;
+
+      const data = doc.data();
+
+      document.getElementById("onoeSupport").innerText =
+        data.onoeSupport || 0;
+
+      document.getElementById("onoeAgainst").innerText =
+        data.onoeAgainst || 0;
+
+      document.getElementById("delSupport").innerText =
+        data.delSupport || 0;
+
+      document.getElementById("delAgainst").innerText =
+        data.delAgainst || 0;
+
+      // CHART UPDATE
+      chart.data.datasets[0].data = [
+
+        data.onoeSupport || 0,
+        data.onoeAgainst || 0,
+        data.delSupport || 0,
+        data.delAgainst || 0
+
+      ];
+
+      chart.update();
+
+    });
+
+  // ONOE VOTE
+  async function voteONOE(type){
+
+    const user =
+      firebase.auth().currentUser;
+
+    if(!user){
+
+      alert("Please Login First");
+
+      return;
+    }
+
+    const ref =
+      db.collection("votes")
+      .doc("global");
+
+    const userVote =
+      db.collection("userVotes")
+      .doc(user.uid);
+
+    const check =
+      await userVote.get();
+
+    let data = {};
+
+    if(check.exists){
+      data = check.data();
+    }
+
+    if(data.onoeDone){
+
+      alert("ONOE Vote Already Submitted");
+
+      return;
+    }
+
+    if(type === "support"){
+
+      await ref.update({
+        onoeSupport:
+        firebase.firestore.FieldValue.increment(1)
+      });
+
+    } else {
+
+      await ref.update({
+        onoeAgainst:
+        firebase.firestore.FieldValue.increment(1)
+      });
+
+    }
+
+    await userVote.set({
+      onoeDone:true
+    },{merge:true});
+
+    alert("ONOE Vote Recorded");
+
+  }
+
+  // DEL VOTE
+  async function voteDEL(type){
+
+    const user =
+      firebase.auth().currentUser;
+
+    if(!user){
+
+      alert("Please Login First");
+
+      return;
+    }
+
+    const ref =
+      db.collection("votes")
+      .doc("global");
+
+    const userVote =
+      db.collection("userVotes")
+      .doc(user.uid);
+
+    const check =
+      await userVote.get();
+
+    let data = {};
+
+    if(check.exists){
+      data = check.data();
+    }
+
+    if(data.delDone){
+
+      alert("DEL Vote Already Submitted");
+
+      return;
+    }
+
+    if(type === "support"){
+
+      await ref.update({
+        delSupport:
+        firebase.firestore.FieldValue.increment(1)
+      });
+
+    } else {
+
+      await ref.update({
+        delAgainst:
+        firebase.firestore.FieldValue.increment(1)
+      });
+
+    }
+
+    await userVote.set({
+      delDone:true
+    },{merge:true});
+
+    alert("DEL Vote Recorded");
+
+  }
+
+</script>
 
 </body>
 </html>
