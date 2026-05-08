@@ -295,16 +295,16 @@ LOGOUT
  // ONOE SUPPORT
  // =========================
 
- function voteONOESupport(){
+ function login(){
 
-   if(!auth.currentUser){
+  alert("Login button clicked");
 
-     alert("Please login first");
+  const provider =
+  new firebase.auth.GoogleAuthProvider();
 
-     return;
+  auth.signInWithRedirect(provider);
 
-   }
-
+}
    db.collection("votes")
    .doc("india")
    .update({
