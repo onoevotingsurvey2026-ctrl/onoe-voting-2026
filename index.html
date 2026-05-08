@@ -1,102 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
 
-<meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ONOE Voting Dashboard 2026</title>
-
-<!-- FIREBASE -->
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<title>Test Login Button</title>
 
 <style>
 
 body{
-  margin:0;
-  padding:0;
-  background:#0f172a;
+  background:black;
   color:white;
-  font-family:Arial,sans-serif;
   text-align:center;
-  overflow-x:hidden;
-}
-
-header{
-  background:#111827;
-  padding:20px;
-}
-
-h1{
-  color:#22c55e;
-}
-
-.box{
-  background:#1e293b;
-  margin:20px;
-  padding:20px;
-  border-radius:12px;
+  padding-top:100px;
+  font-family:Arial;
 }
 
 button{
-  padding:15px 20px;
-  margin:10px;
+  padding:20px;
+  font-size:22px;
+  background:blue;
+  color:white;
   border:none;
   border-radius:10px;
-  font-size:18px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.loginBtn{
-  background:#2563eb;
-  color:white;
-}
-
-.logoutBtn{
-  background:#f97316;
-  color:white;
-}
-
-.supportBtn{
-  background:#22c55e;
-  color:white;
-}
-
-.againstBtn{
-  background:#ef4444;
-  color:white;
-}
-
-.count{
-  color:#facc15;
-  font-size:32px;
-  font-weight:bold;
-}
-
-#loginStatus{
-  margin-top:10px;
-  color:#22c55e;
-  font-weight:bold;
-}
-
-.live{
-  color:red;
-  font-weight:bold;
-  animation:blink 1s infinite;
-}
-
-@keyframes blink{
-  50%{
-    opacity:0;
-  }
 }
 
 </style>
@@ -105,336 +32,22 @@ button{
 
 <body>
 
-<header>
+<h1>BUTTON TEST</h1>
 
-<h1>🌐 Global Election Network</h1>
-
-<h2>🏛️ Indian Citizen Public Opinion Dashboard 2026</h2>
-
-<div class="live">🔴 LIVE VOTING ACTIVE</div>
-
-</header>
-
-<br>
-
-<button class="loginBtn" onclick="login()">
-LOGIN WITH GMAIL
+<button onclick="testButton()">
+CLICK ME
 </button>
-
-<button class="logoutBtn" onclick="logout()">
-LOGOUT
-</button>
-
-<p id="loginStatus">
-❌ Not Logged In
-</p>
-
-<div class="box">
-
-<h2>🗳️ ONE NATION ONE ELECTION</h2>
-
-<p>
-👍 SUPPORT :
-<span class="count" id="onoeSupport">0</span>
-</p>
-
-<p>
-👎 AGAINST :
-<span class="count" id="onoeAgainst">0</span>
-</p>
-
-<button class="supportBtn" onclick="voteONOESupport()">
-👍 Support ONOE
-</button>
-
-<button class="againstBtn" onclick="voteONOEAgainst()">
-👎 Against ONOE
-</button>
-
-</div>
-
-<div class="box">
-
-<h2>📊 DELIMITATION OPINION</h2>
-
-<p>
-👍 SUPPORT :
-<span class="count" id="delSupport">0</span>
-</p>
-
-<p>
-👎 AGAINST :
-<span class="count" id="delAgainst">0</span>
-</p>
-
-<button class="supportBtn" onclick="voteDelSupport()">
-👍 Support Delimitation
-</button>
-
-<button class="againstBtn" onclick="voteDelAgainst()">
-👎 Against Delimitation
-</button>
-
-</div>
 
 <script>
 
- // =========================
- // FIREBASE CONFIG
- // =========================
+function testButton(){
 
- const firebaseConfig = {
+  alert("BUTTON WORKING SUCCESS");
 
-   apiKey: "PASTE_YOUR_API_KEY",
-
-   authDomain: "onoevote2026.firebaseapp.com",
-
-   projectId: "onoevote2026",
-
-   storageBucket: "onoevote2026.appspot.com",
-
-   messagingSenderId: "PASTE_YOUR_SENDER_ID",
-
-   appId: "PASTE_YOUR_APP_ID"
-
- };
-
- // =========================
- // INITIALIZE FIREBASE
- // =========================
-
- firebase.initializeApp(firebaseConfig);
-
- const auth = firebase.auth();
-
- const db = firebase.firestore();
-
- // =========================
- // LOGIN
- // =========================
-
- function login(){
-
-   alert("Login button clicked");
-
-   const provider =
-   new firebase.auth.GoogleAuthProvider();
-
-   auth.signInWithRedirect(provider);
-
- }
-
- // =========================
- // LOGOUT
- // =========================
-
- function logout(){
-
-   auth.signOut()
-
-   .then(()=>{
-
-     document.getElementById("loginStatus").innerHTML =
-     "❌ Not Logged In";
-
-     alert("Logged out");
-
-   });
-
- }
-
- // =========================
- // AUTH STATE
- // =========================
-
- auth.onAuthStateChanged((user)=>{
-
-   if(user){
-
-     document.getElementById("loginStatus").innerHTML =
-     "✅ Logged in : " + user.email;
-
-   }
-
- });
-
- // =========================
- // LIVE DATABASE
- // =========================
-
- db.collection("votes")
- .doc("india")
- .onSnapshot((doc)=>{
-
-   if(doc.exists){
-
-     const data = doc.data();
-
-     document.getElementById("onoeSupport").innerHTML =
-     data.onoeSupport || 0;
-
-     document.getElementById("onoeAgainst").innerHTML =
-     data.onoeAgainst || 0;
-
-     document.getElementById("delSupport").innerHTML =
-     data.delSupport || 0;
-
-     document.getElementById("delAgainst").innerHTML =
-     data.delAgainst || 0;
-
-   }
-
- });
-
- // =========================
- // ONOE SUPPORT
- // =========================
-
- function voteONOESupport(){
-
-   if(!auth.currentUser){
-
-     alert("Please login first");
-
-     return;
-
-   }
-
-   db.collection("votes")
-   .doc("india")
-   .update({
-
-     onoeSupport:
-     firebase.firestore.FieldValue.increment(1)
-
-   })
-
-   .then(()=>{
-
-     alert("✅ Vote Recorded");
-
-   })
-
-   .catch((error)=>{
-
-     alert(error.message);
-
-   });
-
- }
-
- // =========================
- // ONOE AGAINST
- // =========================
-
- function voteONOEAgainst(){
-
-   if(!auth.currentUser){
-
-     alert("Please login first");
-
-     return;
-
-   }
-
-   db.collection("votes")
-   .doc("india")
-   .update({
-
-     onoeAgainst:
-     firebase.firestore.FieldValue.increment(1)
-
-   })
-
-   .then(()=>{
-
-     alert("✅ Vote Recorded");
-
-   })
-
-   .catch((error)=>{
-
-     alert(error.message);
-
-   });
-
- }
-
- // =========================
- // DELIMITATION SUPPORT
- // =========================
-
- function voteDelSupport(){
-
-   if(!auth.currentUser){
-
-     alert("Please login first");
-
-     return;
-
-   }
-
-   db.collection("votes")
-   .doc("india")
-   .update({
-
-     delSupport:
-     firebase.firestore.FieldValue.increment(1)
-
-   })
-
-   .then(()=>{
-
-     alert("✅ Vote Recorded");
-
-   })
-
-   .catch((error)=>{
-
-     alert(error.message);
-
-   });
-
- }
-
- // =========================
- // DELIMITATION AGAINST
- // =========================
-
- function voteDelAgainst(){
-
-   if(!auth.currentUser){
-
-     alert("Please login first");
-
-     return;
-
-   }
-
-   db.collection("votes")
-   .doc("india")
-   .update({
-
-     delAgainst:
-     firebase.firestore.FieldValue.increment(1)
-
-   })
-
-   .then(()=>{
-
-     alert("✅ Vote Recorded");
-
-   })
-
-   .catch((error)=>{
-
-     alert(error.message);
-
-   });
-
- }
+}
 
 </script>
 
 </body>
+
 </html>
