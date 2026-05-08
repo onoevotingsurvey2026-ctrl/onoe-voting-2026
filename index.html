@@ -229,16 +229,15 @@ LOGOUT
 
  function login(){
 
-   const provider =
-   new firebase.auth.GoogleAuthProvider();
-
-   auth.signInWithPopup(provider)
-
-   .then((result)=>{
-
-     alert("✅ Login Successful");
-
-   })
+   const firebaseConfig = {
+  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  authDomain: "onoevote2026.firebaseapp.com",
+  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "onoevote2026",
+  storageBucket: "onoevote2026.firebasestorage.app",
+  messagingSenderId: "181065724520",
+  appId: "1:181065724520:web:f72a93869786373c1101dd"
+};
 
    .catch((error)=>{
 
