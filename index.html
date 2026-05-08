@@ -4,193 +4,147 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ONOE Live TV Voting Dashboard</title>
-
-<!-- Firebase v8 -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<title>TV Voting Dashboard UI</title>
 
 <style>
+
+/* 🌌 BACKGROUND */
 body {
   margin: 0;
   font-family: Arial;
-  background: #0f172a;
+  background: radial-gradient(circle at top, #0f172a, #000);
   color: white;
 }
 
+/* 📺 HEADER */
 .header {
   text-align: center;
-  padding: 15px;
-  background: rgba(255,255,255,0.05);
+  padding: 12px;
+  font-weight: bold;
   color: #00ffcc;
-  font-size: 18px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
 }
 
+/* 📰 TICKER */
+.ticker {
+  overflow: hidden;
+  white-space: nowrap;
+  background: rgba(255,255,255,0.05);
+  padding: 8px;
+}
+
+.ticker-text {
+  display: inline-block;
+  animation: move 12s linear infinite;
+  color: #ffcc00;
+}
+
+@keyframes move {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* 📦 MAIN GRID */
 .container {
-  max-width: 800px;
-  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   padding: 15px;
 }
 
-.card {
-  background: rgba(255,255,255,0.05);
+/* 🟦 ONOE CARD */
+.card-onoe {
+  background: rgba(0,150,255,0.1);
+  border: 1px solid rgba(0,150,255,0.3);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
   padding: 15px;
-  margin: 10px 0;
-  border-radius: 10px;
+  margin: 10px;
+  width: 300px;
   text-align: center;
-  border: 1px solid rgba(0,255,204,0.2);
 }
 
-.card p {
-  font-size: 24px;
+/* 🟨 DEL CARD */
+.card-del {
+  background: rgba(255,200,0,0.1);
+  border: 1px solid rgba(255,200,0,0.3);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 15px;
+  margin: 10px;
+  width: 300px;
+  text-align: center;
+}
+
+/* 🔢 NUMBERS */
+.value {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 10px 0;
   color: #00ffcc;
 }
 
+/* 🔘 BUTTONS */
 button {
-  padding: 10px 15px;
+  padding: 8px 12px;
   margin: 5px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  background: #1e3a8a;
+  background: rgba(255,255,255,0.1);
   color: white;
 }
 
-.loginBox {
-  text-align: center;
-  margin-top: 20px;
+button:hover {
+  background: rgba(0,255,204,0.2);
 }
+
+/* 📱 MOBILE */
+@media(max-width:768px){
+  .card-onoe, .card-del {
+    width: 90%;
+  }
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="header">
-📺 ONOE LIVE TV VOTING DASHBOARD • INDIA PUBLIC SURVEY 🔴 LIVE
+📺 LIVE TV VOTING DASHBOARD • INDIA PUBLIC SURVEY 🔴
 </div>
 
-<!-- LOGIN -->
-<div class="loginBox">
-  <button onclick="login()">🔐 Login with Google</button>
-  <p id="userInfo"></p>
+<div class="ticker">
+  <div class="ticker-text">
+    📢 ONOE LIVE VOTING • 🌍 INDIA SURVEY ACTIVE • 🗳️ DELIMITATION DEBATE RUNNING • 📊 REAL TIME ANALYTICS
+  </div>
 </div>
 
 <div class="container">
 
-<div class="card">
-<h3>ONOE Support</h3>
-<p id="onoeSupport">0 (0%)</p>
-<button onclick="vote('onoeSupport')">👇 Vote</button>
+<!-- 🟦 ONOE -->
+<div class="card-onoe">
+  <h3>ONOE SECTION</h3>
+  <div class="value">Support: 0</div>
+  <div class="value">Against: 0</div>
+
+  <button>👇 Support</button>
+  <button>👇 Against</button>
 </div>
 
-<div class="card">
-<h3>ONOE Against</h3>
-<p id="onoeAgainst">0 (0%)</p>
-<button onclick="vote('onoeAgainst')">👇 Vote</button>
+<!-- 🟨 DEL -->
+<div class="card-del">
+  <h3>DELIMITATION SECTION</h3>
+  <div class="value">Support: 0</div>
+  <div class="value">Against: 0</div>
+
+  <button>👇 Support</button>
+  <button>👇 Against</button>
 </div>
 
-<div class="card">
-<h3>Delimitation Support</h3>
-<p id="delSupport">0 (0%)</p>
-<button onclick="vote('delSupport')">👇 Vote</button>
 </div>
-
-<div class="card">
-<h3>Delimitation Against</h3>
-<p id="delAgainst">0 (0%)</p>
-<button onclick="vote('delAgainst')">👇 Vote</button>
-</div>
-
-<br>
-<button onclick="resetVotes()">🔄 Reset Votes</button>
-
-</div>
-
-<script>
-
-// 🔥 FIREBASE CONFIG (UPDATED CORRECT)
-const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-const ref = db.collection("votes").doc("global");
-
-// 🔐 LOGIN
-function login() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-
-  auth.signInWithPopup(provider)
-  .then((result) => {
-    document.getElementById("userInfo").innerText =
-      "Welcome: " + result.user.displayName;
-  })
-  .catch((error) => {
-    alert(error.message);
-    console.log(error.code);
-  });
-}
-
-// 📊 LIVE DATA
-ref.onSnapshot((doc) => {
-  if (!doc.exists) return;
-
-  let d = doc.data();
-
-  let a = d.onoeSupport || 0;
-  let b = d.onoeAgainst || 0;
-  let c = d.delSupport || 0;
-  let d1 = d.delAgainst || 0;
-
-  let total = a + b + c + d1;
-
-  function pct(v){
-    return total ? ((v/total)*100).toFixed(1) : 0;
-  }
-
-  document.getElementById("onoeSupport").innerText = a + " (" + pct(a) + "%)";
-  document.getElementById("onoeAgainst").innerText = b + " (" + pct(b) + "%)";
-  document.getElementById("delSupport").innerText = c + " (" + pct(c) + "%)";
-  document.getElementById("delAgainst").innerText = d1 + " (" + pct(d1) + "%)";
-});
-
-// 🗳️ VOTE
-function vote(field) {
-
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Please login first");
-    return;
-  }
-
-  ref.update({
-    [field]: firebase.firestore.FieldValue.increment(1)
-  });
-
-}
-
-// 🔄 RESET
-function resetVotes() {
-  ref.set({
-    onoeSupport: 0,
-    onoeAgainst: 0,
-    delSupport: 0,
-    delAgainst: 0
-  });
-}
-
-</script>
 
 </body>
 </html>
