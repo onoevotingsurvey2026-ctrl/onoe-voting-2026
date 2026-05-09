@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Real Voting System PRO</title>
+  <title>TRUE Election System PRO</title>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -29,7 +29,7 @@
       padding:15px;
       border-radius:10px;
       display:inline-block;
-      min-width:220px;
+      min-width:240px;
     }
 
     button{
@@ -51,7 +51,7 @@
 <body>
 
 <header>
-  🌍 REAL Voting System PRO
+  🌍 TRUE Election System
 </header>
 
 <!-- LOGIN -->
@@ -63,10 +63,11 @@
 <!-- DASHBOARD -->
 <div id="dashboard">
 
-  <h2>📊 Live Dashboard</h2>
+  <h2>📊 Live Election Results</h2>
 
   <div class="card">
     <h3>India</h3>
+
     <p>ONOE Support: <span id="os">0</span></p>
     <p>ONOE Against: <span id="oa">0</span></p>
     <p>DEL Support: <span id="ds">0</span></p>
@@ -78,10 +79,9 @@
     <button onclick="vote('india','delAgainst')">DEL -</button>
   </div>
 
-  <!-- ADMIN PANEL -->
   <div id="adminPanel">
     <h3>🧑‍💼 Admin Panel</h3>
-    <button onclick="resetVotes()">Reset Votes</button>
+    <button onclick="resetSystem()">Reset All Votes</button>
   </div>
 
 </div>
@@ -108,7 +108,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 /////////////////////////////////////////////////////
-// 🔐 LOGIN
+// 🔐 LOGIN (REDIRECT SAFE)
 /////////////////////////////////////////////////////
 
 function login(){
@@ -127,9 +127,10 @@ auth.onAuthStateChanged(user=>{
   if(user){
     document.getElementById("loginSection").style.display="none";
     document.getElementById("dashboard").style.display="block";
-    loadVotes();
 
-    // ADMIN CHECK (change email if needed)
+    loadResults();
+
+    // ADMIN CHECK
     if(user.email === "onoe.voting.survey2026@gmail.com"){
       document.getElementById("adminPanel").style.display="block";
     }
@@ -142,10 +143,10 @@ auth.onAuthStateChanged(user=>{
 });
 
 /////////////////////////////////////////////////////
-// 🗳️ ONE USER ONE VOTE SYSTEM
+// 🗳️ TRUE VOTING SYSTEM (NO DUPLICATE)
 /////////////////////////////////////////////////////
 
-function vote(country,type){
+function vote(country, choice){
 
   const user = auth.currentUser;
   if(!user){
@@ -153,35 +154,47 @@ function vote(country,type){
     return;
   }
 
-  const votePath = "userVotes/"+user.uid+"/"+country;
+  const path = "userVotes/"+user.uid+"/"+country;
 
-  db.ref(votePath).once("value", snap=>{
+  db.ref(path).once("value", snap=>{
+
     if(snap.exists()){
       alert("❌ You already voted in this country!");
-    }else{
-
-      db.ref("votes/"+country+"/"+type)
-        .transaction(v=> (v||0)+1);
-
-      db.ref(votePath).set(type);
+      return;
     }
+
+    db.ref(path).set(choice);
+    alert("✅ Vote recorded successfully!");
   });
 
 }
 
 /////////////////////////////////////////////////////
-// 📊 LOAD DATA
+// 📊 AUTO RESULT CALCULATION
 /////////////////////////////////////////////////////
 
-function loadVotes(){
+function loadResults(){
 
-  db.ref("votes/india").on("value", snap=>{
-    const d = snap.val() || {};
+  db.ref("userVotes").on("value", snap=>{
 
-    document.getElementById("os").innerText = d.onoeSupport || 0;
-    document.getElementById("oa").innerText = d.onoeAgainst || 0;
-    document.getElementById("ds").innerText = d.delSupport || 0;
-    document.getElementById("da").innerText = d.delAgainst || 0;
+    let data = snap.val() || {};
+
+    let os=0, oa=0, ds=0, da=0;
+
+    Object.values(data).forEach(user=>{
+
+      if(user.india === "onoeSupport") os++;
+      if(user.india === "onoeAgainst") oa++;
+      if(user.india === "delSupport") ds++;
+      if(user.india === "delAgainst") da++;
+
+    });
+
+    document.getElementById("os").innerText = os;
+    document.getElementById("oa").innerText = oa;
+    document.getElementById("ds").innerText = ds;
+    document.getElementById("da").innerText = da;
+
   });
 
 }
@@ -190,7 +203,7 @@ function loadVotes(){
 // 🧑‍💼 ADMIN RESET
 /////////////////////////////////////////////////////
 
-function resetVotes(){
+function resetSystem(){
 
   const user = auth.currentUser;
 
@@ -199,18 +212,8 @@ function resetVotes(){
     return;
   }
 
-  db.ref("votes").set({
-    india:{
-      onoeSupport:0,
-      onoeAgainst:0,
-      delSupport:0,
-      delAgainst:0
-    }
-  });
-
   db.ref("userVotes").remove();
-
-  alert("Votes reset successfully!");
+  alert("System reset complete!");
 }
 
 </script>
