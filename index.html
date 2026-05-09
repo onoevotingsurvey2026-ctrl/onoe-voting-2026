@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting System - FIXED</title>
+  <title>Global Voting System PRO</title>
 
-  <!-- ✅ Firebase v8 ONLY -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body{
@@ -24,19 +24,19 @@
 
     #dashboard{ display:none; }
 
-    button{
-      padding:10px 15px;
-      margin:5px;
-      cursor:pointer;
-    }
-
     .card{
       background:white;
       margin:10px;
       padding:15px;
       border-radius:10px;
       display:inline-block;
-      min-width:200px;
+      min-width:220px;
+    }
+
+    button{
+      padding:10px 15px;
+      margin:5px;
+      cursor:pointer;
     }
   </style>
 </head>
@@ -44,7 +44,7 @@
 <body>
 
 <header>
-  🌍 Global Voting System
+  🌍 Global Voting System PRO
 </header>
 
 <!-- LOGIN -->
@@ -55,34 +55,39 @@
 
 <!-- DASHBOARD -->
 <div id="dashboard">
+
   <h2>📊 Live Dashboard</h2>
 
   <div class="card">
     <h3>India</h3>
-    <p>ONOE Support: <span id="in_os">0</span></p>
-    <p>ONOE Against: <span id="in_oa">0</span></p>
+    <p>ONOE Support: <span id="os">0</span></p>
+    <p>ONOE Against: <span id="oa">0</span></p>
+    <p>DEL Support: <span id="ds">0</span></p>
+    <p>DEL Against: <span id="da">0</span></p>
+
+    <button onclick="vote('india','onoeSupport')">ONOE +</button>
+    <button onclick="vote('india','onoeAgainst')">ONOE -</button>
+    <button onclick="vote('india','delSupport')">DEL +</button>
+    <button onclick="vote('india','delAgainst')">DEL -</button>
   </div>
 
-  <br>
+  <h3>📈 Live Chart</h3>
+  <canvas id="chart" width="300"></canvas>
 
-  <button onclick="vote('india','onoeSupport')">Vote +</button>
-  <button onclick="vote('india','onoeAgainst')">Vote -</button>
 </div>
 
 <script>
 
 /////////////////////////////////////////////////////
-// 🔥 FIREBASE CONFIG (REAL VALUES - YOU HAVE IT)
+// 🔥 FIREBASE CONFIG
 /////////////////////////////////////////////////////
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  apiKey: "PASTE_REAL_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
   databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  appId: "PASTE_REAL_APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -91,69 +96,105 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 /////////////////////////////////////////////////////
-// 🔐 LOGIN (FIXED)
+// 🔐 LOGIN
 /////////////////////////////////////////////////////
 
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
 
   auth.signInWithPopup(provider)
-    .then((result)=>{
-      console.log("LOGIN SUCCESS:", result.user.email);
+    .then(res=>{
+      console.log("LOGIN OK:", res.user.email);
     })
-    .catch((error)=>{
-      console.log("LOGIN ERROR:", error.code, error.message);
-      alert(error.message);
+    .catch(err=>{
+      alert(err.message);
     });
 }
 
 /////////////////////////////////////////////////////
-// 🔄 AUTH STATE CONTROL
+// 🔄 AUTH CONTROL
 /////////////////////////////////////////////////////
 
-auth.onAuthStateChanged((user)=>{
-
-  console.log("AUTH:", user);
-
+auth.onAuthStateChanged(user=>{
   if(user){
     document.getElementById("loginSection").style.display="none";
     document.getElementById("dashboard").style.display="block";
-    loadVotes();
-  } else {
+    loadData();
+  }else{
     document.getElementById("loginSection").style.display="block";
     document.getElementById("dashboard").style.display="none";
   }
-
 });
 
 /////////////////////////////////////////////////////
-// 📊 LOAD VOTES
-/////////////////////////////////////////////////////
-
-function loadVotes(){
-  db.ref("votes/india").on("value", (snap)=>{
-    const data = snap.val() || {};
-
-    document.getElementById("in_os").innerText = data.onoeSupport || 0;
-    document.getElementById("in_oa").innerText = data.onoeAgainst || 0;
-  });
-}
-
-/////////////////////////////////////////////////////
-// 🗳️ VOTE FUNCTION
+// 🔐 ONE USER ONE VOTE LOCK
 /////////////////////////////////////////////////////
 
 function vote(country,type){
 
   const user = auth.currentUser;
+  if(!user){ alert("Login first"); return; }
 
-  if(!user){
-    alert("Please login first");
-    return;
+  const voteKey = country + "_" + type;
+
+  db.ref("userVotes/" + user.uid + "/" + voteKey).once("value", snap=>{
+    if(snap.exists()){
+      alert("❌ You already voted!");
+    }else{
+
+      db.ref("votes/" + country + "/" + type)
+        .transaction(v=> (v||0)+1);
+
+      db.ref("userVotes/" + user.uid + "/" + voteKey).set(true);
+    }
+  });
+}
+
+/////////////////////////////////////////////////////
+// 📊 LOAD DATA
+/////////////////////////////////////////////////////
+
+function loadData(){
+
+  db.ref("votes/india").on("value", snap=>{
+    const d = snap.val() || {};
+
+    document.getElementById("os").innerText = d.onoeSupport || 0;
+    document.getElementById("oa").innerText = d.onoeAgainst || 0;
+    document.getElementById("ds").innerText = d.delSupport || 0;
+    document.getElementById("da").innerText = d.delAgainst || 0;
+
+    updateChart(d);
+  });
+}
+
+/////////////////////////////////////////////////////
+// 📈 CHART
+/////////////////////////////////////////////////////
+
+let chart;
+
+function updateChart(d){
+
+  const data = [
+    d.onoeSupport||0,
+    d.onoeAgainst||0,
+    d.delSupport||0,
+    d.delAgainst||0
+  ];
+
+  if(chart){
+    chart.data.datasets[0].data = data;
+    chart.update();
+  }else{
+    chart = new Chart(document.getElementById("chart"),{
+      type:"pie",
+      data:{
+        labels:["ONOE +","ONOE -","DEL +","DEL -"],
+        datasets:[{data:data}]
+      }
+    });
   }
-
-  db.ref("votes/"+country+"/"+type)
-    .transaction((v)=> (v||0)+1);
 }
 
 </script>
