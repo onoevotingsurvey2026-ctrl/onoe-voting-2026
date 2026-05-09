@@ -231,19 +231,21 @@ Powered by Firebase + GitHub Pages
 
 const firebaseConfig = {
 
-  apiKey: "YOUR_API_KEY",
+  apiKey: "PASTE_YOUR_REAL_API_KEY",
 
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
 
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  databaseURL:
+  "https://PASTE_YOUR_PROJECT-default-rtdb.firebaseio.com",
 
-  projectId: "YOUR_PROJECT",
+  projectId: "PASTE_YOUR_PROJECT",
 
-  storageBucket: "YOUR_PROJECT.appspot.com",
+  storageBucket:
+  "PASTE_YOUR_PROJECT.appspot.com",
 
-  messagingSenderId: "XXXXXXXX",
+  messagingSenderId: "PASTE_REAL_ID",
 
-  appId: "XXXXXXXX"
+  appId: "PASTE_REAL_APP_ID"
 
 };
 
@@ -254,35 +256,39 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 
-// LOGIN
+// GOOGLE LOGIN
 
 function login(){
 
     const provider =
     new firebase.auth.GoogleAuthProvider();
 
-    auth.signInWithPopup(provider);
+    auth.signInWithRedirect(provider);
 
 }
 
-auth.onAuthStateChanged(user => {
+
+// LOGIN STATUS
+
+auth.onAuthStateChanged(function(user){
 
     if(user){
 
         document.getElementById("userInfo")
         .innerHTML =
-        "Logged in: " + user.email;
+        "✅ Logged in: " + user.email;
 
     }else{
 
         document.getElementById("userInfo")
         .innerHTML =
-        "Not Logged In";
+        "❌ Not Logged In";
 
     }
 
 });
 
+</script>
 
 // VOTE FUNCTIONS
 
