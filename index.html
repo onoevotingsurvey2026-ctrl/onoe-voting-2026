@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Global Firebase Live Election Engine v1.6</title>
+<title>Global Firebase Live Election Engine v2.0</title>
 
 <style>
 
@@ -121,11 +121,11 @@ button{
 <div class="container">
 
 <h1>
-🌐 Global Firebase Live Election Engine v1.6
+🌐 Global Firebase Live Election Engine v2.0
 </h1>
 
 
-<!-- LOGIN PANEL -->
+<!-- LOGIN -->
 
 <div class="card">
 
@@ -183,7 +183,7 @@ DEL - :
 </div>
 
 
-<!-- VOTING PANEL -->
+<!-- VOTING -->
 
 <div class="card">
 
@@ -219,7 +219,7 @@ RESET VOTES
 </div>
 
 
-<!-- AI PREDICTION -->
+<!-- AI -->
 
 <div class="card">
 
@@ -242,7 +242,7 @@ Loading AI Analysis...
 
 <p>✅ Firebase Live Sync Active</p>
 
-<p>✅ Independent Vote Counters</p>
+<p>✅ One User One Vote Enabled</p>
 
 <p>✅ Login / Logout Enabled</p>
 
@@ -277,14 +277,25 @@ Powered by Firebase + GitHub Pages
 // =====================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+
+  apiKey: "YOUR_API_KEY",
+
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+
+  databaseURL:
+  "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+
+  projectId: "YOUR_PROJECT",
+
+  storageBucket:
+  "YOUR_PROJECT.appspot.com",
+
+  messagingSenderId: "YOUR_ID",
+
+  appId: "YOUR_APP_ID"
+
 };
+
 
 // =====================================
 // FIREBASE INIT
@@ -348,51 +359,108 @@ auth.onAuthStateChanged(function(user){
 
 
 // =====================================
-// VOTE FUNCTIONS
+// ONOE SUPPORT
 // =====================================
 
 function voteONOESupport(){
 
-    db.ref("votes/india/onoeSupport")
-    .transaction(function(current){
-
-        return (current || 0) + 1;
-
-    });
+    processVote(
+        "onoeSupport",
+        "ONOE_SUPPORT"
+    );
 
 }
 
+
+// =====================================
+// ONOE AGAINST
+// =====================================
 
 function voteONOEAgainst(){
 
-    db.ref("votes/india/onoeAgainst")
-    .transaction(function(current){
-
-        return (current || 0) + 1;
-
-    });
+    processVote(
+        "onoeAgainst",
+        "ONOE_AGAINST"
+    );
 
 }
 
+
+// =====================================
+// DEL SUPPORT
+// =====================================
 
 function voteDELSupport(){
 
-    db.ref("votes/india/delSupport")
-    .transaction(function(current){
-
-        return (current || 0) + 1;
-
-    });
+    processVote(
+        "delSupport",
+        "DEL_SUPPORT"
+    );
 
 }
 
 
+// =====================================
+// DEL AGAINST
+// =====================================
+
 function voteDELAgainst(){
 
-    db.ref("votes/india/delAgainst")
-    .transaction(function(current){
+    processVote(
+        "delAgainst",
+        "DEL_AGAINST"
+    );
 
-        return (current || 0) + 1;
+}
+
+
+// =====================================
+// MAIN VOTE LOGIC
+// =====================================
+
+function processVote(voteField, voteType){
+
+    const user = auth.currentUser;
+
+    if(!user){
+
+        alert("Please Login First");
+
+        return;
+
+    }
+
+    const uid = user.uid;
+
+    const email = user.email;
+
+
+    db.ref("users/" + uid)
+    .once("value")
+    .then(snapshot => {
+
+        if(snapshot.exists()){
+
+            alert("You Already Voted");
+
+            return;
+
+        }
+
+        db.ref("votes/india/" + voteField)
+        .transaction(v => (v || 0) + 1);
+
+
+        db.ref("users/" + uid).set({
+
+            email: email,
+            voted: true,
+            vote: voteType
+
+        });
+
+
+        alert("Vote Recorded Successfully");
 
     });
 
@@ -400,7 +468,7 @@ function voteDELAgainst(){
 
 
 // =====================================
-// RESET VOTES
+// RESET
 // =====================================
 
 function resetVotes(){
@@ -439,8 +507,6 @@ db.ref("votes/india")
     Number(data.delAgainst || 0);
 
 
-    // UPDATE UI
-
     document.getElementById("onoeSupport")
     .innerHTML = onoeSupport;
 
@@ -454,7 +520,7 @@ db.ref("votes/india")
     .innerHTML = delAgainst;
 
 
-    // AI ANALYSIS
+    // AI
 
     let prediction = "";
 
