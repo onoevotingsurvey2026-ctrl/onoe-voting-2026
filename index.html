@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting System</title>
+  <title>Global Voting System - FINAL FIX</title>
 
   <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -72,16 +72,17 @@
 <script>
 
 /////////////////////////////////////////////////////
-// 🔥 FIREBASE CONFIG (REPLACE ONLY THIS PART)
+// 🔥 FIREBASE CONFIG (REPLACE THIS ONLY)
 /////////////////////////////////////////////////////
 
 const firebaseConfig = {
-  apiKey: "REAL_API_KEY",
+  apiKey: "PASTE_YOUR_API_KEY_HERE",
   authDomain: "onoevote2026.firebaseapp.com",
   databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "onoevote2026",
-  appId: "REAL_APP_ID"
+  appId: "PASTE_YOUR_APP_ID_HERE"
 };
+
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
@@ -99,13 +100,13 @@ function login(){
       console.log("LOGIN SUCCESS:", result.user.email);
     })
     .catch((error)=>{
-      console.log("LOGIN ERROR:", error.code, error.message);
+      console.log("ERROR:", error.code, error.message);
       alert(error.message);
     });
 }
 
 /////////////////////////////////////////////////////
-// 🔄 AUTH STATE CONTROL
+// 🔄 AUTH STATE
 /////////////////////////////////////////////////////
 
 auth.onAuthStateChanged((user)=>{
