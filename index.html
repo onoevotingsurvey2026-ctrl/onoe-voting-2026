@@ -1,24 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Real-Time Election Engine v1.1</title>
+  <title>Global Firebase Live Election Engine v1.3</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <style>
-    body { font-family: Arial; background:#0f172a; color:white; margin:0; }
-    .card { background:#111827; margin:10px; padding:15px; border-radius:10px; }
-    button { padding:10px; margin:5px; cursor:pointer; }
+    body{
+      font-family: Arial;
+      background:#0f172a;
+      color:white;
+      margin:0;
+      padding:0;
+    }
+
+    h2{
+      text-align:center;
+      padding:15px;
+    }
+
+    .card{
+      background:#111827;
+      margin:10px;
+      padding:15px;
+      border-radius:10px;
+    }
+
+    button{
+      padding:10px;
+      margin:5px;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+    button:hover{
+      opacity:0.9;
+    }
+
+    #user{
+      margin-top:10px;
+      color:#22c55e;
+      font-weight:bold;
+    }
   </style>
 </head>
 
 <body>
 
-<h2 style="text-align:center;">🌍 Global Real-Time Election Engine v1.1</h2>
+<h2>🌍 Global Firebase Live Election Engine v1.3</h2>
 
 <!-- LOGIN -->
 <div class="card">
@@ -28,38 +64,55 @@
 
 <!-- LIVE STATS -->
 <div class="card">
-  <h3>📊 Live Stats (WebSocket)</h3>
-  <div id="stats">Connecting to server...</div>
+  <h3>📊 Live Election Stats</h3>
+
+  <div id="stats">
+    Loading live stats...
+  </div>
 </div>
 
 <!-- VOTING -->
 <div class="card">
   <h3>🗳️ Voting Panel</h3>
-  <button onclick="vote('onoeSupport')">ONOE +</button>
-  <button onclick="vote('onoeAgainst')">ONOE -</button>
-  <button onclick="vote('delSupport')">DEL +</button>
-  <button onclick="vote('delAgainst')">DEL -</button>
+
+  <button onclick="vote('onoeSupport')">
+    ONOE +
+  </button>
+
+  <button onclick="vote('onoeAgainst')">
+    ONOE -
+  </button>
+
+  <button onclick="vote('delSupport')">
+    DEL +
+  </button>
+
+  <button onclick="vote('delAgainst')">
+    DEL -
+  </button>
 </div>
 
 <!-- AI -->
 <div class="card">
   <h3>🤖 AI Prediction</h3>
-  <div id="ai">Loading AI...</div>
+
+  <div id="ai">
+    Loading AI Prediction...
+  </div>
 </div>
 
 <!-- SECURITY -->
 <div class="card">
   <h3>🔐 Security Status</h3>
-  <div>WebSocket Sync | Fraud Protection Active</div>
+
+  <div>
+    Firebase Live Sync Active | Fraud Protection Enabled
+  </div>
 </div>
 
 <script>
 
-/* ---------------- STATE FLAGS ---------------- */
-let isAuthReady = false;
-let isSocketReady = false;
-
-/* ---------------- FIREBASE ---------------- */
+/* ---------------- FIREBASE CONFIG ---------------- */
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
@@ -70,6 +123,9 @@ const firebaseConfig = {
   messagingSenderId: "181065724520",
   appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
+
+/* ---------------- INITIALIZE ---------------- */
+
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
@@ -78,106 +134,143 @@ const db = firebase.database();
 /* ---------------- LOGIN ---------------- */
 
 function login(){
-  const provider = new firebase.auth.GoogleAuthProvider();
+
+  const provider =
+    new firebase.auth.GoogleAuthProvider();
+
   auth.signInWithPopup(provider)
-  .catch(()=>auth.signInWithRedirect(provider));
+
+  .then((result)=>{
+
+    document.getElementById("user").innerText =
+      "Logged in: " + result.user.email;
+
+  })
+
+  .catch((error)=>{
+
+    console.log(error);
+
+    alert("Google Login Failed");
+
+  });
+
 }
 
-auth.onAuthStateChanged(user => {
+/* ---------------- AUTH STATE ---------------- */
 
-  isAuthReady = true;
+auth.onAuthStateChanged(user=>{
 
   if(user){
+
     document.getElementById("user").innerText =
       "Logged in: " + user.email;
+
   }
   else{
+
     document.getElementById("user").innerText =
       "Login Required";
+
   }
 
 });
-/* ---------------- WEBSOCKET ---------------- */
 
-const socket = new WebSocket("ws://localhost:8080");
+/* ---------------- LIVE STATS ---------------- */
 
-socket.onopen = () => {
+db.ref("votes/india").on("value", snap=>{
 
-  isSocketReady = true;
-
-  document.getElementById("stats").innerText =
-    "📡 Connected to Live Election Server...";
-
-};
-
-socket.onmessage = (event) => {
-
-  const data = JSON.parse(event.data);
+  const data = snap.val() || {};
 
   document.getElementById("stats").innerHTML =
-    "ONOE + : " + data.onoeSupport + "<br>" +
-    "ONOE - : " + data.onoeAgainst + "<br>" +
-    "DEL + : " + data.delSupport + "<br>" +
-    "DEL - : " + data.delAgainst;
+
+    "ONOE + : " + (data.onoeSupport || 0)
+    + "<br><br>" +
+
+    "ONOE - : " + (data.onoeAgainst || 0)
+    + "<br><br>" +
+
+    "DEL + : " + (data.delSupport || 0)
+    + "<br><br>" +
+
+    "DEL - : " + (data.delAgainst || 0);
 
   aiPredict(data);
 
-};
+});
 
-/* ---------------- VOTE ---------------- */
+/* ---------------- VOTING ---------------- */
 
 function vote(type){
-
-  if(!isAuthReady){
-    alert("Login loading...");
-    return;
-  }
-
-  if(!isSocketReady){
-    alert("Server not connected...");
-    return;
-  }
 
   const user = auth.currentUser;
 
   if(!user){
+
     alert("Login Required");
     return;
+
   }
 
-  socket.send(JSON.stringify({
-    type: "vote",
-    voteType: type
-  }));
+  const voteRef =
+    db.ref("votes/india/" + type);
+
+  voteRef.transaction(v => (v || 0) + 1);
 
 }
 
-/* ---------------- AI ENGINE ---------------- */
+/* ---------------- AI PREDICTION ---------------- */
 
 function aiPredict(d){
 
-  const onoe = d.onoeSupport || 0;
-  const del = d.delSupport || 0;
-  const total = onoe + del + 1;
+  const onoe =
+    d.onoeSupport || 0;
+
+  const del =
+    d.delSupport || 0;
+
+  const total =
+    onoe + del + 1;
 
   let result = "";
   let confidence = 0;
 
   if(onoe === del){
-    result = "🟡 Tight Competition";
+
+    result =
+      "🟡 Tight Competition";
+
     confidence = 50;
+
   }
+
   else if(onoe > del){
-    result = "🟢 ONOE Leading";
-    confidence = ((onoe - del) / total * 100).toFixed(1);
+
+    result =
+      "🟢 ONOE Leading";
+
+    confidence =
+      ((onoe - del) / total * 100)
+      .toFixed(1);
+
   }
+
   else{
-    result = "🔴 DEL Leading";
-    confidence = ((del - onoe) / total * 100).toFixed(1);
+
+    result =
+      "🔴 DEL Leading";
+
+    confidence =
+      ((del - onoe) / total * 100)
+      .toFixed(1);
+
   }
 
   document.getElementById("ai").innerHTML =
-    result + " | Confidence: " + confidence + "%";
+
+    result +
+    " | Confidence: " +
+    confidence + "%";
 
 }
 
