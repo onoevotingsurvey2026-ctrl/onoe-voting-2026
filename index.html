@@ -1,278 +1,383 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Global Firebase Live Election Engine v1.3</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<title>Global Firebase Live Election Engine v1.3</title>
 
-  <style>
-    body{
-      font-family: Arial;
-      background:#0f172a;
-      color:white;
-      margin:0;
-      padding:0;
-    }
+<style>
 
-    h2{
-      text-align:center;
-      padding:15px;
-    }
+body{
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+    background:#0f172a;
+    color:white;
+}
 
-    .card{
-      background:#111827;
-      margin:10px;
-      padding:15px;
-      border-radius:10px;
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:#111827;
+    padding:20px;
+    margin-top:20px;
+    border-radius:12px;
+    box-shadow:0 0 10px rgba(0,0,0,0.4);
+}
+
+h1{
+    text-align:center;
+    color:#22c55e;
+}
+
+h2{
+    color:#38bdf8;
+}
+
+button{
+    padding:12px 18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    margin:6px;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.login-btn{
+    background:#ffffff;
+    color:#000;
+}
+
+.support-btn{
+    background:#16a34a;
+    color:white;
+}
+
+.against-btn{
+    background:#dc2626;
+    color:white;
+}
+
+.status{
+    margin-top:10px;
+    color:#22c55e;
+    font-weight:bold;
+}
+
+.stats{
+    font-size:20px;
+    line-height:2;
+}
+
+.ai-box{
+    background:#1e293b;
+    padding:15px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+.footer{
+    text-align:center;
+    margin-top:30px;
+    color:#94a3b8;
+}
+
+@media(max-width:600px){
+
+    h1{
+        font-size:24px;
     }
 
     button{
-      padding:10px;
-      margin:5px;
-      border:none;
-      border-radius:5px;
-      cursor:pointer;
-      font-weight:bold;
+        width:100%;
     }
 
-    button:hover{
-      opacity:0.9;
-    }
+}
 
-    #user{
-      margin-top:10px;
-      color:#22c55e;
-      font-weight:bold;
-    }
-  </style>
+</style>
+
 </head>
-
 <body>
 
-<h2>🌍 Global Firebase Live Election Engine v1.3</h2>
+<div class="container">
+
+<h1>
+🌐 Global Firebase Live Election Engine v1.3
+</h1>
 
 <!-- LOGIN -->
+
 <div class="card">
-  <button onclick="login()">Login with Google</button>
-  <div id="user">Checking login...</div>
+
+<button class="login-btn" onclick="login()">
+Login with Google
+</button>
+
+<div id="userInfo" class="status">
+Not Logged In
+</div>
+
 </div>
 
 <!-- LIVE STATS -->
-<div class="card">
-  <h3>📊 Live Election Stats</h3>
 
-  <div id="stats">
-    Loading live stats...
-  </div>
+<div class="card">
+
+<h2>📊 Live Election Stats</h2>
+
+<div class="stats">
+
+<div>
+ONOE + :
+<span id="onoeSupport">0</span>
 </div>
 
-<!-- VOTING -->
-<div class="card">
-  <h3>🗳️ Voting Panel</h3>
-
-  <button onclick="vote('onoeSupport')">
-    ONOE +
-  </button>
-
-  <button onclick="vote('onoeAgainst')">
-    ONOE -
-  </button>
-
-  <button onclick="vote('delSupport')">
-    DEL +
-  </button>
-
-  <button onclick="vote('delAgainst')">
-    DEL -
-  </button>
+<div>
+ONOE - :
+<span id="onoeAgainst">0</span>
 </div>
 
-<!-- AI -->
-<div class="card">
-  <h3>🤖 AI Prediction</h3>
+<div>
+DEL + :
+<span id="delSupport">0</span>
+</div>
 
-  <div id="ai">
-    Loading AI Prediction...
-  </div>
+<div>
+DEL - :
+<span id="delAgainst">0</span>
+</div>
+
+</div>
+
+</div>
+
+<!-- VOTING PANEL -->
+
+<div class="card">
+
+<h2>🗳 Voting Panel</h2>
+
+<button class="support-btn"
+onclick="voteONOESupport()">
+ONOE +
+</button>
+
+<button class="against-btn"
+onclick="voteONOEAgainst()">
+ONOE -
+</button>
+
+<button class="support-btn"
+onclick="voteDELSupport()">
+DEL +
+</button>
+
+<button class="against-btn"
+onclick="voteDELAgainst()">
+DEL -
+</button>
+
+</div>
+
+<!-- AI PREDICTION -->
+
+<div class="card">
+
+<h2>🧠 AI Prediction</h2>
+
+<div class="ai-box" id="prediction">
+
+Loading AI Analysis...
+
+</div>
+
 </div>
 
 <!-- SECURITY -->
-<div class="card">
-  <h3>🔐 Security Status</h3>
 
-  <div>
-    Firebase Live Sync Active | Fraud Protection Enabled
-  </div>
+<div class="card">
+
+<h2>🔒 Security Status</h2>
+
+<p>
+Firebase Live Sync Active |
+Fraud Protection Enabled
+</p>
+
 </div>
+
+<div class="footer">
+Powered by Firebase + GitHub Pages
+</div>
+
+</div>
+
+<!-- FIREBASE -->
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 
-/* ---------------- FIREBASE CONFIG ---------------- */
-
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
-};
 
-/* ---------------- INITIALIZE ---------------- */
+  apiKey: "YOUR_API_KEY",
+
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+
+  projectId: "YOUR_PROJECT",
+
+  storageBucket: "YOUR_PROJECT.appspot.com",
+
+  messagingSenderId: "XXXXXXXX",
+
+  appId: "XXXXXXXX"
+
+};
 
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
+
 const db = firebase.database();
 
-/* ---------------- LOGIN ---------------- */
+
+// LOGIN
 
 function login(){
 
-  const provider =
+    const provider =
     new firebase.auth.GoogleAuthProvider();
 
-  auth.signInWithPopup(provider)
-
-  .then((result)=>{
-
-    document.getElementById("user").innerText =
-      "Logged in: " + result.user.email;
-
-  })
-
-  .catch((error)=>{
-
-    console.log(error);
-
-    alert("Google Login Failed");
-
-  });
+    auth.signInWithPopup(provider);
 
 }
 
-/* ---------------- AUTH STATE ---------------- */
+auth.onAuthStateChanged(user => {
 
-auth.onAuthStateChanged(user=>{
+    if(user){
 
-  if(user){
+        document.getElementById("userInfo")
+        .innerHTML =
+        "Logged in: " + user.email;
 
-    document.getElementById("user").innerText =
-      "Logged in: " + user.email;
+    }else{
 
-  }
-  else{
+        document.getElementById("userInfo")
+        .innerHTML =
+        "Not Logged In";
 
-    document.getElementById("user").innerText =
-      "Login Required";
-
-  }
+    }
 
 });
 
-/* ---------------- LIVE STATS ---------------- */
 
-db.ref("votes/india").on("value", snap=>{
+// VOTE FUNCTIONS
 
-  const data = snap.val() || {};
+function voteONOESupport(){
 
-  document.getElementById("stats").innerHTML =
+    db.ref("votes/india/onoeSupport")
+    .transaction(v => (v || 0) + 1);
 
-    "ONOE + : " + (data.onoeSupport || 0)
-    + "<br><br>" +
+}
 
-    "ONOE - : " + (data.onoeAgainst || 0)
-    + "<br><br>" +
+function voteONOEAgainst(){
 
-    "DEL + : " + (data.delSupport || 0)
-    + "<br><br>" +
+    db.ref("votes/india/onoeAgainst")
+    .transaction(v => (v || 0) + 1);
 
-    "DEL - : " + (data.delAgainst || 0);
+}
 
-  aiPredict(data);
+function voteDELSupport(){
+
+    db.ref("votes/india/delSupport")
+    .transaction(v => (v || 0) + 1);
+
+}
+
+function voteDELAgainst(){
+
+    db.ref("votes/india/delAgainst")
+    .transaction(v => (v || 0) + 1);
+
+}
+
+
+// LIVE SYNC
+
+db.ref("votes/india")
+.on("value", snapshot => {
+
+    const data = snapshot.val() || {};
+
+    const onoeSupport =
+    data.onoeSupport || 0;
+
+    const onoeAgainst =
+    data.onoeAgainst || 0;
+
+    const delSupport =
+    data.delSupport || 0;
+
+    const delAgainst =
+    data.delAgainst || 0;
+
+    document.getElementById("onoeSupport")
+    .innerHTML = onoeSupport;
+
+    document.getElementById("onoeAgainst")
+    .innerHTML = onoeAgainst;
+
+    document.getElementById("delSupport")
+    .innerHTML = delSupport;
+
+    document.getElementById("delAgainst")
+    .innerHTML = delAgainst;
+
+    
+    // AI Prediction
+
+    let prediction = "";
+
+    const totalSupport =
+    onoeSupport + delSupport;
+
+    const totalAgainst =
+    onoeAgainst + delAgainst;
+
+    if(totalSupport > totalAgainst){
+
+        prediction =
+        "🟢 Public Support Leading";
+
+    }else if(totalAgainst > totalSupport){
+
+        prediction =
+        "🔴 Opposition Sentiment Rising";
+
+    }else{
+
+        prediction =
+        "🟡 Tight Competition | Confidence: 50%";
+
+    }
+
+    document.getElementById("prediction")
+    .innerHTML = prediction;
 
 });
-
-/* ---------------- VOTING ---------------- */
-
-function vote(type){
-
-  const user = auth.currentUser;
-
-  if(!user){
-
-    alert("Login Required");
-    return;
-
-  }
-
-  const voteRef =
-    db.ref("votes/india/" + type);
-
-  voteRef.transaction(v => (v || 0) + 1);
-
-}
-
-/* ---------------- AI PREDICTION ---------------- */
-
-function aiPredict(d){
-
-  const onoe =
-    d.onoeSupport || 0;
-
-  const del =
-    d.delSupport || 0;
-
-  const total =
-    onoe + del + 1;
-
-  let result = "";
-  let confidence = 0;
-
-  if(onoe === del){
-
-    result =
-      "🟡 Tight Competition";
-
-    confidence = 50;
-
-  }
-
-  else if(onoe > del){
-
-    result =
-      "🟢 ONOE Leading";
-
-    confidence =
-      ((onoe - del) / total * 100)
-      .toFixed(1);
-
-  }
-
-  else{
-
-    result =
-      "🔴 DEL Leading";
-
-    confidence =
-      ((del - onoe) / total * 100)
-      .toFixed(1);
-
-  }
-
-  document.getElementById("ai").innerHTML =
-
-    result +
-    " | Confidence: " +
-    confidence + "%";
-
-}
 
 </script>
 
