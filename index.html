@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting System - FIXED VERSION</title>
+  <title>Global Voting System</title>
 
-  <!-- Firebase v8 (stable & compatible) -->
+  <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -22,13 +22,7 @@
       padding:15px;
     }
 
-    #loginSection, #dashboard{
-      padding:20px;
-    }
-
-    #dashboard{
-      display:none;
-    }
+    #dashboard{ display:none; }
 
     button{
       padding:10px 15px;
@@ -43,7 +37,6 @@
       border-radius:10px;
       display:inline-block;
       min-width:200px;
-      box-shadow:0 2px 5px rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -78,20 +71,27 @@
 
 <script>
 
-// Firebase Config (REPLACE THIS)
+/////////////////////////////////////////////////////
+// 🔥 FIREBASE CONFIG (REPLACE ONLY THIS PART)
+/////////////////////////////////////////////////////
+
 const firebaseConfig = {
-  apiKey: "AIzaSyXXXXXXX",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  appId: "1:123456789:web:abcdefg"
+  apiKey: "PASTE_FROM_FIREBASE",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "YOUR_PROJECT_ID",
+  appId: "PASTE_APP_ID"
 };
+
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.database();
 
-// LOGIN FIX (IMPORTANT)
+/////////////////////////////////////////////////////
+// 🔐 LOGIN
+/////////////////////////////////////////////////////
+
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
 
@@ -100,14 +100,16 @@ function login(){
       console.log("LOGIN SUCCESS:", result.user.email);
     })
     .catch((error)=>{
-      console.log("LOGIN ERROR:", error.message);
-      alert("Login failed: " + error.message);
+      console.log("LOGIN ERROR:", error.code, error.message);
+      alert(error.message);
     });
 }
 
-// AUTH STATE FIX (MOST IMPORTANT PART)
+/////////////////////////////////////////////////////
+// 🔄 AUTH STATE CONTROL
+/////////////////////////////////////////////////////
+
 auth.onAuthStateChanged((user)=>{
-  console.log("AUTH STATE:", user);
 
   if(user){
     document.getElementById("loginSection").style.display="none";
@@ -117,9 +119,13 @@ auth.onAuthStateChanged((user)=>{
     document.getElementById("loginSection").style.display="block";
     document.getElementById("dashboard").style.display="none";
   }
+
 });
 
-// LOAD VOTES
+/////////////////////////////////////////////////////
+// 📊 LOAD VOTES
+/////////////////////////////////////////////////////
+
 function loadVotes(){
   db.ref("votes/india").on("value", (snap)=>{
     const data = snap.val() || {};
@@ -129,15 +135,21 @@ function loadVotes(){
   });
 }
 
-// VOTE FUNCTION
+/////////////////////////////////////////////////////
+// 🗳️ VOTE
+/////////////////////////////////////////////////////
+
 function vote(country,type){
+
   const user = auth.currentUser;
+
   if(!user){
     alert("Please login first");
     return;
   }
 
-  db.ref("votes/"+country+"/"+type).transaction((v)=> (v||0)+1);
+  db.ref("votes/"+country+"/"+type)
+    .transaction((v)=> (v||0)+1);
 }
 
 </script>
