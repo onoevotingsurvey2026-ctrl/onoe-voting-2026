@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>TRUE Election System PRO</title>
+  <title>Firestore Election System PRO</title>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
     body{
@@ -51,7 +51,7 @@
 <body>
 
 <header>
-  🌍 TRUE Election System
+  🌍 Firestore Election System
 </header>
 
 <!-- LOGIN -->
@@ -63,7 +63,7 @@
 <!-- DASHBOARD -->
 <div id="dashboard">
 
-  <h2>📊 Live Election Results</h2>
+  <h2>📊 Live Results</h2>
 
   <div class="card">
     <h3>India</h3>
@@ -81,7 +81,7 @@
 
   <div id="adminPanel">
     <h3>🧑‍💼 Admin Panel</h3>
-    <button onclick="resetSystem()">Reset All Votes</button>
+    <button onclick="resetAll()">Reset Votes</button>
   </div>
 
 </div>
@@ -89,26 +89,23 @@
 <script>
 
 /////////////////////////////////////////////////////
-// 🔥 FIREBASE CONFIG
+// 🔥 FIREBASE CONFIG (YOUR FIRESTORE PROJECT)
 /////////////////////////////////////////////////////
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
   appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
-const db = firebase.database();
+const db = firebase.firestore();
 
 /////////////////////////////////////////////////////
-// 🔐 LOGIN (REDIRECT SAFE)
+// 🔐 LOGIN
 /////////////////////////////////////////////////////
 
 function login(){
@@ -119,7 +116,7 @@ function login(){
 auth.getRedirectResult().catch(()=>{});
 
 /////////////////////////////////////////////////////
-// 🔄 AUTH CONTROL
+// 🔄 AUTH
 /////////////////////////////////////////////////////
 
 auth.onAuthStateChanged(user=>{
@@ -130,7 +127,6 @@ auth.onAuthStateChanged(user=>{
 
     loadResults();
 
-    // ADMIN CHECK
     if(user.email === "onoe.voting.survey2026@gmail.com"){
       document.getElementById("adminPanel").style.display="block";
     }
@@ -143,50 +139,53 @@ auth.onAuthStateChanged(user=>{
 });
 
 /////////////////////////////////////////////////////
-// 🗳️ TRUE VOTING SYSTEM (NO DUPLICATE)
+// 🗳️ VOTE SYSTEM (FIRESTORE)
 /////////////////////////////////////////////////////
 
 function vote(country, choice){
 
   const user = auth.currentUser;
+
   if(!user){
-    alert("Login first");
+    alert("Login required");
     return;
   }
 
-  const path = "userVotes/"+user.uid+"/"+country;
+  const ref = db.collection("userVotes").doc(user.uid);
 
-  db.ref(path).once("value", snap=>{
+  ref.get().then(doc=>{
 
-    if(snap.exists()){
-      alert("❌ You already voted in this country!");
+    if(doc.exists && doc.data()[country]){
+      alert("❌ Already voted!");
       return;
     }
 
-    db.ref(path).set(choice);
-    alert("✅ Vote recorded successfully!");
+    ref.set({
+      [country]: choice
+    }, { merge: true });
+
   });
 
 }
 
 /////////////////////////////////////////////////////
-// 📊 AUTO RESULT CALCULATION
+// 📊 LIVE RESULTS (AUTO CALCULATION)
 /////////////////////////////////////////////////////
 
 function loadResults(){
 
-  db.ref("userVotes").on("value", snap=>{
-
-    let data = snap.val() || {};
+  db.collection("userVotes").onSnapshot(snapshot=>{
 
     let os=0, oa=0, ds=0, da=0;
 
-    Object.values(data).forEach(user=>{
+    snapshot.forEach(doc=>{
 
-      if(user.india === "onoeSupport") os++;
-      if(user.india === "onoeAgainst") oa++;
-      if(user.india === "delSupport") ds++;
-      if(user.india === "delAgainst") da++;
+      let d = doc.data();
+
+      if(d.india === "onoeSupport") os++;
+      if(d.india === "onoeAgainst") oa++;
+      if(d.india === "delSupport") ds++;
+      if(d.india === "delAgainst") da++;
 
     });
 
@@ -203,7 +202,7 @@ function loadResults(){
 // 🧑‍💼 ADMIN RESET
 /////////////////////////////////////////////////////
 
-function resetSystem(){
+function resetAll(){
 
   const user = auth.currentUser;
 
@@ -212,7 +211,12 @@ function resetSystem(){
     return;
   }
 
-  db.ref("userVotes").remove();
+  db.collection("userVotes").get().then(snap=>{
+    snap.forEach(doc=>{
+      doc.ref.delete();
+    });
+  });
+
   alert("System reset complete!");
 }
 
