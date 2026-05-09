@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Global Firebase Live Election Engine v1.4</title>
+<title>Global Firebase Live Election Engine v1.5</title>
 
 <style>
 
@@ -51,11 +51,6 @@ button{
     font-weight:bold;
 }
 
-.login-btn{
-    background:#ffffff;
-    color:#000;
-}
-
 .support-btn{
     background:#16a34a;
     color:white;
@@ -66,10 +61,9 @@ button{
     color:white;
 }
 
-.status{
-    margin-top:10px;
-    color:#22c55e;
-    font-weight:bold;
+.reset-btn{
+    background:#f59e0b;
+    color:black;
 }
 
 .stats{
@@ -111,25 +105,8 @@ button{
 <div class="container">
 
 <h1>
-🌐 Global Firebase Live Election Engine v1.4
+🌐 Global Firebase Live Election Engine v1.5
 </h1>
-
-
-<!-- LOGIN -->
-
-<div class="card">
-
-<h2>🔐 Google Login</h2>
-
-<button class="login-btn" onclick="login()">
-Login with Google
-</button>
-
-<div id="userInfo" class="status">
-❌ Not Logged In
-</div>
-
-</div>
 
 
 <!-- LIVE STATS -->
@@ -191,6 +168,13 @@ onclick="voteDELAgainst()">
 DEL -
 </button>
 
+<br><br>
+
+<button class="reset-btn"
+onclick="resetVotes()">
+RESET VOTES
+</button>
+
 </div>
 
 
@@ -217,7 +201,9 @@ Loading AI Analysis...
 
 <p>✅ Firebase Live Sync Active</p>
 
-<p>✅ Fraud Protection Enabled</p>
+<p>✅ Counting Issue Fixed</p>
+
+<p>✅ Independent Vote Counters</p>
 
 </div>
 
@@ -233,8 +219,6 @@ Powered by Firebase + GitHub Pages
 <!-- FIREBASE -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -272,46 +256,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
-
 const db = firebase.database();
-
-
-// =====================================
-// LOGIN
-// =====================================
-
-function login(){
-
-    const provider =
-    new firebase.auth.GoogleAuthProvider();
-
-    auth.signInWithRedirect(provider);
-
-}
-
-
-// =====================================
-// LOGIN STATUS
-// =====================================
-
-auth.onAuthStateChanged(function(user){
-
-    if(user){
-
-        document.getElementById("userInfo")
-        .innerHTML =
-        "✅ Logged in: " + user.email;
-
-    }else{
-
-        document.getElementById("userInfo")
-        .innerHTML =
-        "❌ Not Logged In";
-
-    }
-
-});
 
 
 // =====================================
@@ -321,9 +266,9 @@ auth.onAuthStateChanged(function(user){
 function voteONOESupport(){
 
     db.ref("votes/india/onoeSupport")
-    .transaction(function(v){
+    .transaction(function(current){
 
-        return (v || 0) + 1;
+        return (current || 0) + 1;
 
     });
 
@@ -333,9 +278,9 @@ function voteONOESupport(){
 function voteONOEAgainst(){
 
     db.ref("votes/india/onoeAgainst")
-    .transaction(function(v){
+    .transaction(function(current){
 
-        return (v || 0) + 1;
+        return (current || 0) + 1;
 
     });
 
@@ -345,9 +290,9 @@ function voteONOEAgainst(){
 function voteDELSupport(){
 
     db.ref("votes/india/delSupport")
-    .transaction(function(v){
+    .transaction(function(current){
 
-        return (v || 0) + 1;
+        return (current || 0) + 1;
 
     });
 
@@ -357,9 +302,27 @@ function voteDELSupport(){
 function voteDELAgainst(){
 
     db.ref("votes/india/delAgainst")
-    .transaction(function(v){
+    .transaction(function(current){
 
-        return (v || 0) + 1;
+        return (current || 0) + 1;
+
+    });
+
+}
+
+
+// =====================================
+// RESET VOTES
+// =====================================
+
+function resetVotes(){
+
+    db.ref("votes/india").set({
+
+        onoeSupport: 0,
+        onoeAgainst: 0,
+        delSupport: 0,
+        delAgainst: 0
 
     });
 
@@ -403,9 +366,7 @@ db.ref("votes/india")
     .innerHTML = delAgainst;
 
 
-    // =====================================
-    // AI PREDICTION
-    // =====================================
+    // AI ANALYSIS
 
     let prediction = "";
 
