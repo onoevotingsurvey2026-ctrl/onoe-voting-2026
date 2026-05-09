@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Real-Time Election Engine v1</title>
+  <title>Global Real-Time Election Engine v1.1</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -18,18 +18,18 @@
 
 <body>
 
-<h2 style="text-align:center;">🌍 Global Real-Time Election Engine v1</h2>
+<h2 style="text-align:center;">🌍 Global Real-Time Election Engine v1.1</h2>
 
 <!-- LOGIN -->
 <div class="card">
   <button onclick="login()">Login with Google</button>
-  <div id="user"></div>
+  <div id="user">Checking login...</div>
 </div>
 
 <!-- LIVE STATS -->
 <div class="card">
   <h3>📊 Live Stats (WebSocket)</h3>
-  <div id="stats">Connecting...</div>
+  <div id="stats">Connecting to server...</div>
 </div>
 
 <!-- VOTING -->
@@ -50,10 +50,14 @@
 <!-- SECURITY -->
 <div class="card">
   <h3>🔐 Security Status</h3>
-  <div>WebSocket Sync Active | Fraud Protection ON</div>
+  <div>WebSocket Sync | Fraud Protection Active</div>
 </div>
 
 <script>
+
+/* ---------------- STATE FLAGS ---------------- */
+let isAuthReady = false;
+let isSocketReady = false;
 
 /* ---------------- FIREBASE ---------------- */
 
@@ -77,11 +81,18 @@ function login(){
   .catch(()=>auth.signInWithRedirect(provider));
 }
 
-auth.onAuthStateChanged(user=>{
+auth.onAuthStateChanged(user => {
+
+  isAuthReady = true;
+
   if(user){
     document.getElementById("user").innerText =
       "Logged in: " + user.email;
+  } else {
+    document.getElementById("user").innerText =
+      "Login Required";
   }
+
 });
 
 /* ---------------- WEBSOCKET ---------------- */
@@ -89,7 +100,12 @@ auth.onAuthStateChanged(user=>{
 const socket = new WebSocket("ws://localhost:8080");
 
 socket.onopen = () => {
-  console.log("WebSocket Connected");
+
+  isSocketReady = true;
+
+  document.getElementById("stats").innerText =
+    "📡 Connected to Live Election Server...";
+
 };
 
 socket.onmessage = (event) => {
@@ -110,10 +126,20 @@ socket.onmessage = (event) => {
 
 function vote(type){
 
+  if(!isAuthReady){
+    alert("Login loading...");
+    return;
+  }
+
+  if(!isSocketReady){
+    alert("Server not connected...");
+    return;
+  }
+
   const user = auth.currentUser;
 
   if(!user){
-    alert("Login required");
+    alert("Login Required");
     return;
   }
 
@@ -141,11 +167,11 @@ function aiPredict(d){
   }
   else if(onoe > del){
     result = "🟢 ONOE Leading";
-    confidence = ((onoe-del)/total*100).toFixed(1);
+    confidence = ((onoe - del) / total * 100).toFixed(1);
   }
   else{
     result = "🔴 DEL Leading";
-    confidence = ((del-onoe)/total*100).toFixed(1);
+    confidence = ((del - onoe) / total * 100).toFixed(1);
   }
 
   document.getElementById("ai").innerHTML =
