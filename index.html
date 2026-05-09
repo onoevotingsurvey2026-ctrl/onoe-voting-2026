@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting System - FINAL FIX</title>
+  <title>Global Voting System - FIXED</title>
 
-  <!-- Firebase v8 -->
+  <!-- ✅ Firebase v8 ONLY -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -72,15 +72,17 @@
 <script>
 
 /////////////////////////////////////////////////////
-// 🔥 FIREBASE CONFIG (REPLACE THIS ONLY)
+// 🔥 FIREBASE CONFIG (REAL VALUES - YOU HAVE IT)
 /////////////////////////////////////////////////////
 
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY_HERE",
+  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
   databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "onoevote2026",
-  appId: "PASTE_YOUR_APP_ID_HERE"
+  storageBucket: "onoevote2026.firebasestorage.app",
+  messagingSenderId: "181065724520",
+  appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -89,7 +91,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 /////////////////////////////////////////////////////
-// 🔐 LOGIN
+// 🔐 LOGIN (FIXED)
 /////////////////////////////////////////////////////
 
 function login(){
@@ -100,16 +102,18 @@ function login(){
       console.log("LOGIN SUCCESS:", result.user.email);
     })
     .catch((error)=>{
-      console.log("ERROR:", error.code, error.message);
+      console.log("LOGIN ERROR:", error.code, error.message);
       alert(error.message);
     });
 }
 
 /////////////////////////////////////////////////////
-// 🔄 AUTH STATE
+// 🔄 AUTH STATE CONTROL
 /////////////////////////////////////////////////////
 
 auth.onAuthStateChanged((user)=>{
+
+  console.log("AUTH:", user);
 
   if(user){
     document.getElementById("loginSection").style.display="none";
@@ -136,7 +140,7 @@ function loadVotes(){
 }
 
 /////////////////////////////////////////////////////
-// 🗳️ VOTE
+// 🗳️ VOTE FUNCTION
 /////////////////////////////////////////////////////
 
 function vote(country,type){
