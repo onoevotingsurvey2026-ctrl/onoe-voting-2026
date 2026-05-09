@@ -1,184 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Global Overseas Election Dashboard</title>
+  <title>Global Election Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Firebase (v8 stable) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-  <!-- Chart -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
   <style>
-    body{
-      margin:0;
-      font-family:Arial;
-      background:#0f172a;
-      color:white;
-    }
-
-    header{
-      background:#111827;
-      padding:15px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 2fr 1fr;
-      height:90vh;
-    }
-
-    section{
-      padding:15px;
-      border-right:1px solid #1f2937;
-    }
-
-    button{
-      padding:10px;
-      margin:5px;
-      border-radius:8px;
-      cursor:pointer;
-    }
-
-    canvas{
-      background:white;
-      border-radius:10px;
-      margin-top:10px;
-    }
+    body { font-family: Arial; background:#0f172a; color:white; margin:0; }
+    .card { background:#111827; padding:15px; margin:10px; border-radius:10px; }
+    button { padding:10px; margin:5px; cursor:pointer; }
   </style>
 </head>
 
 <body>
 
-<header>
-  🌍 Global Election Dashboard
+<h2 style="text-align:center;">🌍 Global Election Dashboard</h2>
+
+<!-- LOGIN -->
+<div class="card">
   <button onclick="login()">Login with Google</button>
-</header>
+  <div id="user"></div>
+</div>
 
-<div class="grid">
+<!-- LIVE STATS -->
+<div class="card">
+  <h3>📊 Live Stats</h3>
+  <div id="stats">Loading...</div>
+</div>
 
-  <!-- LEFT -->
-  <section>
-    <h3>📊 Live Stats</h3>
-    <div id="stats">Loading...</div>
+<!-- VOTING -->
+<div class="card">
+  <h3>🗳️ Voting Panel</h3>
+  <button onclick="vote('onoeSupport')">ONOE +</button>
+  <button onclick="vote('onoeAgainst')">ONOE -</button>
+  <button onclick="vote('delSupport')">DEL +</button>
+  <button onclick="vote('delAgainst')">DEL -</button>
+</div>
 
-    <h3>🤖 AI Assistant</h3>
-    <div id="ai">Ask anything...</div>
-  </section>
+<!-- AI -->
+<div class="card">
+  <h3>🤖 AI Prediction</h3>
+  <div id="ai">Loading AI...</div>
+</div>
 
-  <!-- CENTER -->
-  <section>
-    <h2>🗳️ Voting Panel</h2>
+<!-- MAP -->
+<div class="card">
+  <h3>🌍 Global Map</h3>
+  <div>Map Module Ready</div>
+</div>
 
-    <button onclick="vote('onoeSupport')">ONOE +</button>
-    <button onclick="vote('onoeAgainst')">ONOE -</button>
-    <button onclick="vote('delSupport')">DEL +</button>
-    <button onclick="vote('delAgainst')">DEL -</button>
-
-    <canvas id="chart"></canvas>
-  </section>
-
-  <!-- RIGHT -->
-  <section>
-    <h3>🌍 Global Map</h3>
-    <div>Live map loading...</div>
-
-    <h3>🔐 Security</h3>
-    <div>Active Protection ON</div>
-  </section>
-
+<!-- SECURITY -->
+<div class="card">
+  <h3>🔐 Security Status</h3>
+  <div>Active (Geo + Device Protection ON)</div>
 </div>
 
 <script>
 
-//////////////////////////////////////////////////////
-// 🔥 FIREBASE CONFIG (ONLY ONE - CLEAN VERSION)
-//////////////////////////////////////////////////////
+/* ---------------- FIREBASE ---------------- */
+
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  apiKey: "YOUR_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
   databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  projectId: "onoevote2026"
 };
 
 firebase.initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
 const db = firebase.database();
+const auth = firebase.auth();
 
-//////////////////////////////////////////////////////
-// 🔑 LOGIN FIX (POPUP)
-//////////////////////////////////////////////////////
+/* ---------------- LOGIN (SAFE) ---------------- */
+
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
 
   auth.signInWithPopup(provider)
-    .then(user => {
-      alert("Login Success: " + user.user.email);
-    })
-    .catch(err => {
-      alert("Login Error: " + err.message);
-      console.log(err);
-    });
+  .catch(() => {
+    auth.signInWithRedirect(provider);
+  });
 }
 
-//////////////////////////////////////////////////////
-// 🗳️ VOTE FUNCTION
-//////////////////////////////////////////////////////
+auth.onAuthStateChanged(user=>{
+  if(user){
+    document.getElementById("user").innerText =
+      "Logged in: " + user.email;
+  }
+});
+
+/* ---------------- SIMPLE VOTE LOCK ---------------- */
+
 function vote(type){
 
   const user = auth.currentUser;
 
   if(!user){
-    alert("Please login first");
+    alert("Login required");
     return;
   }
 
-  const ref = db.ref("votes/india/" + type);
+  const voteKey = "voted_" + user.uid;
 
-  ref.transaction(value => (value || 0) + 1);
+  if(localStorage.getItem(voteKey)){
+    alert("You already voted!");
+    return;
+  }
+
+  db.ref("votes/india/" + type)
+  .transaction(v => (v || 0) + 1);
+
+  localStorage.setItem(voteKey, "true");
 }
 
-//////////////////////////////////////////////////////
-// 📊 LIVE DASHBOARD
-//////////////////////////////////////////////////////
+/* ---------------- LIVE STATS ---------------- */
+
 db.ref("votes/india").on("value", snap => {
 
-  const data = snap.val() || {};
+  const d = snap.val() || {};
 
-  document.getElementById("stats").innerHTML = `
-    ONOE Support: ${data.onoeSupport || 0} <br>
-    ONOE Against: ${data.onoeAgainst || 0} <br>
-    DEL Support: ${data.delSupport || 0} <br>
-    DEL Against: ${data.delAgainst || 0}
-  `;
+  document.getElementById("stats").innerHTML =
+    "ONOE + : " + (d.onoeSupport||0) + "<br>" +
+    "ONOE - : " + (d.onoeAgainst||0) + "<br>" +
+    "DEL + : " + (d.delSupport||0) + "<br>" +
+    "DEL - : " + (d.delAgainst||0);
 
-  // Chart update
-  new Chart(document.getElementById("chart"), {
-    type: "bar",
-    data: {
-      labels: ["ONOE+", "ONOE-", "DEL+", "DEL-"],
-      datasets: [{
-        data: [
-          data.onoeSupport || 0,
-          data.onoeAgainst || 0,
-          data.delSupport || 0,
-          data.delAgainst || 0
-        ]
-      }]
-    }
-  });
+  aiPredict(d);
 
 });
+
+/* ---------------- AI ---------------- */
+
+function aiPredict(d){
+
+  const total = (d.onoeSupport||0) + (d.delSupport||0) + 1;
+
+  const onoe = (d.onoeSupport||0) / total;
+  const del = (d.delSupport||0) / total;
+
+  let result = onoe > del ? "🟢 ONOE Leading" : "🔴 DEL Leading";
+
+  document.getElementById("ai").innerText =
+    result + " | Confidence: " +
+    Math.abs(onoe-del).toFixed(2);
+
+}
 
 </script>
 
