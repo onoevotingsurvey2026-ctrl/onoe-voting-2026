@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -104,6 +105,7 @@ button{
 </style>
 
 </head>
+
 <body>
 
 <div class="container">
@@ -112,19 +114,22 @@ button{
 🌐 Global Firebase Live Election Engine v1.3
 </h1>
 
-<!-- LOGIN -->
+<!-- LOGIN CARD -->
 
 <div class="card">
+
+<h2>🔐 Google Login</h2>
 
 <button class="login-btn" onclick="login()">
 Login with Google
 </button>
 
 <div id="userInfo" class="status">
-Not Logged In
+❌ Not Logged In
 </div>
 
 </div>
+
 
 <!-- LIVE STATS -->
 
@@ -158,6 +163,7 @@ DEL - :
 
 </div>
 
+
 <!-- VOTING PANEL -->
 
 <div class="card">
@@ -186,6 +192,7 @@ DEL -
 
 </div>
 
+
 <!-- AI PREDICTION -->
 
 <div class="card">
@@ -200,6 +207,7 @@ Loading AI Analysis...
 
 </div>
 
+
 <!-- SECURITY -->
 
 <div class="card">
@@ -207,17 +215,22 @@ Loading AI Analysis...
 <h2>🔒 Security Status</h2>
 
 <p>
-Firebase Live Sync Active |
-Fraud Protection Enabled
+✅ Firebase Live Sync Active
+</p>
+
+<p>
+✅ Fraud Protection Enabled
 </p>
 
 </div>
+
 
 <div class="footer">
 Powered by Firebase + GitHub Pages
 </div>
 
 </div>
+
 
 <!-- FIREBASE -->
 
@@ -227,7 +240,12 @@ Powered by Firebase + GitHub Pages
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+
 <script>
+
+// ====================================
+// FIREBASE CONFIG
+// ====================================
 
 const firebaseConfig = {
 
@@ -249,6 +267,11 @@ const firebaseConfig = {
 
 };
 
+
+// ====================================
+// FIREBASE INITIALIZE
+// ====================================
+
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
@@ -256,7 +279,9 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 
+// ====================================
 // GOOGLE LOGIN
+// ====================================
 
 function login(){
 
@@ -268,7 +293,9 @@ function login(){
 }
 
 
+// ====================================
 // LOGIN STATUS
+// ====================================
 
 auth.onAuthStateChanged(function(user){
 
@@ -288,9 +315,10 @@ auth.onAuthStateChanged(function(user){
 
 });
 
-</script>
 
+// ====================================
 // VOTE FUNCTIONS
+// ====================================
 
 function voteONOESupport(){
 
@@ -321,10 +349,12 @@ function voteDELAgainst(){
 }
 
 
-// LIVE SYNC
+// ====================================
+// LIVE DATABASE SYNC
+// ====================================
 
 db.ref("votes/india")
-.on("value", snapshot => {
+.on("value", function(snapshot){
 
     const data = snapshot.val() || {};
 
@@ -340,6 +370,9 @@ db.ref("votes/india")
     const delAgainst =
     data.delAgainst || 0;
 
+
+    // UPDATE UI
+
     document.getElementById("onoeSupport")
     .innerHTML = onoeSupport;
 
@@ -352,8 +385,10 @@ db.ref("votes/india")
     document.getElementById("delAgainst")
     .innerHTML = delAgainst;
 
-    
-    // AI Prediction
+
+    // ====================================
+    // AI PREDICTION
+    // ====================================
 
     let prediction = "";
 
@@ -363,22 +398,28 @@ db.ref("votes/india")
     const totalAgainst =
     onoeAgainst + delAgainst;
 
+
     if(totalSupport > totalAgainst){
 
         prediction =
         "🟢 Public Support Leading";
 
-    }else if(totalAgainst > totalSupport){
+    }
+
+    else if(totalAgainst > totalSupport){
 
         prediction =
         "🔴 Opposition Sentiment Rising";
 
-    }else{
+    }
+
+    else{
 
         prediction =
         "🟡 Tight Competition | Confidence: 50%";
 
     }
+
 
     document.getElementById("prediction")
     .innerHTML = prediction;
@@ -388,4 +429,5 @@ db.ref("votes/india")
 </script>
 
 </body>
+
 </html>
