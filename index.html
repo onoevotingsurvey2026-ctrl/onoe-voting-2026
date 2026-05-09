@@ -1,190 +1,215 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Voting Dashboard</title>
+  <title>Global Professional Voting Dashboard</title>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <!-- Firebase v8 (stable for this project) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<style>
+  <style>
+    body{
+      font-family: Arial;
+      margin:0;
+      background:#f4f6f8;
+      text-align:center;
+    }
 
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
-  text-align:center;
-}
+    header{
+      background:#0f172a;
+      color:white;
+      padding:15px;
+    }
 
-header{
-  padding:20px;
-  background:#111827;
-}
+    #loginSection, #dashboard, #adminPanel{
+      padding:20px;
+    }
 
-button{
-  padding:15px 20px;
-  margin:10px;
-  border:none;
-  border-radius:10px;
-  font-size:18px;
-  cursor:pointer;
-}
+    #dashboard, #adminPanel{
+      display:none;
+    }
 
-.loginBtn{
-  background:#2563eb;
-  color:white;
-}
+    .card{
+      background:white;
+      margin:10px;
+      padding:15px;
+      border-radius:10px;
+      display:inline-block;
+      min-width:200px;
+      box-shadow:0 2px 5px rgba(0,0,0,0.1);
+    }
 
-.logoutBtn{
-  background:#f97316;
-  color:white;
-}
+    button{
+      padding:10px 15px;
+      margin:5px;
+      cursor:pointer;
+    }
 
-.voteBtn{
-  background:#22c55e;
-  color:white;
-}
-
-.box{
-  background:#1e293b;
-  margin:20px;
-  padding:20px;
-  border-radius:12px;
-}
-
-.count{
-  font-size:28px;
-  color:#facc15;
-  font-weight:bold;
-}
-
-</style>
-
+    .admin{
+      background:#dc2626;
+      color:white;
+    }
+  </style>
 </head>
 
 <body>
 
 <header>
-<h1>🌐 Voting Dashboard</h1>
+  🌍 Global Professional Voting System
 </header>
 
-<button class="loginBtn" onclick="login()">LOGIN</button>
-<button class="logoutBtn" onclick="logout()">LOGOUT</button>
-
-<p id="status">Not Logged In</p>
-
-<div class="box">
-
-<h2>ONOE</h2>
-
-<p>Support: <span id="onoeSupport">0</span></p>
-<p>Against: <span id="onoeAgainst">0</span></p>
-
-<button class="voteBtn" onclick="vote('onoeSupport')">Support</button>
-<button class="voteBtn" onclick="vote('onoeAgainst')">Against</button>
-
+<!-- LOGIN -->
+<div id="loginSection">
+  <h2>Login to Continue</h2>
+  <button onclick="login()">Login with Google</button>
 </div>
 
-<div class="box">
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <h2>📊 Live Voting Dashboard</h2>
 
-<h2>Delimitation</h2>
+  <div class="card">
+    <h3>India</h3>
+    <p>ONOE Support: <span id="in_os">0</span></p>
+    <p>ONOE Against: <span id="in_oa">0</span></p>
+    <p>DEL Support: <span id="in_ds">0</span></p>
+    <p>DEL Against: <span id="in_da">0</span></p>
+  </div>
 
-<p>Support: <span id="delSupport">0</span></p>
-<p>Against: <span id="delAgainst">0</span></p>
+  <div class="card">
+    <h3>USA</h3>
+    <p>ONOE Support: <span id="us_os">0</span></p>
+    <p>ONOE Against: <span id="us_oa">0</span></p>
+    <p>DEL Support: <span id="us_ds">0</span></p>
+    <p>DEL Against: <span id="us_da">0</span></p>
+  </div>
 
-<button class="voteBtn" onclick="vote('delSupport')">Support</button>
-<button class="voteBtn" onclick="vote('delAgainst')">Against</button>
+  <br>
 
+  <button onclick="vote('india','onoeSupport')">India ONOE +</button>
+  <button onclick="vote('india','onoeAgainst')">India ONOE -</button>
+
+  <button onclick="vote('usa','onoeSupport')">USA ONOE +</button>
+  <button onclick="vote('usa','onoeAgainst')">USA ONOE -</button>
+
+  <br><br>
+
+  <button class="admin" onclick="openAdmin()">Admin Panel</button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <h2>🧑‍💼 Admin Panel</h2>
+
+  <p>Only admin can access this</p>
+
+  <button onclick="resetVotes()">Reset All Votes</button>
+  <button onclick="logout()">Logout</button>
 </div>
 
 <script>
 
-  // Firebase Config (REPLACE THIS)
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "onoevote2026.firebaseapp.com",
-    projectId: "onoevote2026",
-    storageBucket: "onoevote2026.appspot.com",
-    messagingSenderId: "XXXX",
-    appId: "XXXX"
-  };
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  databaseURL: "YOUR_DB_URL",
+  projectId: "YOUR_PROJECT_ID"
+};
 
-  firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+const auth = firebase.auth();
+const db = firebase.database();
 
-  // ======================
-  // LOGIN FUNCTION
-  // ======================
-  function login(){
+// ADMIN EMAILS
+const admins = ["admin@gmail.com"];
 
-    const provider =
-    new firebase.auth.GoogleAuthProvider();
+// LOGIN
+function login(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithRedirect(provider);
+}
 
-    auth.signInWithRedirect(provider);
+// LOGOUT
+function logout(){
+  auth.signOut();
+}
 
-  }
+// AUTH STATE
+auth.onAuthStateChanged((user)=>{
+  if(user){
+    document.getElementById("loginSection").style.display="none";
+    document.getElementById("dashboard").style.display="block";
 
-  // ======================
-  // LOGOUT FUNCTION
-  // ======================
-  function logout(){
-
-    auth.signOut().then(()=>{
-      alert("Logged out");
-    });
-
-  }
-
-  // ======================
-  // AUTH STATUS
-  // ======================
-  auth.onAuthStateChanged(user=>{
-    if(user){
-      document.getElementById("status").innerText =
-      "Logged in: " + user.email;
-    }else{
-      document.getElementById("status").innerText =
-      "Not Logged In";
+    if(admins.includes(user.email)){
+      document.getElementById("adminPanel").style.display="block";
     }
+
+    loadVotes();
+    checkUserVote(user.uid);
+
+  } else {
+    document.getElementById("loginSection").style.display="block";
+    document.getElementById("dashboard").style.display="none";
+    document.getElementById("adminPanel").style.display="none";
+  }
+});
+
+// ONE USER ONE VOTE CHECK
+function checkUserVote(uid){
+  db.ref("users/"+uid).once("value", snap=>{
+    window.hasVoted = snap.exists();
   });
+}
 
-  // ======================
-  // LIVE DATA
-  // ======================
-  db.collection("votes").doc("india")
-  .onSnapshot(doc=>{
-    if(doc.exists){
-      const d = doc.data();
+// VOTE FUNCTION
+function vote(country,type){
+  const user = auth.currentUser;
 
-      document.getElementById("onoeSupport").innerText = d.onoeSupport || 0;
-      document.getElementById("onoeAgainst").innerText = d.onoeAgainst || 0;
-      document.getElementById("delSupport").innerText = d.delSupport || 0;
-      document.getElementById("delAgainst").innerText = d.delAgainst || 0;
-    }
-  });
+  if(!user) return;
 
-  // ======================
-  // VOTE FUNCTION
-  // ======================
-  function vote(field){
-
-    if(!auth.currentUser){
-      alert("Please login first");
-      return;
-    }
-
-    db.collection("votes").doc("india").update({
-      [field]: firebase.firestore.FieldValue.increment(1)
-    });
-
+  if(window.hasVoted){
+    alert("You already voted!");
+    return;
   }
+
+  db.ref("votes/"+country+"/"+type).transaction(v=> (v||0)+1);
+
+  db.ref("users/"+user.uid).set({voted:true});
+
+  window.hasVoted = true;
+}
+
+// LOAD VOTES
+function loadVotes(){
+  const countries = ["india","usa"];
+
+  countries.forEach(c=>{
+    db.ref("votes/"+c).on("value", snap=>{
+      const d = snap.val() || {};
+
+      document.getElementById(c.slice(0,2)+"_os").innerText = d.onoeSupport||0;
+      document.getElementById(c.slice(0,2)+"_oa").innerText = d.onoeAgainst||0;
+      document.getElementById(c.slice(0,2)+"_ds").innerText = d.delSupport||0;
+      document.getElementById(c.slice(0,2)+"_da").innerText = d.delAgainst||0;
+    });
+  });
+}
+
+// ADMIN RESET
+function resetVotes(){
+  db.ref("votes").set({});
+  db.ref("users").set({});
+  alert("All votes reset");
+}
+
+// ADMIN OPEN
+function openAdmin(){
+  document.getElementById("dashboard").style.display="none";
+  document.getElementById("adminPanel").style.display="block";
+}
 
 </script>
 
