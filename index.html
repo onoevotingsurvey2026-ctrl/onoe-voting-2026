@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Global Overseas Election Platform</title>
+  <title>Global Overseas Election Dashboard</title>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase (v8 stable) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-functions.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,7 +17,7 @@
       margin:0;
       font-family:Arial;
       background:#0f172a;
-      color:#fff;
+      color:white;
     }
 
     header{
@@ -47,7 +47,7 @@
     }
 
     canvas{
-      background:#fff;
+      background:white;
       border-radius:10px;
       margin-top:10px;
     }
@@ -57,88 +57,127 @@
 <body>
 
 <header>
-  🌍 Global Overseas Election Dashboard
+  🌍 Global Election Dashboard
   <button onclick="login()">Login with Google</button>
 </header>
 
 <div class="grid">
 
-  <!-- LEFT PANEL -->
+  <!-- LEFT -->
   <section>
     <h3>📊 Live Stats</h3>
     <div id="stats">Loading...</div>
 
     <h3>🤖 AI Assistant</h3>
-    <div id="ai">Ask election questions...</div>
+    <div id="ai">Ask anything...</div>
   </section>
 
-  <!-- CENTER PANEL -->
+  <!-- CENTER -->
   <section>
     <h2>🗳️ Voting Panel</h2>
 
-    <button onclick="vote('onoe')">ONOE +</button>
-    <button onclick="vote('del')">DEL +</button>
+    <button onclick="vote('onoeSupport')">ONOE +</button>
+    <button onclick="vote('onoeAgainst')">ONOE -</button>
+    <button onclick="vote('delSupport')">DEL +</button>
+    <button onclick="vote('delAgainst')">DEL -</button>
 
     <canvas id="chart"></canvas>
   </section>
 
-  <!-- RIGHT PANEL -->
+  <!-- RIGHT -->
   <section>
     <h3>🌍 Global Map</h3>
     <div>Live map loading...</div>
 
-    <h3>🔐 Security Status</h3>
-    <div>Active (Fraud Protection ON)</div>
+    <h3>🔐 Security</h3>
+    <div>Active Protection ON</div>
   </section>
 
 </div>
 
 <script>
-/* 🔥 FIREBASE CONFIG */
+
+//////////////////////////////////////////////////////
+// 🔥 FIREBASE CONFIG (ONLY ONE - CLEAN VERSION)
+//////////////////////////////////////////////////////
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  authDomain: "onoevote2026.firebaseapp.com",
+  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "onoevote2026",
+  storageBucket: "onoevote2026.firebasestorage.app",
+  messagingSenderId: "181065724520",
+  appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
-const functions = firebase.functions();
+const db = firebase.database();
 
-/* 🔑 LOGIN */
+//////////////////////////////////////////////////////
+// 🔑 LOGIN FIX (POPUP)
+//////////////////////////////////////////////////////
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider);
-}
 
-/* 🗳️ VOTE FUNCTION */
-function vote(choice){
-
-  const fn = functions.httpsCallable("castVote");
-
-  fn({ choice })
-    .then(() => {
-      alert("✅ Vote recorded successfully");
+  auth.signInWithPopup(provider)
+    .then(user => {
+      alert("Login Success: " + user.user.email);
     })
     .catch(err => {
-      alert("❌ " + err.message);
+      alert("Login Error: " + err.message);
+      console.log(err);
     });
-
 }
 
-/* 📊 CHART */
-const ctx = document.getElementById("chart");
+//////////////////////////////////////////////////////
+// 🗳️ VOTE FUNCTION
+//////////////////////////////////////////////////////
+function vote(type){
 
-new Chart(ctx, {
-  type: "bar",
-  data: {
-    labels: ["ONOE", "DEL"],
-    datasets: [{
-      label: "Live Votes",
-      data: [12, 9]
-    }]
+  const user = auth.currentUser;
+
+  if(!user){
+    alert("Please login first");
+    return;
   }
+
+  const ref = db.ref("votes/india/" + type);
+
+  ref.transaction(value => (value || 0) + 1);
+}
+
+//////////////////////////////////////////////////////
+// 📊 LIVE DASHBOARD
+//////////////////////////////////////////////////////
+db.ref("votes/india").on("value", snap => {
+
+  const data = snap.val() || {};
+
+  document.getElementById("stats").innerHTML = `
+    ONOE Support: ${data.onoeSupport || 0} <br>
+    ONOE Against: ${data.onoeAgainst || 0} <br>
+    DEL Support: ${data.delSupport || 0} <br>
+    DEL Against: ${data.delAgainst || 0}
+  `;
+
+  // Chart update
+  new Chart(document.getElementById("chart"), {
+    type: "bar",
+    data: {
+      labels: ["ONOE+", "ONOE-", "DEL+", "DEL-"],
+      datasets: [{
+        data: [
+          data.onoeSupport || 0,
+          data.onoeAgainst || 0,
+          data.delSupport || 0,
+          data.delAgainst || 0
+        ]
+      }]
+    }
+  });
+
 });
 
 </script>
