@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting System - FINAL FIX</title>
+  <title>Real Voting System PRO</title>
 
-  <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -24,12 +23,6 @@
 
     #dashboard{ display:none; }
 
-    button{
-      padding:10px 15px;
-      margin:5px;
-      cursor:pointer;
-    }
-
     .card{
       background:white;
       margin:10px;
@@ -38,13 +31,27 @@
       display:inline-block;
       min-width:220px;
     }
+
+    button{
+      padding:10px 15px;
+      margin:5px;
+      cursor:pointer;
+    }
+
+    #adminPanel{
+      display:none;
+      background:#fff3cd;
+      padding:10px;
+      margin:10px;
+      border-radius:10px;
+    }
   </style>
 </head>
 
 <body>
 
 <header>
-  🌍 Global Voting System
+  🌍 REAL Voting System PRO
 </header>
 
 <!-- LOGIN -->
@@ -55,6 +62,7 @@
 
 <!-- DASHBOARD -->
 <div id="dashboard">
+
   <h2>📊 Live Dashboard</h2>
 
   <div class="card">
@@ -69,6 +77,13 @@
     <button onclick="vote('india','delSupport')">DEL +</button>
     <button onclick="vote('india','delAgainst')">DEL -</button>
   </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel">
+    <h3>🧑‍💼 Admin Panel</h3>
+    <button onclick="resetVotes()">Reset Votes</button>
+  </div>
+
 </div>
 
 <script>
@@ -93,7 +108,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 /////////////////////////////////////////////////////
-// 🔐 LOGIN (FIXED - REDIRECT METHOD)
+// 🔐 LOGIN
 /////////////////////////////////////////////////////
 
 function login(){
@@ -101,18 +116,10 @@ function login(){
   auth.signInWithRedirect(provider);
 }
 
-auth.getRedirectResult()
-.then((result)=>{
-  if(result && result.user){
-    console.log("LOGIN SUCCESS:", result.user.email);
-  }
-})
-.catch((error)=>{
-  console.log("AUTH ERROR:", error.code, error.message);
-});
+auth.getRedirectResult().catch(()=>{});
 
 /////////////////////////////////////////////////////
-// 🔄 AUTH STATE CONTROL
+// 🔄 AUTH CONTROL
 /////////////////////////////////////////////////////
 
 auth.onAuthStateChanged(user=>{
@@ -121,6 +128,12 @@ auth.onAuthStateChanged(user=>{
     document.getElementById("loginSection").style.display="none";
     document.getElementById("dashboard").style.display="block";
     loadVotes();
+
+    // ADMIN CHECK (change email if needed)
+    if(user.email === "onoe.voting.survey2026@gmail.com"){
+      document.getElementById("adminPanel").style.display="block";
+    }
+
   }else{
     document.getElementById("loginSection").style.display="block";
     document.getElementById("dashboard").style.display="none";
@@ -129,10 +142,39 @@ auth.onAuthStateChanged(user=>{
 });
 
 /////////////////////////////////////////////////////
-// 📊 LOAD VOTES
+// 🗳️ ONE USER ONE VOTE SYSTEM
+/////////////////////////////////////////////////////
+
+function vote(country,type){
+
+  const user = auth.currentUser;
+  if(!user){
+    alert("Login first");
+    return;
+  }
+
+  const votePath = "userVotes/"+user.uid+"/"+country;
+
+  db.ref(votePath).once("value", snap=>{
+    if(snap.exists()){
+      alert("❌ You already voted in this country!");
+    }else{
+
+      db.ref("votes/"+country+"/"+type)
+        .transaction(v=> (v||0)+1);
+
+      db.ref(votePath).set(type);
+    }
+  });
+
+}
+
+/////////////////////////////////////////////////////
+// 📊 LOAD DATA
 /////////////////////////////////////////////////////
 
 function loadVotes(){
+
   db.ref("votes/india").on("value", snap=>{
     const d = snap.val() || {};
 
@@ -141,23 +183,34 @@ function loadVotes(){
     document.getElementById("ds").innerText = d.delSupport || 0;
     document.getElementById("da").innerText = d.delAgainst || 0;
   });
+
 }
 
 /////////////////////////////////////////////////////
-// 🗳️ VOTE FUNCTION
+// 🧑‍💼 ADMIN RESET
 /////////////////////////////////////////////////////
 
-function vote(country,type){
+function resetVotes(){
 
   const user = auth.currentUser;
 
-  if(!user){
-    alert("Please login first");
+  if(user.email !== "onoe.voting.survey2026@gmail.com"){
+    alert("Not allowed");
     return;
   }
 
-  db.ref("votes/"+country+"/"+type)
-    .transaction(v=> (v||0)+1);
+  db.ref("votes").set({
+    india:{
+      onoeSupport:0,
+      onoeAgainst:0,
+      delSupport:0,
+      delAgainst:0
+    }
+  });
+
+  db.ref("userVotes").remove();
+
+  alert("Votes reset successfully!");
 }
 
 </script>
