@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Election Dashboard</title>
+  <title>Global Real-Time Election Engine v1</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <style>
     body { font-family: Arial; background:#0f172a; color:white; margin:0; }
-    .card { background:#111827; padding:15px; margin:10px; border-radius:10px; }
+    .card { background:#111827; margin:10px; padding:15px; border-radius:10px; }
     button { padding:10px; margin:5px; cursor:pointer; }
   </style>
 </head>
 
 <body>
 
-<h2 style="text-align:center;">🌍 Global Election Dashboard</h2>
+<h2 style="text-align:center;">🌍 Global Real-Time Election Engine v1</h2>
 
 <!-- LOGIN -->
 <div class="card">
@@ -27,8 +28,8 @@
 
 <!-- LIVE STATS -->
 <div class="card">
-  <h3>📊 Live Stats</h3>
-  <div id="stats">Loading...</div>
+  <h3>📊 Live Stats (WebSocket)</h3>
+  <div id="stats">Connecting...</div>
 </div>
 
 <!-- VOTING -->
@@ -46,16 +47,10 @@
   <div id="ai">Loading AI...</div>
 </div>
 
-<!-- MAP -->
-<div class="card">
-  <h3>🌍 Global Map</h3>
-  <div>Map Module Ready</div>
-</div>
-
 <!-- SECURITY -->
 <div class="card">
   <h3>🔐 Security Status</h3>
-  <div>Active (Geo + Device Protection ON)</div>
+  <div>WebSocket Sync Active | Fraud Protection ON</div>
 </div>
 
 <script>
@@ -71,18 +66,15 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-const db = firebase.database();
 const auth = firebase.auth();
+const db = firebase.database();
 
-/* ---------------- LOGIN (SAFE) ---------------- */
+/* ---------------- LOGIN ---------------- */
 
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
-
   auth.signInWithPopup(provider)
-  .catch(() => {
-    auth.signInWithRedirect(provider);
-  });
+  .catch(()=>auth.signInWithRedirect(provider));
 }
 
 auth.onAuthStateChanged(user=>{
@@ -92,7 +84,29 @@ auth.onAuthStateChanged(user=>{
   }
 });
 
-/* ---------------- SIMPLE VOTE LOCK ---------------- */
+/* ---------------- WEBSOCKET ---------------- */
+
+const socket = new WebSocket("ws://localhost:8080");
+
+socket.onopen = () => {
+  console.log("WebSocket Connected");
+};
+
+socket.onmessage = (event) => {
+
+  const data = JSON.parse(event.data);
+
+  document.getElementById("stats").innerHTML =
+    "ONOE + : " + data.onoeSupport + "<br>" +
+    "ONOE - : " + data.onoeAgainst + "<br>" +
+    "DEL + : " + data.delSupport + "<br>" +
+    "DEL - : " + data.delAgainst;
+
+  aiPredict(data);
+
+};
+
+/* ---------------- VOTE ---------------- */
 
 function vote(type){
 
@@ -103,49 +117,39 @@ function vote(type){
     return;
   }
 
-  const voteKey = "voted_" + user.uid;
+  socket.send(JSON.stringify({
+    type: "vote",
+    voteType: type
+  }));
 
-  if(localStorage.getItem(voteKey)){
-    alert("You already voted!");
-    return;
-  }
-
-  db.ref("votes/india/" + type)
-  .transaction(v => (v || 0) + 1);
-
-  localStorage.setItem(voteKey, "true");
 }
 
-/* ---------------- LIVE STATS ---------------- */
-
-db.ref("votes/india").on("value", snap => {
-
-  const d = snap.val() || {};
-
-  document.getElementById("stats").innerHTML =
-    "ONOE + : " + (d.onoeSupport||0) + "<br>" +
-    "ONOE - : " + (d.onoeAgainst||0) + "<br>" +
-    "DEL + : " + (d.delSupport||0) + "<br>" +
-    "DEL - : " + (d.delAgainst||0);
-
-  aiPredict(d);
-
-});
-
-/* ---------------- AI ---------------- */
+/* ---------------- AI ENGINE ---------------- */
 
 function aiPredict(d){
 
-  const total = (d.onoeSupport||0) + (d.delSupport||0) + 1;
+  const onoe = d.onoeSupport || 0;
+  const del = d.delSupport || 0;
+  const total = onoe + del + 1;
 
-  const onoe = (d.onoeSupport||0) / total;
-  const del = (d.delSupport||0) / total;
+  let result = "";
+  let confidence = 0;
 
-  let result = onoe > del ? "🟢 ONOE Leading" : "🔴 DEL Leading";
+  if(onoe === del){
+    result = "🟡 Tight Competition";
+    confidence = 50;
+  }
+  else if(onoe > del){
+    result = "🟢 ONOE Leading";
+    confidence = ((onoe-del)/total*100).toFixed(1);
+  }
+  else{
+    result = "🔴 DEL Leading";
+    confidence = ((del-onoe)/total*100).toFixed(1);
+  }
 
-  document.getElementById("ai").innerText =
-    result + " | Confidence: " +
-    Math.abs(onoe-del).toFixed(2);
+  document.getElementById("ai").innerHTML =
+    result + " | Confidence: " + confidence + "%";
 
 }
 
