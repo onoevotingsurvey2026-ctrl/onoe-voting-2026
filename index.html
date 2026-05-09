@@ -20,92 +20,95 @@ header{
   padding:22px 14px;
   background: linear-gradient(135deg, #0f172a, #1e3a8a, #0ea5e9);
   border-radius:0 0 16px 16px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.25);
 }
 
-/* LANGUAGE BAR */
-.langbar{
+/* LOGIN BOX */
+.loginBox{
+  margin:15px;
+  padding:15px;
+  background:#111827;
+  border-radius:12px;
   text-align:center;
-  margin-top:10px;
-  font-size:12px;
-  color:#93c5fd;
 }
+
+/* BUTTONS */
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  margin-top:8px;
+}
+
+.loginBtn{ background:#22c55e; color:white; }
+.submitBtn{ background:#3b82f6; color:white; }
 
 /* DASHBOARD */
 .container{
   padding:15px;
 }
 
-/* CARDS */
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:10px;
-  margin-top:15px;
 }
 
+/* CARDS */
 .card{
   background:#1e293b;
   padding:12px;
   border-radius:12px;
   text-align:center;
-  box-shadow:0 3px 10px rgba(0,0,0,0.2);
 }
 
-h3{
-  text-align:center;
-  margin-top:18px;
-  color:#38bdf8;
-}
-
-/* LIVE BADGE */
-.live{
-  display:inline-block;
+/* SECURITY ALERT */
+.security{
   margin-top:10px;
-  padding:4px 10px;
-  background:#22c55e;
-  border-radius:20px;
+  padding:10px;
+  background:#450a0a;
+  border-left:4px solid red;
+  border-radius:8px;
   font-size:12px;
-  font-weight:bold;
-}
-
-/* MOBILE */
-@media(max-width:600px){
-  .grid{
-    grid-template-columns:1fr;
-  }
+  display:none;
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🌐 HEADER -->
+<!-- HEADER -->
 <header>
-
   <div style="font-size:20px; font-weight:bold;">
     🌐 உலகளாவிய இந்திய மக்கள் கருத்து & தேர்தல் பகுப்பாய்வு தளம்
   </div>
 
-  <div style="margin-top:6px; font-size:16px; color:#dbeafe;">
-    🏛️ One Nation, One Election | தொகுதி மறுசீரமைப்பு ஆய்வு
-  </div>
-
-  <div style="margin-top:6px; font-size:13px; color:#93c5fd;">
-    📊 Global Real-Time Voting Analytics | Policy Insight Dashboard
+  <div style="margin-top:6px; color:#dbeafe;">
+    🏛️ One Nation One Election | தொகுதி மறுசீரமைப்பு
   </div>
 
   <div style="margin-top:6px; font-size:12px; color:#a5f3fc;">
-    🌍 Worldwide Election Intelligence System
+    🔴 LIVE GLOBAL SYSTEM
   </div>
-
-  <div class="live">🔴 LIVE GLOBAL SYSTEM</div>
-
 </header>
 
-<!-- 🌍 LANGUAGE INFO -->
-<div class="langbar">
-  🇮🇳 தமிழ் | 🇬🇧 English | 🌍 Global Dashboard Enabled
+<!-- 🔐 LOGIN SECTION -->
+<div class="loginBox">
+
+  <h3>🔐 User Login</h3>
+
+  <input type="email" id="email" placeholder="Enter Email"
+    style="padding:8px; width:80%; border-radius:6px;"><br>
+
+  <button class="loginBtn" onclick="login()">Google Login</button>
+
+  <div id="userInfo" style="margin-top:10px; font-size:12px;"></div>
+
+</div>
+
+<!-- 🧠 AI SECURITY -->
+<div id="securityBox" class="security">
+  ⚠ AI Security Check Active: Invalid or duplicate voting attempt blocked
 </div>
 
 <!-- 📊 DASHBOARD -->
@@ -115,44 +118,65 @@ h3{
 
 <div class="grid">
 
-  <div class="card">
-    🇮🇳 ONOE Support<br>
-    <h2 id="onoeSupport">0</h2>
-  </div>
-
-  <div class="card">
-    ❌ ONOE Against<br>
-    <h2 id="onoeAgainst">0</h2>
-  </div>
-
-  <div class="card">
-    👍 Delimitation Support<br>
-    <h2 id="delSupport">0</h2>
-  </div>
-
-  <div class="card">
-    👎 Delimitation Against<br>
-    <h2 id="delAgainst">0</h2>
-  </div>
+  <div class="card">🇮🇳 ONOE Support<br><h2 id="onoeSupport">0</h2></div>
+  <div class="card">❌ ONOE Against<br><h2 id="onoeAgainst">0</h2></div>
+  <div class="card">👍 Del Support<br><h2 id="delSupport">0</h2></div>
+  <div class="card">👎 Del Against<br><h2 id="delAgainst">0</h2></div>
 
 </div>
 
-<!-- 🌍 SUMMARY -->
-<h3>🌍 Global Insight Summary</h3>
-<div class="card">
-  Real-time global voting aggregation system active.<br>
-  Policy analysis engine ready for expansion.
+<!-- 🗳 SUBMIT SECTION -->
+<div class="card" style="margin-top:15px;">
+
+  <h3>🗳 Submit Your Vote</h3>
+
+  <select id="voteType" style="padding:8px; width:90%;">
+    <option value="onoeSupport">ONOE Support</option>
+    <option value="onoeAgainst">ONOE Against</option>
+    <option value="delSupport">Delimitation Support</option>
+    <option value="delAgainst">Delimitation Against</option>
+  </select>
+
+  <button class="submitBtn" onclick="submitVote()">Submit Vote</button>
+
 </div>
 
 </div>
 
-<!-- ⚡ FIREBASE SCRIPT PLACEHOLDER -->
 <script>
-  // Firebase connection will go here
-  // Example:
-  // firebase.database().ref("votes/india")
 
-  console.log("Global Dashboard Loaded");
+/* 🔐 SIMPLE LOGIN (placeholder for Firebase Google Auth) */
+function login(){
+  document.getElementById("userInfo").innerHTML =
+  "✅ Logged in user detected (Firebase connect pending)";
+}
+
+/* 🧠 AI SECURITY CHECK */
+function aiSecurityCheck(){
+  let flag = Math.random() < 0.1; // fake detection logic
+
+  if(flag){
+    document.getElementById("securityBox").style.display = "block";
+    return false;
+  }
+  return true;
+}
+
+/* 🗳 SUBMIT VOTE */
+function submitVote(){
+
+  if(!aiSecurityCheck()){
+    return;
+  }
+
+  let type = document.getElementById("voteType").value;
+  let el = document.getElementById(type);
+
+  el.innerText = parseInt(el.innerText) + 1;
+
+  alert("Vote Submitted Successfully ✔");
+}
+
 </script>
 
 </body>
