@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting System PRO</title>
+  <title>Global Voting System - FINAL FIX</title>
 
+  <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body{
@@ -24,6 +24,12 @@
 
     #dashboard{ display:none; }
 
+    button{
+      padding:10px 15px;
+      margin:5px;
+      cursor:pointer;
+    }
+
     .card{
       background:white;
       margin:10px;
@@ -32,19 +38,13 @@
       display:inline-block;
       min-width:220px;
     }
-
-    button{
-      padding:10px 15px;
-      margin:5px;
-      cursor:pointer;
-    }
   </style>
 </head>
 
 <body>
 
 <header>
-  🌍 Global Voting System PRO
+  🌍 Global Voting System
 </header>
 
 <!-- LOGIN -->
@@ -55,7 +55,6 @@
 
 <!-- DASHBOARD -->
 <div id="dashboard">
-
   <h2>📊 Live Dashboard</h2>
 
   <div class="card">
@@ -70,10 +69,6 @@
     <button onclick="vote('india','delSupport')">DEL +</button>
     <button onclick="vote('india','delAgainst')">DEL -</button>
   </div>
-
-  <h3>📈 Live Chart</h3>
-  <canvas id="chart" width="300"></canvas>
-
 </div>
 
 <script>
@@ -83,11 +78,13 @@
 /////////////////////////////////////////////////////
 
 const firebaseConfig = {
-  apiKey: "PASTE_REAL_KEY",
+  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
   databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "onoevote2026",
-  appId: "PASTE_REAL_APP_ID"
+  storageBucket: "onoevote2026.firebasestorage.app",
+  messagingSenderId: "181065724520",
+  appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -96,66 +93,46 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 /////////////////////////////////////////////////////
-// 🔐 LOGIN
+// 🔐 LOGIN (FIXED - REDIRECT METHOD)
 /////////////////////////////////////////////////////
 
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
-
-  auth.signInWithPopup(provider)
-    .then(res=>{
-      console.log("LOGIN OK:", res.user.email);
-    })
-    .catch(err=>{
-      alert(err.message);
-    });
+  auth.signInWithRedirect(provider);
 }
 
+auth.getRedirectResult()
+.then((result)=>{
+  if(result && result.user){
+    console.log("LOGIN SUCCESS:", result.user.email);
+  }
+})
+.catch((error)=>{
+  console.log("AUTH ERROR:", error.code, error.message);
+});
+
 /////////////////////////////////////////////////////
-// 🔄 AUTH CONTROL
+// 🔄 AUTH STATE CONTROL
 /////////////////////////////////////////////////////
 
 auth.onAuthStateChanged(user=>{
+
   if(user){
     document.getElementById("loginSection").style.display="none";
     document.getElementById("dashboard").style.display="block";
-    loadData();
+    loadVotes();
   }else{
     document.getElementById("loginSection").style.display="block";
     document.getElementById("dashboard").style.display="none";
   }
+
 });
 
 /////////////////////////////////////////////////////
-// 🔐 ONE USER ONE VOTE LOCK
+// 📊 LOAD VOTES
 /////////////////////////////////////////////////////
 
-function vote(country,type){
-
-  const user = auth.currentUser;
-  if(!user){ alert("Login first"); return; }
-
-  const voteKey = country + "_" + type;
-
-  db.ref("userVotes/" + user.uid + "/" + voteKey).once("value", snap=>{
-    if(snap.exists()){
-      alert("❌ You already voted!");
-    }else{
-
-      db.ref("votes/" + country + "/" + type)
-        .transaction(v=> (v||0)+1);
-
-      db.ref("userVotes/" + user.uid + "/" + voteKey).set(true);
-    }
-  });
-}
-
-/////////////////////////////////////////////////////
-// 📊 LOAD DATA
-/////////////////////////////////////////////////////
-
-function loadData(){
-
+function loadVotes(){
   db.ref("votes/india").on("value", snap=>{
     const d = snap.val() || {};
 
@@ -163,38 +140,24 @@ function loadData(){
     document.getElementById("oa").innerText = d.onoeAgainst || 0;
     document.getElementById("ds").innerText = d.delSupport || 0;
     document.getElementById("da").innerText = d.delAgainst || 0;
-
-    updateChart(d);
   });
 }
 
 /////////////////////////////////////////////////////
-// 📈 CHART
+// 🗳️ VOTE FUNCTION
 /////////////////////////////////////////////////////
 
-let chart;
+function vote(country,type){
 
-function updateChart(d){
+  const user = auth.currentUser;
 
-  const data = [
-    d.onoeSupport||0,
-    d.onoeAgainst||0,
-    d.delSupport||0,
-    d.delAgainst||0
-  ];
-
-  if(chart){
-    chart.data.datasets[0].data = data;
-    chart.update();
-  }else{
-    chart = new Chart(document.getElementById("chart"),{
-      type:"pie",
-      data:{
-        labels:["ONOE +","ONOE -","DEL +","DEL -"],
-        datasets:[{data:data}]
-      }
-    });
+  if(!user){
+    alert("Please login first");
+    return;
   }
+
+  db.ref("votes/"+country+"/"+type)
+    .transaction(v=> (v||0)+1);
 }
 
 </script>
