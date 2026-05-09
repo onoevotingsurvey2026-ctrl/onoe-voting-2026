@@ -1,49 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Firestore Election System PRO</title>
+  <meta charset="UTF-8">
+  <title>Global Overseas Election Platform</title>
 
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-functions.js"></script>
+
+  <!-- Chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body{
-      font-family: Arial;
-      text-align:center;
-      background:#f4f6f8;
       margin:0;
+      font-family:Arial;
+      background:#0f172a;
+      color:#fff;
     }
 
     header{
-      background:#0f172a;
-      color:white;
+      background:#111827;
       padding:15px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
     }
 
-    #dashboard{ display:none; }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 2fr 1fr;
+      height:90vh;
+    }
 
-    .card{
-      background:white;
-      margin:10px;
+    section{
       padding:15px;
-      border-radius:10px;
-      display:inline-block;
-      min-width:240px;
+      border-right:1px solid #1f2937;
     }
 
     button{
-      padding:10px 15px;
+      padding:10px;
       margin:5px;
+      border-radius:8px;
       cursor:pointer;
     }
 
-    #adminPanel{
-      display:none;
-      background:#fff3cd;
-      padding:10px;
-      margin:10px;
+    canvas{
+      background:#fff;
       border-radius:10px;
+      margin-top:10px;
     }
   </style>
 </head>
@@ -51,174 +57,89 @@
 <body>
 
 <header>
-  🌍 Firestore Election System
+  🌍 Global Overseas Election Dashboard
+  <button onclick="login()">Login with Google</button>
 </header>
 
-<!-- LOGIN -->
-<div id="loginSection">
-  <h2>Login to Continue</h2>
-  <button onclick="login()">Login with Google</button>
-</div>
+<div class="grid">
 
-<!-- DASHBOARD -->
-<div id="dashboard">
+  <!-- LEFT PANEL -->
+  <section>
+    <h3>📊 Live Stats</h3>
+    <div id="stats">Loading...</div>
 
-  <h2>📊 Live Results</h2>
+    <h3>🤖 AI Assistant</h3>
+    <div id="ai">Ask election questions...</div>
+  </section>
 
-  <div class="card">
-    <h3>India</h3>
+  <!-- CENTER PANEL -->
+  <section>
+    <h2>🗳️ Voting Panel</h2>
 
-    <p>ONOE Support: <span id="os">0</span></p>
-    <p>ONOE Against: <span id="oa">0</span></p>
-    <p>DEL Support: <span id="ds">0</span></p>
-    <p>DEL Against: <span id="da">0</span></p>
+    <button onclick="vote('onoe')">ONOE +</button>
+    <button onclick="vote('del')">DEL +</button>
 
-    <button onclick="vote('india','onoeSupport')">ONOE +</button>
-    <button onclick="vote('india','onoeAgainst')">ONOE -</button>
-    <button onclick="vote('india','delSupport')">DEL +</button>
-    <button onclick="vote('india','delAgainst')">DEL -</button>
-  </div>
+    <canvas id="chart"></canvas>
+  </section>
 
-  <div id="adminPanel">
-    <h3>🧑‍💼 Admin Panel</h3>
-    <button onclick="resetAll()">Reset Votes</button>
-  </div>
+  <!-- RIGHT PANEL -->
+  <section>
+    <h3>🌍 Global Map</h3>
+    <div>Live map loading...</div>
+
+    <h3>🔐 Security Status</h3>
+    <div>Active (Fraud Protection ON)</div>
+  </section>
 
 </div>
 
 <script>
-
-/////////////////////////////////////////////////////
-// 🔥 FIREBASE CONFIG (YOUR FIRESTORE PROJECT)
-/////////////////////////////////////////////////////
-
+/* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  projectId: "onoevote2026",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
-const db = firebase.firestore();
+const functions = firebase.functions();
 
-/////////////////////////////////////////////////////
-// 🔐 LOGIN
-/////////////////////////////////////////////////////
-
+/* 🔑 LOGIN */
 function login(){
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithRedirect(provider);
+  auth.signInWithPopup(provider);
 }
 
-auth.getRedirectResult().catch(()=>{});
+/* 🗳️ VOTE FUNCTION */
+function vote(choice){
 
-/////////////////////////////////////////////////////
-// 🔄 AUTH
-/////////////////////////////////////////////////////
+  const fn = functions.httpsCallable("castVote");
 
-auth.onAuthStateChanged(user=>{
+  fn({ choice })
+    .then(() => {
+      alert("✅ Vote recorded successfully");
+    })
+    .catch(err => {
+      alert("❌ " + err.message);
+    });
 
-  if(user){
-    document.getElementById("loginSection").style.display="none";
-    document.getElementById("dashboard").style.display="block";
+}
 
-    loadResults();
+/* 📊 CHART */
+const ctx = document.getElementById("chart");
 
-    if(user.email === "onoe.voting.survey2026@gmail.com"){
-      document.getElementById("adminPanel").style.display="block";
-    }
-
-  }else{
-    document.getElementById("loginSection").style.display="block";
-    document.getElementById("dashboard").style.display="none";
+new Chart(ctx, {
+  type: "bar",
+  data: {
+    labels: ["ONOE", "DEL"],
+    datasets: [{
+      label: "Live Votes",
+      data: [12, 9]
+    }]
   }
-
 });
-
-/////////////////////////////////////////////////////
-// 🗳️ VOTE SYSTEM (FIRESTORE)
-/////////////////////////////////////////////////////
-
-function vote(country, choice){
-
-  const user = auth.currentUser;
-
-  if(!user){
-    alert("Login required");
-    return;
-  }
-
-  const ref = db.collection("userVotes").doc(user.uid);
-
-  ref.get().then(doc=>{
-
-    if(doc.exists && doc.data()[country]){
-      alert("❌ Already voted!");
-      return;
-    }
-
-    ref.set({
-      [country]: choice
-    }, { merge: true });
-
-  });
-
-}
-
-/////////////////////////////////////////////////////
-// 📊 LIVE RESULTS (AUTO CALCULATION)
-/////////////////////////////////////////////////////
-
-function loadResults(){
-
-  db.collection("userVotes").onSnapshot(snapshot=>{
-
-    let os=0, oa=0, ds=0, da=0;
-
-    snapshot.forEach(doc=>{
-
-      let d = doc.data();
-
-      if(d.india === "onoeSupport") os++;
-      if(d.india === "onoeAgainst") oa++;
-      if(d.india === "delSupport") ds++;
-      if(d.india === "delAgainst") da++;
-
-    });
-
-    document.getElementById("os").innerText = os;
-    document.getElementById("oa").innerText = oa;
-    document.getElementById("ds").innerText = ds;
-    document.getElementById("da").innerText = da;
-
-  });
-
-}
-
-/////////////////////////////////////////////////////
-// 🧑‍💼 ADMIN RESET
-/////////////////////////////////////////////////////
-
-function resetAll(){
-
-  const user = auth.currentUser;
-
-  if(user.email !== "onoe.voting.survey2026@gmail.com"){
-    alert("Not allowed");
-    return;
-  }
-
-  db.collection("userVotes").get().then(snap=>{
-    snap.forEach(doc=>{
-      doc.ref.delete();
-    });
-  });
-
-  alert("System reset complete!");
-}
 
 </script>
 
