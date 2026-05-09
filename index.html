@@ -4,12 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Global Election Intelligence Dashboard</title>
+<title>Global Election Intelligence System</title>
+
+<!-- 🔥 Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <style>
 body{
   margin:0;
-  font-family: Arial, sans-serif;
+  font-family:Arial;
   background:#0b1220;
   color:white;
 }
@@ -17,12 +22,11 @@ body{
 /* HEADER */
 header{
   text-align:center;
-  padding:22px 14px;
-  background: linear-gradient(135deg, #0f172a, #1e3a8a, #0ea5e9);
-  border-radius:0 0 16px 16px;
+  padding:20px;
+  background:linear-gradient(135deg,#0f172a,#1e3a8a,#0ea5e9);
 }
 
-/* LOGIN BOX */
+/* LOGIN */
 .loginBox{
   margin:15px;
   padding:15px;
@@ -34,19 +38,17 @@ header{
 /* BUTTONS */
 button{
   padding:10px 14px;
+  margin-top:8px;
   border:none;
   border-radius:8px;
   cursor:pointer;
-  margin-top:8px;
 }
 
 .loginBtn{ background:#22c55e; color:white; }
 .submitBtn{ background:#3b82f6; color:white; }
 
 /* DASHBOARD */
-.container{
-  padding:15px;
-}
+.container{ padding:15px; }
 
 .grid{
   display:grid;
@@ -54,53 +56,63 @@ button{
   gap:10px;
 }
 
-/* CARDS */
 .card{
   background:#1e293b;
   padding:12px;
-  border-radius:12px;
+  border-radius:10px;
   text-align:center;
 }
 
-/* SECURITY ALERT */
+/* LIVE */
+.live{
+  display:inline-block;
+  margin-top:8px;
+  padding:4px 10px;
+  background:#22c55e;
+  border-radius:20px;
+  font-size:12px;
+}
+
+/* SECURITY */
 .security{
-  margin-top:10px;
+  margin:10px;
   padding:10px;
   background:#450a0a;
   border-left:4px solid red;
-  border-radius:8px;
-  font-size:12px;
   display:none;
 }
+
+/* MOBILE */
+@media(max-width:600px){
+  .grid{ grid-template-columns:1fr; }
+}
 </style>
+
 </head>
 
 <body>
 
-<!-- HEADER -->
+<!-- 🌐 HEADER -->
 <header>
-  <div style="font-size:20px; font-weight:bold;">
-    🌐 உலகளாவிய இந்திய மக்கள் கருத்து & தேர்தல் பகுப்பாய்வு தளம்
-  </div>
-
-  <div style="margin-top:6px; color:#dbeafe;">
-    🏛️ One Nation One Election | தொகுதி மறுசீரமைப்பு
-  </div>
-
-  <div style="margin-top:6px; font-size:12px; color:#a5f3fc;">
-    🔴 LIVE GLOBAL SYSTEM
-  </div>
+  <h2>🌐 உலகளாவிய இந்திய மக்கள் கருத்து & தேர்தல் பகுப்பாய்வு தளம்</h2>
+  <h4>🏛️ One Nation One Election | தொகுதி மறுசீரமைப்பு</h4>
+  <p>📊 Global Real-Time Voting Analytics | Policy Insight Dashboard</p>
+  <p>🌍 Worldwide Election Intelligence System</p>
+  <div class="live">🔴 LIVE GLOBAL SYSTEM</div>
 </header>
 
-<!-- 🔐 LOGIN SECTION -->
+<!-- 🌍 LANGUAGE INFO -->
+<div style="text-align:center; font-size:12px; color:#93c5fd; margin-top:10px;">
+  🇮🇳 தமிழ் | 🇬🇧 English | 🌍 Global Multi-Language Dashboard
+</div>
+
+<!-- 🔐 LOGIN -->
 <div class="loginBox">
 
   <h3>🔐 User Login</h3>
 
-  <input type="email" id="email" placeholder="Enter Email"
-    style="padding:8px; width:80%; border-radius:6px;"><br>
-
   <button class="loginBtn" onclick="login()">Google Login</button>
+  <button onclick="logout()">Logout</button>
 
   <div id="userInfo" style="margin-top:10px; font-size:12px;"></div>
 
@@ -108,7 +120,7 @@ button{
 
 <!-- 🧠 AI SECURITY -->
 <div id="securityBox" class="security">
-  ⚠ AI Security Check Active: Invalid or duplicate voting attempt blocked
+⚠ AI Security Alert: Suspicious activity blocked
 </div>
 
 <!-- 📊 DASHBOARD -->
@@ -125,45 +137,81 @@ button{
 
 </div>
 
-<!-- 🗳 SUBMIT SECTION -->
+<!-- 🗳 SUBMIT -->
 <div class="card" style="margin-top:15px;">
-
-  <h3>🗳 Submit Your Vote</h3>
+  <h3>🗳 Submit Vote</h3>
 
   <select id="voteType" style="padding:8px; width:90%;">
     <option value="onoeSupport">ONOE Support</option>
     <option value="onoeAgainst">ONOE Against</option>
-    <option value="delSupport">Delimitation Support</option>
-    <option value="delAgainst">Delimitation Against</option>
+    <option value="delSupport">Del Support</option>
+    <option value="delAgainst">Del Against</option>
   </select>
 
-  <button class="submitBtn" onclick="submitVote()">Submit Vote</button>
-
+  <button class="submitBtn" onclick="submitVote()">Submit</button>
 </div>
 
 </div>
 
+<!-- 🔥 FIREBASE CONFIG + AI SECURITY -->
 <script>
 
-/* 🔐 SIMPLE LOGIN (placeholder for Firebase Google Auth) */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  databaseURL: "YOUR_DB_URL"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+let currentUser = null;
+
+/* 🔐 LOGIN */
 function login(){
-  document.getElementById("userInfo").innerHTML =
-  "✅ Logged in user detected (Firebase connect pending)";
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  auth.signInWithPopup(provider)
+  .then(result=>{
+    currentUser = result.user;
+
+    document.getElementById("userInfo").innerHTML =
+    "✅ Logged in: " + currentUser.email;
+  });
+}
+
+/* 🚪 LOGOUT */
+function logout(){
+  auth.signOut().then(()=>{
+    currentUser = null;
+    document.getElementById("userInfo").innerHTML = "Logged out";
+  });
 }
 
 /* 🧠 AI SECURITY CHECK */
 function aiSecurityCheck(){
-  let flag = Math.random() < 0.1; // fake detection logic
 
-  if(flag){
-    document.getElementById("securityBox").style.display = "block";
+  // simple fraud logic (expandable)
+  let risk = Math.random();
+
+  if(risk < 0.1){
+    document.getElementById("securityBox").style.display="block";
     return false;
   }
+
   return true;
 }
 
-/* 🗳 SUBMIT VOTE */
+/* 🗳 VOTE SUBMIT */
 function submitVote(){
+
+  if(!currentUser){
+    alert("Login required");
+    return;
+  }
 
   if(!aiSecurityCheck()){
     return;
@@ -174,7 +222,7 @@ function submitVote(){
 
   el.innerText = parseInt(el.innerText) + 1;
 
-  alert("Vote Submitted Successfully ✔");
+  alert("Vote Submitted ✔");
 }
 
 </script>
