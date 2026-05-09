@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Global Firebase Live Election Engine v1.3</title>
+<title>Global Firebase Live Election Engine v1.4</title>
 
 <style>
 
@@ -111,10 +111,11 @@ button{
 <div class="container">
 
 <h1>
-🌐 Global Firebase Live Election Engine v1.3
+🌐 Global Firebase Live Election Engine v1.4
 </h1>
 
-<!-- LOGIN CARD -->
+
+<!-- LOGIN -->
 
 <div class="card">
 
@@ -193,7 +194,7 @@ DEL -
 </div>
 
 
-<!-- AI PREDICTION -->
+<!-- AI -->
 
 <div class="card">
 
@@ -214,13 +215,9 @@ Loading AI Analysis...
 
 <h2>🔒 Security Status</h2>
 
-<p>
-✅ Firebase Live Sync Active
-</p>
+<p>✅ Firebase Live Sync Active</p>
 
-<p>
-✅ Fraud Protection Enabled
-</p>
+<p>✅ Fraud Protection Enabled</p>
 
 </div>
 
@@ -230,6 +227,7 @@ Powered by Firebase + GitHub Pages
 </div>
 
 </div>
+
 
 
 <!-- FIREBASE -->
@@ -243,22 +241,34 @@ Powered by Firebase + GitHub Pages
 
 <script>
 
-// ====================================
+// =====================================
 // FIREBASE CONFIG
-// ====================================
+// =====================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+
+  apiKey: "YOUR_API_KEY",
+
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+
+  databaseURL:
+  "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+
+  projectId: "YOUR_PROJECT",
+
+  storageBucket:
+  "YOUR_PROJECT.appspot.com",
+
+  messagingSenderId: "YOUR_ID",
+
+  appId: "YOUR_APP_ID"
+
 };
-// ====================================
-// FIREBASE INITIALIZE
-// ====================================
+
+
+// =====================================
+// FIREBASE INIT
+// =====================================
 
 firebase.initializeApp(firebaseConfig);
 
@@ -267,9 +277,9 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 
-// ====================================
-// GOOGLE LOGIN
-// ====================================
+// =====================================
+// LOGIN
+// =====================================
 
 function login(){
 
@@ -281,9 +291,9 @@ function login(){
 }
 
 
-// ====================================
+// =====================================
 // LOGIN STATUS
-// ====================================
+// =====================================
 
 auth.onAuthStateChanged(function(user){
 
@@ -304,42 +314,61 @@ auth.onAuthStateChanged(function(user){
 });
 
 
-// ====================================
+// =====================================
 // VOTE FUNCTIONS
-// ====================================
+// =====================================
 
 function voteONOESupport(){
 
     db.ref("votes/india/onoeSupport")
-    .transaction(v => (v || 0) + 1);
+    .transaction(function(v){
+
+        return (v || 0) + 1;
+
+    });
 
 }
+
 
 function voteONOEAgainst(){
 
     db.ref("votes/india/onoeAgainst")
-    .transaction(v => (v || 0) + 1);
+    .transaction(function(v){
+
+        return (v || 0) + 1;
+
+    });
 
 }
+
 
 function voteDELSupport(){
 
     db.ref("votes/india/delSupport")
-    .transaction(v => (v || 0) + 1);
+    .transaction(function(v){
+
+        return (v || 0) + 1;
+
+    });
 
 }
+
 
 function voteDELAgainst(){
 
     db.ref("votes/india/delAgainst")
-    .transaction(v => (v || 0) + 1);
+    .transaction(function(v){
+
+        return (v || 0) + 1;
+
+    });
 
 }
 
 
-// ====================================
-// LIVE DATABASE SYNC
-// ====================================
+// =====================================
+// LIVE SYNC
+// =====================================
 
 db.ref("votes/india")
 .on("value", function(snapshot){
@@ -347,16 +376,16 @@ db.ref("votes/india")
     const data = snapshot.val() || {};
 
     const onoeSupport =
-    data.onoeSupport || 0;
+    Number(data.onoeSupport || 0);
 
     const onoeAgainst =
-    data.onoeAgainst || 0;
+    Number(data.onoeAgainst || 0);
 
     const delSupport =
-    data.delSupport || 0;
+    Number(data.delSupport || 0);
 
     const delAgainst =
-    data.delAgainst || 0;
+    Number(data.delAgainst || 0);
 
 
     // UPDATE UI
@@ -374,9 +403,9 @@ db.ref("votes/india")
     .innerHTML = delAgainst;
 
 
-    // ====================================
+    // =====================================
     // AI PREDICTION
-    // ====================================
+    // =====================================
 
     let prediction = "";
 
