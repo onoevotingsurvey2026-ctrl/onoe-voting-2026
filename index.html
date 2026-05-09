@@ -88,13 +88,13 @@ auth.onAuthStateChanged(user => {
   if(user){
     document.getElementById("user").innerText =
       "Logged in: " + user.email;
-  } else {
+  }
+  else{
     document.getElementById("user").innerText =
       "Login Required";
   }
 
 });
-
 /* ---------------- WEBSOCKET ---------------- */
 
 const socket = new WebSocket("ws://localhost:8080");
