@@ -23,10 +23,11 @@
       padding:10px;
       white-space:nowrap;
       overflow:hidden;
+      font-size:14px;
     }
 
     .box{
-      background:rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.12);
       backdrop-filter:blur(10px);
       border:1px solid rgba(255,255,255,0.3);
       margin:15px;
@@ -38,7 +39,7 @@
       padding:10px 15px;
       margin:5px;
       border:none;
-      border-radius:5px;
+      border-radius:6px;
       cursor:pointer;
     }
 
@@ -50,7 +51,7 @@
       bottom:20px;
       left:50%;
       transform:translateX(-50%);
-      background:#333;
+      background:#222;
       padding:10px 20px;
       border-radius:8px;
       display:none;
@@ -61,14 +62,16 @@
 <body>
 
 <div id="ticker">
-🔥 LIVE: Global Voting System Active | One Gmail One Vote Security Enabled | Secure Firebase System
+🔥 LIVE: Global Voting System Active | One Gmail One Vote Secure Firebase System
 </div>
 
 <div class="box">
   <h2>GLOBAL VOTING DASHBOARD</h2>
 
   <button onclick="login()">Login with Google</button>
-  <p id="user">Login not done</p>
+  <button onclick="logout()">Logout</button>
+
+  <p id="user">Please login with Google</p>
 
   <hr>
 
@@ -105,18 +108,15 @@ const db = firebase.firestore();
 let currentUser = null;
 let selectedVote = null;
 
-/* 🔐 LOGIN */
+/* 🔐 GOOGLE LOGIN (MOBILE SAFE) */
 const provider = new firebase.auth.GoogleAuthProvider();
 
 function login(){
-  auth.signInWithPopup(provider)
-  .then(res=>{
-    console.log("Login Success:", res.user.email);
-  })
-  .catch(err=>{
-    console.log(err);
-  });
+  auth.signInWithRedirect(provider);
 }
+
+/* 🔁 HANDLE REDIRECT RESULT */
+auth.getRedirectResult().catch(console.error);
 
 /* 👤 AUTH STATE */
 auth.onAuthStateChanged(user=>{
@@ -126,11 +126,19 @@ auth.onAuthStateChanged(user=>{
       "Logged in: " + user.email;
 
     listenLive();
-  }else{
+  } else {
+    currentUser = null;
     document.getElementById("user").innerText =
-      "Login not done";
+      "Please login with Google";
   }
 });
+
+/* 🚪 LOGOUT */
+function logout(){
+  auth.signOut().then(()=>{
+    showToast("Logged out successfully");
+  });
+}
 
 /* 🗳 SELECT VOTE */
 function selectVote(v){
@@ -140,6 +148,7 @@ function selectVote(v){
 
 /* 📤 SUBMIT VOTE */
 function submitVote(){
+
   if(!currentUser){
     alert("Please login first");
     return;
@@ -170,7 +179,9 @@ function submitVote(){
 
 /* 📊 LIVE DASHBOARD */
 function listenLive(){
+
   db.collection("votes").onSnapshot(snapshot=>{
+
     let support = 0;
     let against = 0;
 
@@ -191,7 +202,7 @@ function showToast(msg){
   t.innerText = msg;
   t.style.display = "block";
 
-  setTimeout(()=> t.style.display="none",3000);
+  setTimeout(()=>t.style.display="none",3000);
 }
 </script>
 
