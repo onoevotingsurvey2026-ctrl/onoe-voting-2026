@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ECI LEVEL GLOBAL SYSTEM</title>
+  <title>INDIA ECI LIVE DASHBOARD</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -12,53 +12,119 @@
     body{
       margin:0;
       font-family:Arial;
-      background:#0b1220;
+      background:linear-gradient(135deg,#06121f,#142a44);
       color:white;
+    }
+
+    .header{
       text-align:center;
+      padding:18px;
+      font-size:22px;
+      font-weight:bold;
+      background:#0f172a;
+      border-bottom:2px solid #2196F3;
     }
 
     .panel{
       margin:15px;
-      padding:20px;
-      background:#ffffff10;
-      border-radius:12px;
+      padding:15px;
+      background:rgba(255,255,255,0.08);
+      border-radius:15px;
+      backdrop-filter:blur(10px);
+      text-align:center;
     }
 
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:15px;
+      padding:15px;
+    }
+
+    .box{
+      background:rgba(255,255,255,0.08);
+      padding:20px;
+      border-radius:15px;
+      text-align:center;
+    }
+
+    .big{
+      font-size:28px;
+      font-weight:bold;
+      margin-top:10px;
+    }
+
+    .support{color:#4CAF50;}
+    .against{color:#f44336;}
+
     button{
-      padding:10px;
-      margin:5px;
+      padding:10px 15px;
       border:none;
-      border-radius:6px;
+      border-radius:8px;
       cursor:pointer;
+      margin:5px;
     }
 
     .login{background:#2196F3;color:white;}
-    .vote{background:#4caf50;color:white;}
+    .vote{background:#4CAF50;color:white;}
+
+    .status{
+      font-size:14px;
+      opacity:0.8;
+    }
   </style>
 </head>
 
 <body>
 
-<h2>🌍 ECI PRODUCTION SYSTEM (NEXT LEVEL)</h2>
+<div class="header">
+🇮🇳 INDIA ECI GLOBAL LIVE DASHBOARD
+</div>
 
+<!-- LOGIN -->
 <div class="panel">
   <button class="login" onclick="login()">🔐 Google Login</button>
   <p id="user">NOT LOGGED IN</p>
 </div>
 
-<div class="panel">
-  <h3>🗳 VOTE PANEL</h3>
-  <button class="vote" onclick="vote('support')">👍 SUPPORT</button>
-  <button class="vote" onclick="vote('against')">👎 AGAINST</button>
+<!-- VOTE -->
+<div class="grid">
+  <div class="box">
+    <button class="vote" onclick="vote('support')">👍 SUPPORT</button>
+  </div>
+
+  <div class="box">
+    <button class="vote" onclick="vote('against')">👎 AGAINST</button>
+  </div>
 </div>
 
-<div class="panel">
-  <h3>📊 LIVE RESULT</h3>
-  <p id="result">Loading...</p>
+<!-- LIVE RESULTS -->
+<div class="grid">
+
+  <div class="box">
+    <div class="support">SUPPORT</div>
+    <div id="support" class="big">0</div>
+  </div>
+
+  <div class="box">
+    <div class="against">AGAINST</div>
+    <div id="against" class="big">0</div>
+  </div>
+
+  <div class="box">
+    <div>TOTAL</div>
+    <div id="total" class="big">0</div>
+  </div>
+
+</div>
+
+<div class="panel status">
+📊 LIVE SYSTEM CONNECTED • INDIA ELECTION DASHBOARD ACTIVE
 </div>
 
 <script>
 
+/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "YOUR_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -76,43 +142,42 @@ function login(){
   auth.signInWithRedirect(provider);
 }
 
-/* AUTH */
+/* USER STATE */
 auth.onAuthStateChanged(user=>{
-  if(user){
-    document.getElementById("user").innerText = user.email;
-  } else {
-    document.getElementById("user").innerText = "NOT LOGGED IN";
-  }
+  document.getElementById("user").innerText =
+    user ? "LOGGED IN: " + user.email : "NOT LOGGED IN";
 });
 
-/* VOTE (BASIC STRUCTURE) */
+/* VOTE */
 function vote(type){
   const user = auth.currentUser;
+
   if(!user){
     alert("Please login first");
     return;
   }
 
   db.collection("votes").add({
-    uid: user.uid,
-    vote: type,
-    time: Date.now()
+    uid:user.uid,
+    vote:type,
+    time:Date.now()
   });
 }
 
 /* LIVE COUNT */
-db.collection("votes").onSnapshot(snap=>{
-  let support = 0;
-  let against = 0;
+db.collection("votes").onSnapshot(snapshot=>{
+  let support=0;
+  let against=0;
 
-  snap.forEach(d=>{
-    let v = d.data().vote;
+  snapshot.forEach(doc=>{
+    let v = doc.data().vote;
     if(v==="support") support++;
     if(v==="against") against++;
   });
 
-  document.getElementById("result").innerHTML =
-    "👍 " + support + " | 👎 " + against;
+  document.getElementById("support").innerText=support;
+  document.getElementById("against").innerText=against;
+  document.getElementById("total").innerText=support+against;
 });
 
 </script>
