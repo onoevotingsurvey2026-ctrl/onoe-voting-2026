@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Global Voting Dashboard</title>
+  <title>Global Indian Voting Dashboard</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -12,7 +12,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
-    body { font-family: Arial; margin:0; background:#f4f4f4; }
+    body { font-family: Arial; margin:0; background:#f5f5f5; }
     header, footer { background:#111; color:#fff; text-align:center; padding:12px; }
     .container { padding:20px; text-align:center; }
 
@@ -37,28 +37,36 @@
 
 <!-- HEADER -->
 <header>
-  <h2>Global Voting Dashboard</h2>
+  <h2 id="title">Global Indian Voting Dashboard</h2>
+
+  <div>
+    <button onclick="setLang('en')">English</button>
+    <button onclick="setLang('ta')">தமிழ்</button>
+  </div>
+
   <div style="font-size:12px; color:#ccc;">
-    https://onoevotingsurvey2026-ctrl.github.io/onoe-voting-2026/
+    https://global-indian-vote.github.io/global-indian-vote/
   </div>
 </header>
 
-<!-- LOGIN + DASHBOARD -->
+<!-- MAIN -->
 <div class="container">
 
-  <button onclick="login()">Login with Google</button>
+  <button id="loginBtn" onclick="login()">Login with Google</button>
 
   <div id="userBox"></div>
 
+  <!-- VOTE -->
   <div class="card">
-    <h3>Vote Panel</h3>
+    <h3 id="voteTitle">Vote Panel</h3>
 
     <button onclick="vote('onoe_support')">👍 ONOE Support</button>
     <button onclick="vote('onoe_against')">👎 ONOE Against</button>
   </div>
 
+  <!-- LIVE RESULT -->
   <div class="card">
-    <h3>Live Result</h3>
+    <h3 id="liveTitle">Live Result</h3>
 
     <p>ONOE Support: <span id="onoeSupport">0</span></p>
     <p>ONOE Against: <span id="onoeAgainst">0</span></p>
@@ -68,73 +76,96 @@
 
 <!-- FOOTER -->
 <footer>
-  © 2026 Global Voting System
+  © 2026 Global Indian Voting System
 </footer>
 
-<!-- FIREBASE CONFIG (ADD YOURS) -->
 <script>
-  var firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID"
-  };
+/* ---------------- FIREBASE CONFIG ---------------- */
+var firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID"
+};
 
-  firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
-  const db = firebase.firestore();
-  const auth = firebase.auth();
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-  // LOGIN
-  function login() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    auth.signInWithPopup(provider).then(result => {
-      document.getElementById("userBox").innerHTML =
-        "Logged in: " + result.user.email;
-    });
+/* ---------------- LANGUAGE ---------------- */
+const texts = {
+  en: {
+    title: "Global Indian Voting Dashboard",
+    vote: "Vote Panel",
+    live: "Live Result",
+    login: "Login with Google"
+  },
+  ta: {
+    title: "உலக இந்திய வாக்கெடுப்பு",
+    vote: "வாக்கு பகுதி",
+    live: "நேரடி முடிவு",
+    login: "Google மூலம் உள்நுழைய"
   }
+};
 
-  // VOTE (ONE USER ONE VOTE)
-  function vote(choice) {
-    const user = auth.currentUser;
+function setLang(lang) {
+  document.getElementById("title").innerText = texts[lang].title;
+  document.getElementById("voteTitle").innerText = texts[lang].vote;
+  document.getElementById("liveTitle").innerText = texts[lang].live;
+  document.getElementById("loginBtn").innerText = texts[lang].login;
+}
 
-    if (!user) {
-      alert("Please login first");
-      return;
-    }
+/* ---------------- LOGIN ---------------- */
+function login() {
+  const provider = new firebase.auth.GoogleAuthProvider();
 
-    db.collection("votes").doc(user.uid).get().then(doc => {
-      if (doc.exists) {
-        alert("One Gmail one vote only allowed");
-      } else {
-        db.collection("votes").doc(user.uid).set({
-          uid: user.uid,
-          email: user.email,
-          choice: choice,
-          time: Date.now()
-        });
-
-        alert("Vote successfully recorded");
-      }
-    });
-  }
-
-  // LIVE RESULT
-  db.collection("votes").onSnapshot(snapshot => {
-
-    let support = 0;
-    let against = 0;
-
-    snapshot.forEach(doc => {
-      const d = doc.data();
-
-      if (d.choice === "onoe_support") support++;
-      if (d.choice === "onoe_against") against++;
-    });
-
-    document.getElementById("onoeSupport").innerText = support;
-    document.getElementById("onoeAgainst").innerText = against;
+  auth.signInWithPopup(provider).then(result => {
+    document.getElementById("userBox").innerHTML =
+      "Logged in: " + result.user.email;
   });
+}
+
+/* ---------------- VOTE (ONE USER ONE VOTE) ---------------- */
+function vote(choice) {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Please login first");
+    return;
+  }
+
+  db.collection("votes").doc(user.uid).get().then(doc => {
+    if (doc.exists) {
+      alert("One Gmail one vote only allowed");
+    } else {
+      db.collection("votes").doc(user.uid).set({
+        uid: user.uid,
+        email: user.email,
+        choice: choice,
+        time: Date.now()
+      });
+
+      alert("Vote successfully recorded");
+    }
+  });
+}
+
+/* ---------------- LIVE RESULT ---------------- */
+db.collection("votes").onSnapshot(snapshot => {
+
+  let support = 0;
+  let against = 0;
+
+  snapshot.forEach(doc => {
+    const d = doc.data();
+
+    if (d.choice === "onoe_support") support++;
+    if (d.choice === "onoe_against") against++;
+  });
+
+  document.getElementById("onoeSupport").innerText = support;
+  document.getElementById("onoeAgainst").innerText = against;
+});
 </script>
 
 </body>
