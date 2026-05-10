@@ -60,14 +60,42 @@
 </div>
 
 <script>
+  // 1. Firebase config
+  firebase.initializeApp(firebaseConfig);
 
-/* 🔥 FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "onoevote2026.firebaseapp.com",
-  projectId: "onoevote2026"
-};
+  // 2. Auth object
+  const auth = firebase.auth();
+  const provider = new firebase.auth.GoogleAuthProvider();
 
+  // ✅ 👇 இதுதான் சரியான இடம் (ERROR CAPTURE)
+  auth.getRedirectResult()
+  .then(result => {
+    if(result.user){
+      console.log("LOGIN SUCCESS:", result.user.email);
+    }
+  })
+  .catch(error => {
+    console.log("LOGIN ERROR:", error.code, error.message);
+    alert(error.message);
+  });
+
+  // 3. Login function
+  function login(){
+    auth.signInWithRedirect(provider);
+  }
+
+  // 4. Auth state
+  auth.onAuthStateChanged(user => {
+    if(user){
+      document.getElementById("status").innerText =
+        "LOGGED IN: " + user.email;
+    } else {
+      document.getElementById("status").innerText =
+        "NOT LOGGED IN";
+    }
+  });
+
+</script>
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
