@@ -1,77 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Live Voting Dashboard</title>
+  <title>Public Voting System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
     body{
       font-family:Arial;
-      margin:0;
-      background:#0b1220;
-      color:white;
       text-align:center;
+      margin:0;
+      background:#f4f4f4;
     }
 
     .box{
-      margin:15px;
+      background:white;
       padding:20px;
-      background:#ffffff10;
-      border-radius:12px;
+      margin:10px;
+      border-radius:10px;
+      box-shadow:0 0 10px #ccc;
     }
 
     button{
-      padding:10px;
-      margin:5px;
+      padding:15px;
+      margin:10px;
+      width:80%;
+      font-size:18px;
       border:none;
-      border-radius:6px;
+      border-radius:8px;
       cursor:pointer;
     }
 
     .support{background:green;color:white;}
     .against{background:red;color:white;}
 
-    #status{
-      font-weight:bold;
-      margin-top:10px;
+    h1{
+      background:#111;
+      color:white;
+      padding:15px;
+      margin:0;
     }
   </style>
 </head>
 
 <body>
 
+<h1>🗳 PUBLIC VOTING SYSTEM (ECI STYLE)</h1>
+
 <div class="box">
-  <h2>🌍 GLOBAL LIVE VOTING DASHBOARD</h2>
+  <h2>Choose Your Vote</h2>
 
-  <button onclick="login()">Login with Google</button>
-  <button onclick="logout()">Logout</button>
+  <button class="support" onclick="vote('support')">👍 SUPPORT</button>
+  <button class="against" onclick="vote('against')">👎 AGAINST</button>
 
-  <div id="status">NOT LOGGED IN</div>
-</div>
+  <br>
 
-<div class="box" id="voteBox" style="display:none;">
-  <h3>SELECT YOUR VOTE</h3>
-
-  <button class="support" onclick="setVote('support')">SUPPORT</button>
-  <button class="against" onclick="setVote('against')">AGAINST</button>
-
-  <br><br>
-  <button onclick="submitVote()">SUBMIT VOTE</button>
+  <button onclick="submitVote()" style="background:#333;color:white;">SUBMIT VOTE</button>
 </div>
 
 <div class="box">
-  <h3>LIVE RESULTS</h3>
-  <div id="results">Loading...</div>
+  <h2>LIVE RESULTS</h2>
+  <div id="result">Loading...</div>
 </div>
 
 <script>
 
-/* 🔥 FIREBASE CONFIG */
+/* 🔥 FIREBASE */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -79,107 +75,50 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
 const db = firebase.firestore();
-const provider = new firebase.auth.GoogleAuthProvider();
 
-let currentUser = null;
 let selectedVote = null;
 
-/* LOGIN */
-function login(){
-  auth.signInWithPopup(provider);
-}
-
-/* LOGOUT */
-function logout(){
-  auth.signOut();
-}
-
-/* AUTH STATE */
-auth.onAuthStateChanged(user => {
-
-  if(user){
-    currentUser = user;
-
-    document.getElementById("status").innerText =
-      "LOGGED IN: " + user.email;
-
-    document.getElementById("voteBox").style.display = "block";
-
-    loadLive();
-
-  } else {
-    currentUser = null;
-
-    document.getElementById("status").innerText =
-      "NOT LOGGED IN";
-
-    document.getElementById("voteBox").style.display = "none";
-  }
-
-});
-
-/* SET VOTE */
-function setVote(v){
+/* SELECT VOTE */
+function vote(v){
   selectedVote = v;
 }
 
-/* SUBMIT VOTE */
+/* SUBMIT */
 function submitVote(){
 
-  if(!currentUser){
-    alert("Please login first");
-    return;
-  }
-
   if(!selectedVote){
-    alert("Select vote first");
+    alert("Please select vote");
     return;
   }
 
-  const ref = db.collection("votes").doc(currentUser.email);
+  const id = "user_" + Date.now();
 
-  ref.get().then(doc => {
-
-    if(doc.exists){
-      alert("You already voted!");
-      return;
-    }
-
-    ref.set({
-      vote: selectedVote,
-      time: new Date()
-    });
-
-    alert("Vote successfully recorded");
-
+  db.collection("votes").doc(id).set({
+    vote: selectedVote,
+    time: new Date()
   });
 
+  alert("Vote Recorded Successfully");
 }
 
-/* LIVE DASHBOARD */
-function loadLive(){
+/* LIVE COUNT */
+db.collection("votes").onSnapshot(snapshot => {
 
-  db.collection("votes").onSnapshot(snapshot => {
+  let support = 0;
+  let against = 0;
 
-    let support = 0;
-    let against = 0;
-
-    snapshot.forEach(doc => {
-      let v = doc.data().vote;
-      if(v === "support") support++;
-      if(v === "against") against++;
-    });
-
-    document.getElementById("results").innerHTML =
-      "👍 SUPPORT: " + support +
-      "<br>👎 AGAINST: " + against;
-
+  snapshot.forEach(doc => {
+    let v = doc.data().vote;
+    if(v === "support") support++;
+    if(v === "against") against++;
   });
 
-}
+  document.getElementById("result").innerHTML =
+    "👍 SUPPORT: " + support +
+    "<br>👎 AGAINST: " + against;
+
+});
 
 </script>
 
