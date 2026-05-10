@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting Dashboard</title>
+  <title>Global Voting System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Firebase -->
@@ -10,51 +10,50 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      background: #f4f4f4;
-      text-align: center;
+    body{
+      margin:0;
+      font-family:Arial;
+      background:linear-gradient(135deg,#1e3c72,#2a5298);
+      color:white;
+      text-align:center;
     }
 
-    #ticker {
-      background: black;
-      color: white;
-      padding: 10px;
-      white-space: nowrap;
-      overflow: hidden;
+    #ticker{
+      background:black;
+      padding:10px;
+      white-space:nowrap;
+      overflow:hidden;
     }
 
-    .box {
-      background: white;
-      margin: 20px auto;
-      padding: 20px;
-      width: 90%;
-      max-width: 500px;
-      border-radius: 10px;
+    .box{
+      background:rgba(255,255,255,0.15);
+      backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,0.3);
+      margin:15px;
+      padding:20px;
+      border-radius:15px;
     }
 
-    button {
-      padding: 10px 15px;
-      margin: 5px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+    button{
+      padding:10px 15px;
+      margin:5px;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
     }
 
-    .support { background: green; color: white; }
-    .against { background: red; color: white; }
+    .support{background:green;color:white;}
+    .against{background:red;color:white;}
 
-    #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      display: none;
+    #toast{
+      position:fixed;
+      bottom:20px;
+      left:50%;
+      transform:translateX(-50%);
+      background:#333;
+      padding:10px 20px;
+      border-radius:8px;
+      display:none;
     }
   </style>
 </head>
@@ -69,7 +68,7 @@
   <h2>GLOBAL VOTING DASHBOARD</h2>
 
   <button onclick="login()">Login with Google</button>
-  <p id="user"></p>
+  <p id="user">Login not done</p>
 
   <hr>
 
@@ -81,8 +80,6 @@
   <br><br>
 
   <button onclick="submitVote()">SUBMIT VOTE</button>
-
-  <p id="msg"></p>
 </div>
 
 <div class="box">
@@ -93,7 +90,7 @@
 <div id="toast"></div>
 
 <script>
-/* 🔥 Firebase Config */
+/* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -109,16 +106,29 @@ let currentUser = null;
 let selectedVote = null;
 
 /* 🔐 LOGIN */
+const provider = new firebase.auth.GoogleAuthProvider();
+
 function login(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider);
+  auth.signInWithPopup(provider)
+  .then(res=>{
+    console.log("Login Success:", res.user.email);
+  })
+  .catch(err=>{
+    console.log(err);
+  });
 }
 
-auth.onAuthStateChanged(user => {
+/* 👤 AUTH STATE */
+auth.onAuthStateChanged(user=>{
   if(user){
     currentUser = user;
-    document.getElementById("user").innerText = "Welcome " + user.email;
+    document.getElementById("user").innerText =
+      "Logged in: " + user.email;
+
     listenLive();
+  }else{
+    document.getElementById("user").innerText =
+      "Login not done";
   }
 });
 
@@ -142,7 +152,7 @@ function submitVote(){
 
   const ref = db.collection("votes").doc(currentUser.email);
 
-  ref.get().then(doc => {
+  ref.get().then(doc=>{
     if(doc.exists){
       showToast("❌ You already voted");
       return;
@@ -154,36 +164,34 @@ function submitVote(){
       time: new Date()
     });
 
-    showToast("🎉 YOUR VOTE SUCCESSFULLY RECORDED");
+    showToast("🎉 VOTE SUCCESSFULLY RECORDED");
   });
 }
 
 /* 📊 LIVE DASHBOARD */
 function listenLive(){
-  db.collection("votes").onSnapshot(snapshot => {
+  db.collection("votes").onSnapshot(snapshot=>{
     let support = 0;
     let against = 0;
 
-    snapshot.forEach(doc => {
-      const v = doc.data().vote;
-      if(v === "support") support++;
-      if(v === "against") against++;
+    snapshot.forEach(doc=>{
+      let v = doc.data().vote;
+      if(v==="support") support++;
+      if(v==="against") against++;
     });
 
     document.getElementById("dashboard").innerHTML =
-      "👍 SUPPORT: " + support + "<br>👎 AGAINST: " + against;
+      "👍 SUPPORT: "+support+"<br>👎 AGAINST: "+against;
   });
 }
 
-/* 📱 TOAST MESSAGE */
+/* 📱 TOAST */
 function showToast(msg){
-  const t = document.getElementById("toast");
+  let t = document.getElementById("toast");
   t.innerText = msg;
   t.style.display = "block";
 
-  setTimeout(() => {
-    t.style.display = "none";
-  }, 3000);
+  setTimeout(()=> t.style.display="none",3000);
 }
 </script>
 
