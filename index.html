@@ -1,203 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>INDIA ECI MAP DASHBOARD</title>
+  <meta charset="UTF-8">
+  <title>Global Voting System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
     body{
-      margin:0;
-      font-family:Arial;
-      background:#06121f;
-      color:white;
-    }
-
-    .header{
-      padding:15px;
-      text-align:center;
-      font-size:22px;
-      font-weight:bold;
+      font-family: Arial;
       background:#0f172a;
-      border-bottom:2px solid #2196F3;
-    }
-
-    .container{
-      display:grid;
-      grid-template-columns:2fr 1fr;
-      gap:10px;
-      padding:10px;
-    }
-
-    /* MAP AREA */
-    .map{
-      background:rgba(255,255,255,0.05);
-      border-radius:10px;
-      padding:10px;
+      color:white;
       text-align:center;
+      padding:20px;
     }
-
-    svg{
-      width:100%;
+    .box{
+      background:#1e293b;
+      padding:20px;
+      margin:10px auto;
+      width:90%;
       max-width:500px;
-    }
-
-    .state{
-      cursor:pointer;
-      transition:0.3s;
-    }
-
-    .state:hover{
-      opacity:0.7;
-    }
-
-    /* SIDE PANEL */
-    .panel{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
-    .card{
-      background:rgba(255,255,255,0.08);
-      padding:15px;
       border-radius:10px;
-      text-align:center;
     }
-
-    .big{
-      font-size:28px;
-      font-weight:bold;
+    button{
+      padding:10px 20px;
+      margin:5px;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
     }
-
-    .support{color:#4CAF50;}
-    .against{color:#f44336;}
-
-    .ticker{
-      background:black;
-      padding:10px;
-      overflow:hidden;
-      white-space:nowrap;
-    }
-
-    .ticker span{
-      display:inline-block;
-      padding-left:100%;
-      animation:move 10s linear infinite;
-    }
-
-    @keyframes move{
-      0%{transform:translateX(0);}
-      100%{transform:translateX(-100%);}
-    }
-
+    .login{background:#22c55e;color:white;}
+    .logout{background:#ef4444;color:white;}
+    .vote{background:#3b82f6;color:white;}
   </style>
 </head>
 
 <body>
 
-<div class="header">
-🇮🇳 INDIA MAP ECI LIVE DASHBOARD
+<h2>🌍 GLOBAL VOTING SYSTEM</h2>
+
+<div class="box">
+  <p id="status">NOT LOGGED IN</p>
+
+  <button class="login" onclick="login()">🔐 Login with Google</button>
+  <button class="logout" onclick="logout()">Logout</button>
 </div>
 
-<div class="container">
-
-  <!-- MAP -->
-  <div class="map">
-
-    <h3>LIVE INDIA MAP (SIMPLIFIED)</h3>
-
-    <!-- SIMPLE SVG INDIA STYLE MAP (SIMULATION) -->
-    <svg viewBox="0 0 300 400">
-
-      <!-- NORTH -->
-      <path id="north" class="state" fill="#4CAF50"
-        d="M120 20 L180 20 L190 80 L120 90 Z"
-        onclick="selectState('North India')"/>
-
-      <!-- WEST -->
-      <path id="west" class="state" fill="#f44336"
-        d="M60 120 L120 100 L120 180 L60 200 Z"
-        onclick="selectState('West India')"/>
-
-      <!-- EAST -->
-      <path id="east" class="state" fill="#4CAF50"
-        d="M190 120 L250 120 L250 200 L190 200 Z"
-        onclick="selectState('East India')"/>
-
-      <!-- SOUTH -->
-      <path id="south" class="state" fill="#f44336"
-        d="M120 220 L180 220 L180 320 L120 320 Z"
-        onclick="selectState('South India')"/>
-
-    </svg>
-
-    <div id="stateInfo">Click a region</div>
-
-  </div>
-
-  <!-- CONTROL PANEL -->
-  <div class="panel">
-
-    <div class="card">
-      <div>👍 SUPPORT</div>
-      <div id="support" class="big">120</div>
-    </div>
-
-    <div class="card">
-      <div>👎 AGAINST</div>
-      <div id="against" class="big">90</div>
-    </div>
-
-    <div class="card">
-      <div>📊 TOTAL</div>
-      <div id="total" class="big">210</div>
-    </div>
-
-    <div class="card">
-      <div>🧠 AI TREND</div>
-      <div id="ai" class="big">STABLE</div>
-    </div>
-
-  </div>
-
+<div class="box">
+  <h3>🗳 LIVE RESULTS</h3>
+  <p id="result">Loading...</p>
 </div>
 
-<!-- TICKER -->
-<div class="ticker">
-  <span>🔴 INDIA ELECTION MAP LIVE • STATE WISE VOTING HEAT SYSTEM ACTIVE • ECI CONTROL ROOM MODE • AI ANALYTICS RUNNING •</span>
+<div class="box">
+  <h3>VOTE</h3>
+  <button class="vote" onclick="vote('support')">👍 SUPPORT</button>
+  <button class="vote" onclick="vote('against')">👎 AGAINST</button>
 </div>
 
 <script>
+/* 🔥 FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID"
+};
 
-/* STATE CLICK */
-function selectState(name){
-  document.getElementById("stateInfo").innerText =
-    "SELECTED: " + name + " (LIVE DATA SIMULATION)";
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+const provider = new firebase.auth.GoogleAuthProvider();
+
+/* 🔐 LOGIN */
+function login(){
+  auth.signInWithRedirect(provider);
 }
 
-/* LIVE SIMULATION ENGINE */
-let support = 120;
-let against = 90;
+/* 🔓 LOGOUT */
+function logout(){
+  auth.signOut();
+}
 
-setInterval(()=>{
+/* 🔐 AUTH STATE */
+auth.onAuthStateChanged(user => {
+  if(user){
+    document.getElementById("status").innerText =
+      "LOGGED IN: " + user.email;
+  } else {
+    document.getElementById("status").innerText =
+      "NOT LOGGED IN";
+  }
+});
 
-  support += Math.floor(Math.random()*3);
-  against += Math.floor(Math.random()*2);
+/* 🔁 REDIRECT RESULT CHECK */
+auth.getRedirectResult().then(result => {
+  if(result.user){
+    console.log("LOGIN SUCCESS:", result.user.email);
+  }
+}).catch(error => {
+  console.log("LOGIN ERROR:", error.message);
+});
 
-  let total = support + against;
-  let ratio = support / total;
+/* 🗳 VOTE FUNCTION */
+function vote(type){
+  let user = auth.currentUser;
 
-  let trend = "STABLE";
+  if(!user){
+    alert("Please login first");
+    return;
+  }
 
-  if(ratio > 0.6) trend = "SUPPORT LEADING 📈";
-  else if(ratio < 0.4) trend = "AGAINST LEADING 📉";
+  db.collection("votes").add({
+    uid: user.uid,
+    vote: type,
+    time: new Date()
+  });
+}
 
-  document.getElementById("support").innerText = support;
-  document.getElementById("against").innerText = against;
-  document.getElementById("total").innerText = total;
-  document.getElementById("ai").innerText = trend;
+/* 📊 LIVE RESULTS */
+db.collection("votes").onSnapshot(snapshot => {
 
-},2000);
+  let support = 0;
+  let against = 0;
+
+  snapshot.forEach(doc => {
+    let v = doc.data().vote;
+    if(v === "support") support++;
+    if(v === "against") against++;
+  });
+
+  document.getElementById("result").innerHTML =
+    "👍 SUPPORT: " + support +
+    "<br>👎 AGAINST: " + against;
+
+});
 
 </script>
 
