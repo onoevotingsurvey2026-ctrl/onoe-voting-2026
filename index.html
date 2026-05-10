@@ -1,5 +1,6 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <title>Global Voting Dashboard</title>
@@ -8,149 +9,251 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <style>
+
 body{
-  font-family: Arial;
-  background:#0f172a;
-  color:white;
-  text-align:center;
-  margin:0;
+    font-family:Arial;
+    background:#0f172a;
+    color:white;
+    text-align:center;
+    margin:0;
 }
 
 header{
-  background:#1e293b;
-  padding:15px;
-  font-size:20px;
-  font-weight:bold;
+    background:#1e293b;
+    padding:15px;
+    font-size:24px;
+    font-weight:bold;
 }
 
 .container{
-  margin-top:30px;
+    margin-top:30px;
 }
 
 .card{
-  background:#111827;
-  padding:20px;
-  margin:15px auto;
-  width:300px;
-  border-radius:12px;
-  box-shadow:0 0 10px #000;
+    background:#111827;
+    padding:20px;
+    margin:15px auto;
+    width:320px;
+    border-radius:12px;
+    box-shadow:0 0 10px black;
 }
 
 button{
-  padding:10px 15px;
-  margin:5px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
+    padding:12px 18px;
+    margin:5px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
 }
 
-.support{background:green;color:white;}
-.against{background:red;color:white;}
-.login{background:#2563eb;color:white;}
+.support{
+    background:green;
+    color:white;
+}
+
+.against{
+    background:red;
+    color:white;
+}
+
+.login{
+    background:#2563eb;
+    color:white;
+}
+
+.result{
+    font-size:22px;
+    font-weight:bold;
+}
+
 </style>
 </head>
 
 <body>
 
-<header>🗳 Global Election Dashboard</header>
+<header>
+🗳 Global Election Dashboard
+</header>
 
 <div class="container">
 
-  <div class="card">
-    <h3>User Login</h3>
-    <button class="login" onclick="login()">Login with Google</button>
-    <p id="user">Not Logged In</p>
-  </div>
+    <!-- LOGIN -->
+    <div class="card">
 
-  <div class="card">
-    <h3>Vote Panel</h3>
-    <button class="support" onclick="vote('support')">👍 SUPPORT</button>
-    <button class="against" onclick="vote('against')">👎 AGAINST</button>
-  </div>
+        <h2>User Login</h2>
 
-  <div class="card">
-    <h3>Live Result</h3>
-    <p>Support: <span id="s">0</span></p>
-    <p>Against: <span id="a">0</span></p>
-  </div>
+        <button class="login" onclick="login()">
+            Login with Google
+        </button>
+
+        <p id="user">
+            Not Logged In
+        </p>
+
+    </div>
+
+
+    <!-- VOTING -->
+    <div class="card">
+
+        <h2>Vote Panel</h2>
+
+        <button class="support" onclick="vote('support')">
+            👍 SUPPORT
+        </button>
+
+        <button class="against" onclick="vote('against')">
+            👎 AGAINST
+        </button>
+
+    </div>
+
+
+    <!-- LIVE RESULT -->
+    <div class="card">
+
+        <h2>🔥 Live Result</h2>
+
+        <p class="result">
+            Support :
+            <span id="s">0</span>
+        </p>
+
+        <p class="result">
+            Against :
+            <span id="a">0</span>
+        </p>
+
+    </div>
 
 </div>
 
 <script>
-// Firebase config (your project)
+
+// Firebase Config
+
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+
+    apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+
+    authDomain: "onoevote2026.firebaseapp.com",
+
+    projectId: "onoevote2026",
+
+    storageBucket: "onoevote2026.firebasestorage.app",
+
+    messagingSenderId: "181065724520",
+
+    appId: "1:181065724520:web:f72a93869786373c1101dd"
+
 };
+
+
+// Initialize Firebase
 
 firebase.initializeApp(firebaseConfig);
 
+
+// Firebase Services
+
 const auth = firebase.auth();
-const db = firebase.database();
 
-/* LOGIN */
+const db = firebase.firestore();
+
+
+// LOGIN
+
 function login(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-  .then(res=>{
-    document.getElementById("user").innerText = res.user.email;
-  })
-  .catch(err=>{
-    alert(err.message);
-  });
+
+    const provider =
+        new firebase.auth.GoogleAuthProvider();
+
+    auth.signInWithPopup(provider)
+
+    .then((result)=>{
+
+        document.getElementById("user").innerText =
+            result.user.email;
+
+    })
+
+    .catch((error)=>{
+
+        alert(error.message);
+
+    });
+
 }
 
-/* VOTE */
+
+// VOTE FUNCTION
+
 function vote(type){
-  const ref = db.ref("votes");
 
-  ref.once("value").then(snapshot=>{
-    let data = snapshot.val() || {support:0, against:0};
+    const voteRef =
+        db.collection("votes").doc("global_vote");
 
-    if(type === "support") data.support++;
-    if(type === "against") data.against++;
+    voteRef.get()
 
-    ref.set(data);
-  });
+    .then((doc)=>{
+
+        let data = doc.data() || {
+
+            onoe_support:0,
+
+            onoe_against:0
+
+        };
+
+
+        if(type === "support"){
+
+            data.onoe_support++;
+
+        }
+
+
+        if(type === "against"){
+
+            data.onoe_against++;
+
+        }
+
+
+        voteRef.set(data);
+
+    });
+
 }
 
-/* LIVE UPDATE */
-db.ref("votes").on("value", snap=>{
-  let v = snap.val() || {support:0, against:0};
-  document.getElementById("s").innerText = v.support;
-  document.getElementById("a").innerText = v.against;
+
+// LIVE RESULT UPDATE
+
+db.collection("votes")
+
+.doc("global_vote")
+
+.onSnapshot((doc)=>{
+
+    if(doc.exists){
+
+        let data = doc.data();
+
+        document.getElementById("s").innerText =
+            data.onoe_support || 0;
+
+        document.getElementById("a").innerText =
+            data.onoe_against || 0;
+
+    }
+
 });
 
 </script>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Voting Dashboard</title>
-</head>
 
-<body>
-
-    <!-- உங்கள் login + dashboard HTML இங்கே -->
-
-    <div id="dashboard">
-        <span id="onoeSupport">0</span>
-        <span id="onoeAgainst">0</span>
-        <span id="delSupport">0</span>
-        <span id="delAgainst">0</span>
-    </div>
-
-    <!-- ✅ இதுதான் முக்கியம் -->
-    <script src="script.js"></script>
-
-</body>
-</html>
 </body>
 </html>
