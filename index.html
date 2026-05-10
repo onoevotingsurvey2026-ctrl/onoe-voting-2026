@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Stable Voting Dashboard</title>
+  <title>Global Voting - Production</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -12,13 +13,13 @@
     body{
       margin:0;
       font-family:Arial;
-      background:linear-gradient(135deg,#141e30,#243b55);
+      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
       color:white;
       text-align:center;
     }
 
     .box{
-      background:rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.10);
       backdrop-filter:blur(10px);
       margin:15px;
       padding:20px;
@@ -67,6 +68,7 @@
   <button class="against" onclick="vote('against')">👎 AGAINST</button>
 
   <br><br>
+
   <button onclick="submitVote()">SUBMIT VOTE</button>
 </div>
 
@@ -81,14 +83,11 @@
 
 /* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  apiKey: "YOUR_API_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  projectId: "onoevote2026"
 };
+
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
@@ -99,7 +98,7 @@ const provider = new firebase.auth.GoogleAuthProvider();
 let currentUser = null;
 let selectedVote = null;
 
-/* 🔐 LOGIN (STABLE FIX) */
+/* 🔐 LOGIN (PRODUCTION SAFE) */
 function login(){
   auth.signInWithPopup(provider)
   .catch(() => {
@@ -110,14 +109,14 @@ function login(){
 /* 🔁 REDIRECT HANDLER */
 auth.getRedirectResult().catch(()=>{});
 
-/* 👤 AUTH STATE (MAIN FIX) */
+/* 👤 AUTH STATE (FIXED CORE) */
 auth.onAuthStateChanged(user => {
 
   if(user){
     currentUser = user;
 
     document.getElementById("status").innerHTML =
-      "✅ Logged in: " + user.email;
+      "LOGGED IN: " + user.email;
 
     document.getElementById("dashboardBox").style.display = "block";
 
@@ -128,7 +127,7 @@ auth.onAuthStateChanged(user => {
     currentUser = null;
 
     document.getElementById("status").innerHTML =
-      "❌ Please login";
+      "NOT LOGGED IN";
 
     document.getElementById("dashboardBox").style.display = "none";
   }
@@ -147,22 +146,18 @@ function vote(v){
   showToast("Selected: " + v);
 }
 
-/* 📤 SUBMIT VOTE */
+/* 📤 SUBMIT VOTE (ONE USER ONE VOTE) */
 function submitVote(){
 
   if(!currentUser){
-    alert("Login first");
-    return;
-  }
-
-  if(!selectedVote){
-    alert("Select vote");
+    alert("Please login");
     return;
   }
 
   const ref = db.collection("votes").doc(currentUser.email);
 
   ref.get().then(doc => {
+
     if(doc.exists){
       showToast("❌ Already voted");
       return;
@@ -173,7 +168,8 @@ function submitVote(){
       time: new Date()
     });
 
-    showToast("🎉 Vote Recorded");
+    showToast("🎉 VOTE RECORDED SUCCESSFULLY");
+
   });
 
 }
