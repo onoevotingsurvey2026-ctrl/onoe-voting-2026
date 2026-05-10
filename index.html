@@ -12,31 +12,30 @@
     body{
       font-family:Arial;
       text-align:center;
-      background:#f5f5f5;
+      background:#0b1220;
+      color:white;
       margin:0;
     }
 
     .box{
-      background:white;
-      margin:10px;
+      margin:15px;
       padding:20px;
+      background:#ffffff10;
       border-radius:10px;
-      box-shadow:0 0 10px #ccc;
     }
 
     button{
-      padding:15px;
-      margin:10px;
-      width:80%;
-      font-size:18px;
+      padding:12px;
+      margin:5px;
       border:none;
-      border-radius:8px;
+      border-radius:6px;
       cursor:pointer;
     }
 
-    .support{background:green;color:white;}
-    .against{background:red;color:white;}
-    .login{background:#333;color:white;}
+    .login{background:#2196F3;color:white;}
+    .logout{background:#444;color:white;}
+
+    #voteBox{display:none;}
   </style>
 </head>
 
@@ -46,28 +45,20 @@
 
 <div class="box">
   <button class="login" onclick="login()">🔐 Login with Google</button>
-  <button onclick="logout()">Logout</button>
+  <button class="logout" onclick="logout()">Logout</button>
 
   <p id="status">NOT LOGGED IN</p>
 </div>
 
-<div class="box" id="voteBox" style="display:none;">
-  <h3>SELECT YOUR VOTE</h3>
-
-  <button class="support" onclick="setVote('support')">👍 SUPPORT</button>
-  <button class="against" onclick="setVote('against')">👎 AGAINST</button>
-
-  <button onclick="submitVote()" style="background:#000;color:white;">SUBMIT VOTE</button>
-</div>
-
-<div class="box">
-  <h3>LIVE RESULTS</h3>
+<!-- DASHBOARD ALWAYS EXISTS -->
+<div class="box" id="voteBox">
+  <h3>🗳 LIVE RESULTS</h3>
   <div id="result">Loading...</div>
 </div>
 
 <script>
 
-/* FIREBASE */
+/* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -81,7 +72,6 @@ const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
 let user = null;
-let selectedVote = null;
 
 /* LOGIN */
 function login(){
@@ -93,71 +83,55 @@ function logout(){
   auth.signOut();
 }
 
-/* AUTH STATE */
+/* AUTH STATE FIX */
 auth.onAuthStateChanged(u => {
 
   if(u){
     user = u;
-    document.getElementById("status").innerText = "LOGGED IN: " + u.email;
+
+    document.getElementById("status").innerText =
+      "LOGGED IN: " + u.email;
+
     document.getElementById("voteBox").style.display = "block";
+
+    loadLive();
+
   } else {
+
     user = null;
-    document.getElementById("status").innerText = "NOT LOGGED IN";
-    document.getElementById("voteBox").style.display = "none";
+
+    document.getElementById("status").innerText =
+      "NOT LOGGED IN";
+
+    document.getElementById("voteBox").style.display = "block"; 
+    // dashboard still visible (no missing issue)
+
+    loadLive();
   }
 
 });
 
-/* SELECT VOTE */
-function setVote(v){
-  selectedVote = v;
-}
+/* LIVE RESULTS */
+function loadLive(){
 
-/* SUBMIT */
-function submitVote(){
+  db.collection("votes").onSnapshot(snapshot => {
 
-  if(!user){
-    alert("Please login first");
-    return;
-  }
+    let support = 0;
+    let against = 0;
 
-  const ref = db.collection("votes").doc(user.email);
-
-  ref.get().then(doc => {
-
-    if(doc.exists){
-      alert("Already voted!");
-      return;
-    }
-
-    ref.set({
-      vote: selectedVote,
-      time: new Date()
+    snapshot.forEach(doc => {
+      let v = doc.data().vote;
+      if(v === "support") support++;
+      if(v === "against") against++;
     });
 
-    alert("Vote recorded successfully");
+    document.getElementById("result").innerHTML =
+      "👍 SUPPORT: " + support +
+      "<br>👎 AGAINST: " + against;
 
   });
 
 }
-
-/* LIVE COUNT */
-db.collection("votes").onSnapshot(snapshot => {
-
-  let support = 0;
-  let against = 0;
-
-  snapshot.forEach(doc => {
-    let v = doc.data().vote;
-    if(v === "support") support++;
-    if(v === "against") against++;
-  });
-
-  document.getElementById("result").innerHTML =
-    "👍 SUPPORT: " + support +
-    "<br>👎 AGAINST: " + against;
-
-});
 
 </script>
 
