@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DEBUG VOTING SYSTEM</title>
+  <title>Global Live Voting Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -11,53 +12,61 @@
   <style>
     body{
       font-family:Arial;
-      background:#111;
-      color:#0f0;
-      padding:10px;
+      margin:0;
+      background:#0b1220;
+      color:white;
+      text-align:center;
     }
 
     .box{
-      border:1px solid #0f0;
-      padding:10px;
-      margin:10px;
+      margin:15px;
+      padding:20px;
+      background:#ffffff10;
+      border-radius:12px;
     }
 
     button{
       padding:10px;
       margin:5px;
+      border:none;
+      border-radius:6px;
       cursor:pointer;
     }
 
-    #console{
-      background:black;
-      color:lime;
-      padding:10px;
-      height:200px;
-      overflow:auto;
-      font-size:12px;
+    .support{background:green;color:white;}
+    .against{background:red;color:white;}
+
+    #status{
+      font-weight:bold;
+      margin-top:10px;
     }
   </style>
 </head>
 
 <body>
 
-<h2>🔥 DEBUG SYSTEM</h2>
-
 <div class="box">
-  <button onclick="login()">LOGIN</button>
-  <button onclick="logout()">LOGOUT</button>
+  <h2>🌍 GLOBAL LIVE VOTING DASHBOARD</h2>
 
-  <p id="status">STATUS: INIT</p>
+  <button onclick="login()">Login with Google</button>
+  <button onclick="logout()">Logout</button>
+
+  <div id="status">NOT LOGGED IN</div>
+</div>
+
+<div class="box" id="voteBox" style="display:none;">
+  <h3>SELECT YOUR VOTE</h3>
+
+  <button class="support" onclick="setVote('support')">SUPPORT</button>
+  <button class="against" onclick="setVote('against')">AGAINST</button>
+
+  <br><br>
+  <button onclick="submitVote()">SUBMIT VOTE</button>
 </div>
 
 <div class="box">
-  <h3>DASHBOARD</h3>
-  <div id="dashboard">WAITING...</div>
-</div>
-
-<div class="box">
-  <h3>DEBUG CONSOLE</h3>
-  <div id="console"></div>
+  <h3>LIVE RESULTS</h3>
+  <div id="results">Loading...</div>
 </div>
 
 <script>
@@ -75,85 +84,98 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-/* 🧠 DEBUG LOG FUNCTION */
-function log(msg){
-  console.log(msg);
-  document.getElementById("console").innerHTML += msg + "<br>";
-}
+let currentUser = null;
+let selectedVote = null;
 
-/* 🔐 LOGIN */
+/* LOGIN */
 function login(){
-  log("STEP 1: LOGIN CLICKED");
-
-  auth.signInWithPopup(provider)
-  .then(res=>{
-    log("STEP 2: LOGIN SUCCESS " + res.user.email);
-  })
-  .catch(err=>{
-    log("ERROR: " + err.message);
-
-    auth.signInWithRedirect(provider);
-  });
+  auth.signInWithPopup(provider);
 }
 
-/* 🚪 LOGOUT */
+/* LOGOUT */
 function logout(){
   auth.signOut();
-  log("LOGOUT DONE");
 }
 
-/* 🔁 REDIRECT RESULT */
-auth.getRedirectResult()
-.then(result=>{
-  if(result.user){
-    log("REDIRECT LOGIN SUCCESS: " + result.user.email);
-  }
-})
-.catch(err=>{
-  log("REDIRECT ERROR: " + err.message);
-});
-
-/* 👤 AUTH TRACKER */
+/* AUTH STATE */
 auth.onAuthStateChanged(user => {
 
-  log("AUTH STATE TRIGGERED");
-
   if(user){
-    log("USER FOUND: " + user.email);
+    currentUser = user;
 
     document.getElementById("status").innerText =
       "LOGGED IN: " + user.email;
 
-    loadDashboard();
+    document.getElementById("voteBox").style.display = "block";
+
+    loadLive();
 
   } else {
-    log("NO USER FOUND");
+    currentUser = null;
 
     document.getElementById("status").innerText =
       "NOT LOGGED IN";
+
+    document.getElementById("voteBox").style.display = "none";
   }
 
 });
 
-/* 📊 DASHBOARD */
-function loadDashboard(){
+/* SET VOTE */
+function setVote(v){
+  selectedVote = v;
+}
 
-  log("LOADING DASHBOARD...");
+/* SUBMIT VOTE */
+function submitVote(){
+
+  if(!currentUser){
+    alert("Please login first");
+    return;
+  }
+
+  if(!selectedVote){
+    alert("Select vote first");
+    return;
+  }
+
+  const ref = db.collection("votes").doc(currentUser.email);
+
+  ref.get().then(doc => {
+
+    if(doc.exists){
+      alert("You already voted!");
+      return;
+    }
+
+    ref.set({
+      vote: selectedVote,
+      time: new Date()
+    });
+
+    alert("Vote successfully recorded");
+
+  });
+
+}
+
+/* LIVE DASHBOARD */
+function loadLive(){
 
   db.collection("votes").onSnapshot(snapshot => {
 
-    let s=0,a=0;
+    let support = 0;
+    let against = 0;
 
-    snapshot.forEach(doc=>{
+    snapshot.forEach(doc => {
       let v = doc.data().vote;
-      if(v==="support") s++;
-      if(v==="against") a++;
+      if(v === "support") support++;
+      if(v === "against") against++;
     });
 
-    document.getElementById("dashboard").innerHTML =
-      "SUPPORT: "+s+" | AGAINST: "+a;
-
-    log("LIVE UPDATE: S="+s+" A="+a);
+    document.getElementById("results").innerHTML =
+      "👍 SUPPORT: " + support +
+      "<br>👎 AGAINST: " + against;
 
   });
 
