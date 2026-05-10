@@ -10,21 +10,63 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
-    body { font-family: Arial; text-align:center; background:#f4f4f4; }
-    .box { background:#fff; padding:20px; margin:20px auto; width:90%; max-width:500px; border-radius:10px; }
-    button { padding:10px 15px; margin:5px; cursor:pointer; }
-    .selected { background:green; color:#fff; }
-    #ticker { background:black; color:white; padding:10px; overflow:hidden; white-space:nowrap; }
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #f4f4f4;
+      text-align: center;
+    }
+
+    #ticker {
+      background: black;
+      color: white;
+      padding: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .box {
+      background: white;
+      margin: 20px auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .support { background: green; color: white; }
+    .against { background: red; color: white; }
+
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: none;
+    }
   </style>
 </head>
 
 <body>
 
-<div id="ticker">LIVE NEWS: Voting System Active Worldwide 🌍 | ONOE vs DEL Dashboard Running 🔥</div>
+<div id="ticker">
+🔥 LIVE: Global Voting System Active | One Gmail One Vote Security Enabled | Secure Firebase System
+</div>
 
 <div class="box">
-
-  <h2>Global Voting Dashboard</h2>
+  <h2>GLOBAL VOTING DASHBOARD</h2>
 
   <button onclick="login()">Login with Google</button>
   <p id="user"></p>
@@ -33,114 +75,116 @@
 
   <h3>SELECT YOUR VOTE</h3>
 
-  <button onclick="selectVote('onoeSupport')">ONOE SUPPORT 👍</button>
-  <button onclick="selectVote('onoeAgainst')">ONOE AGAINST 👎</button>
-  <button onclick="selectVote('delSupport')">DEL SUPPORT 👍</button>
-  <button onclick="selectVote('delAgainst')">DEL AGAINST 👎</button>
+  <button class="support" onclick="selectVote('support')">👍 SUPPORT</button>
+  <button class="against" onclick="selectVote('against')">👎 AGAINST</button>
 
   <br><br>
 
-  <button onclick="submitVote()">SUBMIT YOUR VOTE</button>
+  <button onclick="submitVote()">SUBMIT VOTE</button>
 
   <p id="msg"></p>
-
 </div>
 
 <div class="box">
-  <h3>LIVE DASHBOARD</h3>
-  <p id="liveData">Loading...</p>
+  <h3>LIVE RESULTS</h3>
+  <div id="dashboard">Loading...</div>
 </div>
 
+<div id="toast"></div>
+
 <script>
-  // 🔥 Firebase Config (replace with yours)
-  const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+/* 🔥 Firebase Config */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID"
 };
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
 
-  let currentUser = null;
-  let selectedVote = null;
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-  // LOGIN
-  function login(){
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider);
+let currentUser = null;
+let selectedVote = null;
+
+/* 🔐 LOGIN */
+function login(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
+}
+
+auth.onAuthStateChanged(user => {
+  if(user){
+    currentUser = user;
+    document.getElementById("user").innerText = "Welcome " + user.email;
+    listenLive();
+  }
+});
+
+/* 🗳 SELECT VOTE */
+function selectVote(v){
+  selectedVote = v;
+  showToast("Selected: " + v);
+}
+
+/* 📤 SUBMIT VOTE */
+function submitVote(){
+  if(!currentUser){
+    alert("Please login first");
+    return;
   }
 
-  auth.onAuthStateChanged(user=>{
-    if(user){
-      currentUser = user;
-      document.getElementById("user").innerText = "Welcome " + user.email;
-      listenLive();
+  if(!selectedVote){
+    alert("Select vote first");
+    return;
+  }
+
+  const ref = db.collection("votes").doc(currentUser.email);
+
+  ref.get().then(doc => {
+    if(doc.exists){
+      showToast("❌ You already voted");
+      return;
     }
+
+    ref.set({
+      vote: selectedVote,
+      sessionId: "2026-election",
+      time: new Date()
+    });
+
+    showToast("🎉 YOUR VOTE SUCCESSFULLY RECORDED");
   });
+}
 
-  // SELECT VOTE
-  function selectVote(v){
-    selectedVote = v;
-    document.getElementById("msg").innerText = "Selected: " + v;
-  }
+/* 📊 LIVE DASHBOARD */
+function listenLive(){
+  db.collection("votes").onSnapshot(snapshot => {
+    let support = 0;
+    let against = 0;
 
-  // SUBMIT VOTE
-  function submitVote(){
-    if(!currentUser){
-      alert("Please login first");
-      return;
-    }
-    if(!selectedVote){
-      alert("Please select vote");
-      return;
-    }
-
-    const ref = db.collection("votes").doc(currentUser.email);
-
-    ref.get().then(doc=>{
-      if(doc.exists){
-        document.getElementById("msg").innerText = "❌ You already voted!";
-      } else {
-        ref.set({
-          vote: selectedVote,
-          time: new Date()
-        });
-
-        document.getElementById("msg").innerText =
-          "🎉 YOUR VOTE SUCCESSFULLY RECORDED";
-
-        selectedVote = null;
-      }
+    snapshot.forEach(doc => {
+      const v = doc.data().vote;
+      if(v === "support") support++;
+      if(v === "against") against++;
     });
-  }
 
-  // LIVE DASHBOARD
-  function listenLive(){
-    db.collection("votes").onSnapshot(snapshot=>{
-      let data = {
-        onoeSupport:0,
-        onoeAgainst:0,
-        delSupport:0,
-        delAgainst:0
-      };
+    document.getElementById("dashboard").innerHTML =
+      "👍 SUPPORT: " + support + "<br>👎 AGAINST: " + against;
+  });
+}
 
-      snapshot.forEach(doc=>{
-        data[doc.data().vote]++;
-      });
+/* 📱 TOAST MESSAGE */
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.style.display = "block";
 
-      document.getElementById("liveData").innerHTML =
-        "ONOE Support: " + data.onoeSupport + "<br>" +
-        "ONOE Against: " + data.onoeAgainst + "<br>" +
-        "DEL Support: " + data.delSupport + "<br>" +
-        "DEL Against: " + data.delAgainst;
-    });
-  }
+  setTimeout(() => {
+    t.style.display = "none";
+  }, 3000);
+}
 </script>
 
 </body>
