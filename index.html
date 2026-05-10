@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GLOBAL VOTING SYSTEM - FINAL</title>
+  <title>GLOBAL VOTING SYSTEM</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Firebase v8 (STABLE ONLY) -->
+  <!-- Firebase v8 STABLE -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -35,10 +35,6 @@
 
     .login{background:#2196F3;color:white;}
     .logout{background:#444;color:white;}
-
-    #dashboard{
-      display:block;
-    }
   </style>
 </head>
 
@@ -53,56 +49,27 @@
   <p id="status">NOT LOGGED IN</p>
 </div>
 
-<!-- DASHBOARD ALWAYS ACTIVE -->
-<div class="box" id="dashboard">
+<div class="box">
   <h3>🗳 LIVE RESULTS</h3>
   <div id="result">Loading...</div>
 </div>
 
 <script>
-  // 1. Firebase config
-  firebase.initializeApp(firebaseConfig);
 
-  // 2. Auth object
-  const auth = firebase.auth();
-  const provider = new firebase.auth.GoogleAuthProvider();
+/* 🔥 FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "onoevote2026.firebaseapp.com",
+  projectId: "onoevote2026"
+};
 
-  // ✅ 👇 இதுதான் சரியான இடம் (ERROR CAPTURE)
-  auth.getRedirectResult()
-  .then(result => {
-    if(result.user){
-      console.log("LOGIN SUCCESS:", result.user.email);
-    }
-  })
-  .catch(error => {
-    console.log("LOGIN ERROR:", error.code, error.message);
-    alert(error.message);
-  });
-
-  // 3. Login function
-  function login(){
-    auth.signInWithRedirect(provider);
-  }
-
-  // 4. Auth state
-  auth.onAuthStateChanged(user => {
-    if(user){
-      document.getElementById("status").innerText =
-        "LOGGED IN: " + user.email;
-    } else {
-      document.getElementById("status").innerText =
-        "NOT LOGGED IN";
-    }
-  });
-
-</script>
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-/* 🔐 LOGIN FIXED (REDIRECT METHOD ONLY) */
+/* 🔐 LOGIN (FIXED) */
 function login(){
   auth.signInWithRedirect(provider);
 }
@@ -112,7 +79,7 @@ function logout(){
   auth.signOut();
 }
 
-/* 🔐 HANDLE LOGIN RESULT */
+/* 🔥 REDIRECT RESULT DEBUG (FIXED PART YOU ASKED) */
 auth.getRedirectResult()
 .then(result => {
   if(result.user){
@@ -121,15 +88,15 @@ auth.getRedirectResult()
 })
 .catch(error => {
   console.log("LOGIN ERROR:", error.code, error.message);
+  alert(error.message);
 });
 
-/* 🔐 AUTH STATE FIX (MAIN CRITICAL FIX) */
+/* 🔐 AUTH STATE (CRITICAL FIX) */
 auth.onAuthStateChanged(user => {
 
   if(user){
     document.getElementById("status").innerText =
       "LOGGED IN: " + user.email;
-
   } else {
     document.getElementById("status").innerText =
       "NOT LOGGED IN";
@@ -137,7 +104,7 @@ auth.onAuthStateChanged(user => {
 
 });
 
-/* 🔥 LIVE RESULTS (SAFE FIRESTORE LISTENER) */
+/* 🔥 LIVE RESULTS */
 db.collection("votes").onSnapshot(snapshot => {
 
   let support = 0;
@@ -153,8 +120,6 @@ db.collection("votes").onSnapshot(snapshot => {
     "👍 SUPPORT: " + support +
     "<br>👎 AGAINST: " + against;
 
-}, error => {
-  console.log("FIRESTORE ERROR:", error.message);
 });
 
 </script>
