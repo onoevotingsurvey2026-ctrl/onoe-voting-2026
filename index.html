@@ -4,7 +4,7 @@
   <title>GLOBAL VOTING SYSTEM</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Firebase v8 (STABLE) -->
+  <!-- Firebase v8 STABLE -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -35,6 +35,10 @@
 
     .login{background:#2196F3;color:white;}
     .logout{background:#444;color:white;}
+
+    #dashboard{
+      display:block;
+    }
   </style>
 </head>
 
@@ -49,14 +53,15 @@
   <p id="status">NOT LOGGED IN</p>
 </div>
 
-<div class="box">
+<!-- DASHBOARD ALWAYS PRESENT (FIXED ISSUE) -->
+<div class="box" id="dashboard">
   <h3>🗳 LIVE RESULTS</h3>
   <div id="result">Loading...</div>
 </div>
 
 <script>
 
-/* 🔥 FIREBASE CONFIG (REPLACE ONLY IF NEEDED) */
+/* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -69,7 +74,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-/* 🔐 LOGIN (FIXED REDIRECT METHOD) */
+/* 🔐 LOGIN (STABLE METHOD) */
 function login(){
   auth.signInWithRedirect(provider);
 }
@@ -79,7 +84,7 @@ function logout(){
   auth.signOut();
 }
 
-/* 🔐 HANDLE LOGIN RESULT */
+/* 🔐 REDIRECT RESULT HANDLER */
 auth.getRedirectResult()
 .then(result => {
   if(result.user){
@@ -90,7 +95,7 @@ auth.getRedirectResult()
   console.log("LOGIN ERROR:", error.code, error.message);
 });
 
-/* 🔐 AUTH STATE (MAIN FIX) */
+/* 🔐 AUTH STATE (MAIN FIX FOR DASHBOARD ISSUE) */
 auth.onAuthStateChanged(user => {
 
   if(user){
@@ -103,7 +108,7 @@ auth.onAuthStateChanged(user => {
 
 });
 
-/* 🔥 LIVE RESULTS (SAFE LISTENER) */
+/* 🔥 LIVE RESULTS (SAFE) */
 db.collection("votes").onSnapshot(snapshot => {
 
   let support = 0;
