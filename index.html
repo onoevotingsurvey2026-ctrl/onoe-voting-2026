@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting System</title>
+  <title>Firebase Login System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
     body{
@@ -18,81 +17,45 @@
       text-align:center;
     }
 
-    #ticker{
-      background:black;
-      padding:10px;
-      white-space:nowrap;
-      overflow:hidden;
-    }
-
     .box{
       background:rgba(255,255,255,0.15);
       backdrop-filter:blur(10px);
-      border:1px solid rgba(255,255,255,0.3);
-      margin:15px;
+      margin:30px auto;
       padding:20px;
+      width:90%;
+      max-width:400px;
       border-radius:15px;
     }
 
     button{
       padding:10px 15px;
-      margin:5px;
       border:none;
       border-radius:6px;
       cursor:pointer;
+      margin-top:10px;
     }
 
-    .support{background:green;color:white;}
-    .against{background:red;color:white;}
-
-    #toast{
-      position:fixed;
-      bottom:20px;
-      left:50%;
-      transform:translateX(-50%);
-      background:#222;
-      padding:10px 20px;
-      border-radius:8px;
-      display:none;
+    #status{
+      margin-top:15px;
+      font-weight:bold;
     }
   </style>
 </head>
 
 <body>
 
-<div id="ticker">
-🔥 LIVE: Global Voting System Active | One Gmail One Vote Secure System
-</div>
-
 <div class="box">
-  <h2>GLOBAL VOTING DASHBOARD</h2>
+  <h2>GLOBAL LOGIN SYSTEM</h2>
 
   <button onclick="login()">Login with Google</button>
   <button onclick="logout()">Logout</button>
 
-  <p id="user">Login not done</p>
-
-  <hr>
-
-  <h3>SELECT YOUR VOTE</h3>
-
-  <button class="support" onclick="selectVote('support')">👍 SUPPORT</button>
-  <button class="against" onclick="selectVote('against')">👎 AGAINST</button>
-
-  <br><br>
-
-  <button onclick="submitVote()">SUBMIT VOTE</button>
+  <div id="status">Please login</div>
 </div>
-
-<div class="box">
-  <h3>LIVE RESULTS</h3>
-  <div id="dashboard">Loading...</div>
-</div>
-
-<div id="toast"></div>
 
 <script>
 
+/* 🔥 Firebase Config */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -102,114 +65,43 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
-const db = firebase.firestore();
 
-let currentUser = null;
-let selectedVote = null;
-
-/* 🔐 GOOGLE LOGIN (REDIRECT SAFE) */
+/* 🔐 Google Provider */
 const provider = new firebase.auth.GoogleAuthProvider();
 
+/* 🚀 LOGIN FUNCTION */
 function login(){
-  auth.signInWithRedirect(provider);
+  auth.signInWithPopup(provider)
+  .catch(() => {
+    auth.signInWithRedirect(provider);
+  });
 }
 
-/* 🔥 IMPORTANT: REDIRECT RESULT HANDLER */
+/* 🔁 REDIRECT RESULT HANDLER */
 auth.getRedirectResult()
 .then(result => {
   if(result.user){
     console.log("LOGIN SUCCESS:", result.user.email);
   }
-})
-.catch(error => console.log(error));
+});
 
-/* 👤 AUTH STATE */
-auth.onAuthStateChanged(user=>{
+/* 👤 AUTH STATE LISTENER */
+auth.onAuthStateChanged(user => {
+
   if(user){
-    currentUser = user;
-
-    document.getElementById("user").innerText =
-      "Logged in: " + user.email;
-
-    listenLive();
+    document.getElementById("status").innerHTML =
+      "✅ Logged in as: " + user.email;
 
   } else {
-    currentUser = null;
-    document.getElementById("user").innerText =
-      "Login not done";
+    document.getElementById("status").innerHTML =
+      "❌ Not logged in";
   }
+
 });
 
 /* 🚪 LOGOUT */
 function logout(){
-  auth.signOut().then(()=>{
-    showToast("Logged out successfully");
-  });
-}
-
-/* 🗳 SELECT VOTE */
-function selectVote(v){
-  selectedVote = v;
-  showToast("Selected: " + v);
-}
-
-/* 📤 SUBMIT VOTE */
-function submitVote(){
-
-  if(!currentUser){
-    alert("Please login first");
-    return;
-  }
-
-  if(!selectedVote){
-    alert("Select vote first");
-    return;
-  }
-
-  const ref = db.collection("votes").doc(currentUser.email);
-
-  ref.get().then(doc=>{
-    if(doc.exists){
-      showToast("❌ You already voted");
-      return;
-    }
-
-    ref.set({
-      vote: selectedVote,
-      sessionId: "2026-election",
-      time: new Date()
-    });
-
-    showToast("🎉 VOTE SUCCESSFULLY RECORDED");
-  });
-}
-
-/* 📊 LIVE DASHBOARD */
-function listenLive(){
-
-  db.collection("votes").onSnapshot(snapshot=>{
-
-    let support = 0;
-    let against = 0;
-
-    snapshot.forEach(doc=>{
-      let v = doc.data().vote;
-      if(v==="support") support++;
-      if(v==="against") against++;
-    });
-
-    document.getElementById("dashboard").innerHTML =
-      "👍 SUPPORT: "+support+"<br>👎 AGAINST: "+against;
-  });
-}
-
-/* 📱 TOAST */
-function showToast(msg){
-  let t = document.getElementById("toast");
-  t.innerText = msg;
-  t.style.display = "block";
-
-  setTimeout(()=>t.style.display="none",3000);
+  auth.signOut();
 }
 
 </script>
