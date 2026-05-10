@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>INDIA ECI LIVE DASHBOARD</title>
+  <title>ECI AI FORECAST ENGINE</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -12,65 +12,73 @@
     body{
       margin:0;
       font-family:Arial;
-      background:linear-gradient(135deg,#06121f,#142a44);
+      background:linear-gradient(135deg,#050b18,#0f1c33);
       color:white;
     }
 
     .header{
       text-align:center;
-      padding:18px;
+      padding:15px;
       font-size:22px;
       font-weight:bold;
       background:#0f172a;
       border-bottom:2px solid #2196F3;
     }
 
-    .panel{
-      margin:15px;
-      padding:15px;
-      background:rgba(255,255,255,0.08);
-      border-radius:15px;
-      backdrop-filter:blur(10px);
-      text-align:center;
-    }
-
     .grid{
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
       gap:15px;
       padding:15px;
     }
 
-    .box{
+    .card{
       background:rgba(255,255,255,0.08);
       padding:20px;
       border-radius:15px;
       text-align:center;
+      backdrop-filter:blur(10px);
     }
 
     .big{
-      font-size:28px;
+      font-size:30px;
       font-weight:bold;
-      margin-top:10px;
     }
 
     .support{color:#4CAF50;}
     .against{color:#f44336;}
+    .ai{color:#FFD700;}
 
-    button{
-      padding:10px 15px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      margin:5px;
+    .bar{
+      height:12px;
+      background:#222;
+      border-radius:10px;
+      overflow:hidden;
+      margin-top:10px;
     }
 
-    .login{background:#2196F3;color:white;}
-    .vote{background:#4CAF50;color:white;}
+    .fill{
+      height:100%;
+      background:#4CAF50;
+      width:50%;
+    }
 
-    .status{
-      font-size:14px;
-      opacity:0.8;
+    .ticker{
+      background:#00000070;
+      padding:10px;
+      white-space:nowrap;
+      overflow:hidden;
+    }
+
+    .ticker span{
+      display:inline-block;
+      padding-left:100%;
+      animation:move 10s linear infinite;
+    }
+
+    @keyframes move{
+      0%{transform:translateX(0);}
+      100%{transform:translateX(-100%);}
     }
   </style>
 </head>
@@ -78,53 +86,60 @@
 <body>
 
 <div class="header">
-🇮🇳 INDIA ECI GLOBAL LIVE DASHBOARD
+🧠 ECI AI FORECAST ENGINE (LIVE)
 </div>
 
-<!-- LOGIN -->
-<div class="panel">
-  <button class="login" onclick="login()">🔐 Google Login</button>
-  <p id="user">NOT LOGGED IN</p>
-</div>
-
-<!-- VOTE -->
-<div class="grid">
-  <div class="box">
-    <button class="vote" onclick="vote('support')">👍 SUPPORT</button>
-  </div>
-
-  <div class="box">
-    <button class="vote" onclick="vote('against')">👎 AGAINST</button>
-  </div>
-</div>
-
-<!-- LIVE RESULTS -->
+<!-- LIVE STATS -->
 <div class="grid">
 
-  <div class="box">
-    <div class="support">SUPPORT</div>
+  <div class="card">
+    <div class="support">👍 SUPPORT</div>
     <div id="support" class="big">0</div>
   </div>
 
-  <div class="box">
-    <div class="against">AGAINST</div>
+  <div class="card">
+    <div class="against">👎 AGAINST</div>
     <div id="against" class="big">0</div>
   </div>
 
-  <div class="box">
-    <div>TOTAL</div>
+  <div class="card">
+    <div>📊 TOTAL VOTES</div>
     <div id="total" class="big">0</div>
   </div>
 
 </div>
 
-<div class="panel status">
-📊 LIVE SYSTEM CONNECTED • INDIA ELECTION DASHBOARD ACTIVE
+<!-- AI PANEL -->
+<div class="grid">
+
+  <div class="card">
+    <div class="ai">🧠 AI WIN PROBABILITY</div>
+    <div id="ai" class="big">50%</div>
+    <div class="bar">
+      <div id="bar" class="fill"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div>📈 TREND STATUS</div>
+    <div id="trend" class="big">STABLE</div>
+  </div>
+
+  <div class="card">
+    <div>⚡ MOMENTUM</div>
+    <div id="momentum" class="big">0</div>
+  </div>
+
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <span>🔴 AI FORECAST ENGINE ACTIVE • REAL TIME ELECTION ANALYTICS • MOMENTUM DETECTION RUNNING • ECI LEVEL DASHBOARD SYSTEM •</span>
 </div>
 
 <script>
 
-/* FIREBASE CONFIG */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "YOUR_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -133,41 +148,15 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
 const db = firebase.firestore();
-const provider = new firebase.auth.GoogleAuthProvider();
 
-/* LOGIN */
-function login(){
-  auth.signInWithRedirect(provider);
-}
+/* STORAGE FOR AI */
+let lastTotal = 0;
 
-/* USER STATE */
-auth.onAuthStateChanged(user=>{
-  document.getElementById("user").innerText =
-    user ? "LOGGED IN: " + user.email : "NOT LOGGED IN";
-});
-
-/* VOTE */
-function vote(type){
-  const user = auth.currentUser;
-
-  if(!user){
-    alert("Please login first");
-    return;
-  }
-
-  db.collection("votes").add({
-    uid:user.uid,
-    vote:type,
-    time:Date.now()
-  });
-}
-
-/* LIVE COUNT */
+/* LIVE ENGINE */
 db.collection("votes").onSnapshot(snapshot=>{
-  let support=0;
-  let against=0;
+  let support = 0;
+  let against = 0;
 
   snapshot.forEach(doc=>{
     let v = doc.data().vote;
@@ -175,9 +164,34 @@ db.collection("votes").onSnapshot(snapshot=>{
     if(v==="against") against++;
   });
 
-  document.getElementById("support").innerText=support;
-  document.getElementById("against").innerText=against;
-  document.getElementById("total").innerText=support+against;
+  let total = support + against;
+
+  /* AI CORE ENGINE */
+  let ratio = total === 0 ? 0.5 : support / total;
+  let ai = Math.round(ratio * 100);
+
+  /* MOMENTUM */
+  let momentum = total - lastTotal;
+  lastTotal = total;
+
+  /* TREND LOGIC */
+  let trend = "STABLE";
+
+  if(momentum > 5) trend = "STRONG RISE 📈";
+  else if(momentum < -5) trend = "DECLINE 📉";
+  else trend = "STABLE ⚖";
+
+  /* UI UPDATE */
+  document.getElementById("support").innerText = support;
+  document.getElementById("against").innerText = against;
+  document.getElementById("total").innerText = total;
+
+  document.getElementById("ai").innerText = ai + "%";
+  document.getElementById("trend").innerText = trend;
+  document.getElementById("momentum").innerText = momentum;
+
+  document.getElementById("bar").style.width = ai + "%";
+
 });
 
 </script>
