@@ -1,73 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ECI AI FORECAST ENGINE</title>
+  <title>INDIA ECI MAP DASHBOARD</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
     body{
       margin:0;
       font-family:Arial;
-      background:linear-gradient(135deg,#050b18,#0f1c33);
+      background:#06121f;
       color:white;
     }
 
     .header{
-      text-align:center;
       padding:15px;
+      text-align:center;
       font-size:22px;
       font-weight:bold;
       background:#0f172a;
       border-bottom:2px solid #2196F3;
     }
 
-    .grid{
+    .container{
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:15px;
-      padding:15px;
+      grid-template-columns:2fr 1fr;
+      gap:10px;
+      padding:10px;
+    }
+
+    /* MAP AREA */
+    .map{
+      background:rgba(255,255,255,0.05);
+      border-radius:10px;
+      padding:10px;
+      text-align:center;
+    }
+
+    svg{
+      width:100%;
+      max-width:500px;
+    }
+
+    .state{
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    .state:hover{
+      opacity:0.7;
+    }
+
+    /* SIDE PANEL */
+    .panel{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
     .card{
       background:rgba(255,255,255,0.08);
-      padding:20px;
-      border-radius:15px;
+      padding:15px;
+      border-radius:10px;
       text-align:center;
-      backdrop-filter:blur(10px);
     }
 
     .big{
-      font-size:30px;
+      font-size:28px;
       font-weight:bold;
     }
 
     .support{color:#4CAF50;}
     .against{color:#f44336;}
-    .ai{color:#FFD700;}
-
-    .bar{
-      height:12px;
-      background:#222;
-      border-radius:10px;
-      overflow:hidden;
-      margin-top:10px;
-    }
-
-    .fill{
-      height:100%;
-      background:#4CAF50;
-      width:50%;
-    }
 
     .ticker{
-      background:#00000070;
+      background:black;
       padding:10px;
-      white-space:nowrap;
       overflow:hidden;
+      white-space:nowrap;
     }
 
     .ticker span{
@@ -80,119 +89,115 @@
       0%{transform:translateX(0);}
       100%{transform:translateX(-100%);}
     }
+
   </style>
 </head>
 
 <body>
 
 <div class="header">
-🧠 ECI AI FORECAST ENGINE (LIVE)
+🇮🇳 INDIA MAP ECI LIVE DASHBOARD
 </div>
 
-<!-- LIVE STATS -->
-<div class="grid">
+<div class="container">
 
-  <div class="card">
-    <div class="support">👍 SUPPORT</div>
-    <div id="support" class="big">0</div>
+  <!-- MAP -->
+  <div class="map">
+
+    <h3>LIVE INDIA MAP (SIMPLIFIED)</h3>
+
+    <!-- SIMPLE SVG INDIA STYLE MAP (SIMULATION) -->
+    <svg viewBox="0 0 300 400">
+
+      <!-- NORTH -->
+      <path id="north" class="state" fill="#4CAF50"
+        d="M120 20 L180 20 L190 80 L120 90 Z"
+        onclick="selectState('North India')"/>
+
+      <!-- WEST -->
+      <path id="west" class="state" fill="#f44336"
+        d="M60 120 L120 100 L120 180 L60 200 Z"
+        onclick="selectState('West India')"/>
+
+      <!-- EAST -->
+      <path id="east" class="state" fill="#4CAF50"
+        d="M190 120 L250 120 L250 200 L190 200 Z"
+        onclick="selectState('East India')"/>
+
+      <!-- SOUTH -->
+      <path id="south" class="state" fill="#f44336"
+        d="M120 220 L180 220 L180 320 L120 320 Z"
+        onclick="selectState('South India')"/>
+
+    </svg>
+
+    <div id="stateInfo">Click a region</div>
+
   </div>
 
-  <div class="card">
-    <div class="against">👎 AGAINST</div>
-    <div id="against" class="big">0</div>
-  </div>
+  <!-- CONTROL PANEL -->
+  <div class="panel">
 
-  <div class="card">
-    <div>📊 TOTAL VOTES</div>
-    <div id="total" class="big">0</div>
-  </div>
-
-</div>
-
-<!-- AI PANEL -->
-<div class="grid">
-
-  <div class="card">
-    <div class="ai">🧠 AI WIN PROBABILITY</div>
-    <div id="ai" class="big">50%</div>
-    <div class="bar">
-      <div id="bar" class="fill"></div>
+    <div class="card">
+      <div>👍 SUPPORT</div>
+      <div id="support" class="big">120</div>
     </div>
-  </div>
 
-  <div class="card">
-    <div>📈 TREND STATUS</div>
-    <div id="trend" class="big">STABLE</div>
-  </div>
+    <div class="card">
+      <div>👎 AGAINST</div>
+      <div id="against" class="big">90</div>
+    </div>
 
-  <div class="card">
-    <div>⚡ MOMENTUM</div>
-    <div id="momentum" class="big">0</div>
+    <div class="card">
+      <div>📊 TOTAL</div>
+      <div id="total" class="big">210</div>
+    </div>
+
+    <div class="card">
+      <div>🧠 AI TREND</div>
+      <div id="ai" class="big">STABLE</div>
+    </div>
+
   </div>
 
 </div>
 
 <!-- TICKER -->
 <div class="ticker">
-  <span>🔴 AI FORECAST ENGINE ACTIVE • REAL TIME ELECTION ANALYTICS • MOMENTUM DETECTION RUNNING • ECI LEVEL DASHBOARD SYSTEM •</span>
+  <span>🔴 INDIA ELECTION MAP LIVE • STATE WISE VOTING HEAT SYSTEM ACTIVE • ECI CONTROL ROOM MODE • AI ANALYTICS RUNNING •</span>
 </div>
 
 <script>
 
-/* FIREBASE */
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "onoevote2026.firebaseapp.com",
-  projectId: "onoevote2026"
-};
+/* STATE CLICK */
+function selectState(name){
+  document.getElementById("stateInfo").innerText =
+    "SELECTED: " + name + " (LIVE DATA SIMULATION)";
+}
 
-firebase.initializeApp(firebaseConfig);
+/* LIVE SIMULATION ENGINE */
+let support = 120;
+let against = 90;
 
-const db = firebase.firestore();
+setInterval(()=>{
 
-/* STORAGE FOR AI */
-let lastTotal = 0;
-
-/* LIVE ENGINE */
-db.collection("votes").onSnapshot(snapshot=>{
-  let support = 0;
-  let against = 0;
-
-  snapshot.forEach(doc=>{
-    let v = doc.data().vote;
-    if(v==="support") support++;
-    if(v==="against") against++;
-  });
+  support += Math.floor(Math.random()*3);
+  against += Math.floor(Math.random()*2);
 
   let total = support + against;
+  let ratio = support / total;
 
-  /* AI CORE ENGINE */
-  let ratio = total === 0 ? 0.5 : support / total;
-  let ai = Math.round(ratio * 100);
-
-  /* MOMENTUM */
-  let momentum = total - lastTotal;
-  lastTotal = total;
-
-  /* TREND LOGIC */
   let trend = "STABLE";
 
-  if(momentum > 5) trend = "STRONG RISE 📈";
-  else if(momentum < -5) trend = "DECLINE 📉";
-  else trend = "STABLE ⚖";
+  if(ratio > 0.6) trend = "SUPPORT LEADING 📈";
+  else if(ratio < 0.4) trend = "AGAINST LEADING 📉";
 
-  /* UI UPDATE */
   document.getElementById("support").innerText = support;
   document.getElementById("against").innerText = against;
   document.getElementById("total").innerText = total;
+  document.getElementById("ai").innerText = trend;
 
-  document.getElementById("ai").innerText = ai + "%";
-  document.getElementById("trend").innerText = trend;
-  document.getElementById("momentum").innerText = momentum;
-
-  document.getElementById("bar").style.width = ai + "%";
-
-});
+},2000);
 
 </script>
 
