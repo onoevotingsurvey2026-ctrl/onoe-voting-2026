@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GLOBAL VOTING SYSTEM</title>
+  <title>GLOBAL VOTING SYSTEM - FINAL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Firebase v8 -->
+  <!-- Firebase v8 (stable) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
     body{
-      font-family:Arial;
-      text-align:center;
+      font-family: Arial;
+      margin:0;
       background:#0b1220;
       color:white;
-      margin:0;
+      text-align:center;
     }
 
     .box{
       margin:15px;
       padding:20px;
       background:#ffffff10;
-      border-radius:10px;
+      border-radius:12px;
     }
 
     button{
@@ -56,9 +56,9 @@
 
 <script>
 
-/* 🔥 FIREBASE CONFIG */
+/* 🔥 FIREBASE CONFIG (REPLACE YOUR KEY) */
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
+  apiKey: "YOUR_API_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
   projectId: "onoevote2026"
 };
@@ -68,23 +68,34 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-/* ✔ 3. DEBUG CHECK */
-console.log("SCRIPT LOADED");
+/* ✔ DEBUG */
+console.log("SYSTEM LOADED");
 
-/* ✔ 1. LOGIN FUNCTION (SAFE VERSION) */
+/* ✔ LOGIN */
 function login(){
   console.log("LOGIN CLICKED");
   const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithRedirect(provider);
+  auth.signInWithRedirect(provider);
 }
 
-/* OPTIONAL LOGOUT */
+/* ✔ LOGOUT */
 function logout(){
   auth.signOut();
 }
 
-/* ✔ 4. AUTH STATE (MANDATORY) */
-firebase.auth().onAuthStateChanged(user => {
+/* ✔ REDIRECT RESULT HANDLER */
+auth.getRedirectResult()
+.then(result => {
+  if(result.user){
+    console.log("LOGIN SUCCESS:", result.user.email);
+  }
+})
+.catch(error => {
+  console.log("LOGIN ERROR:", error.code, error.message);
+});
+
+/* ✔ AUTH STATE LISTENER (MAIN FIX) */
+auth.onAuthStateChanged(user => {
 
   console.log("AUTH STATE:", user);
 
@@ -98,7 +109,7 @@ firebase.auth().onAuthStateChanged(user => {
 
 });
 
-/* LIVE RESULTS */
+/* ✔ LIVE VOTE COUNT */
 db.collection("votes").onSnapshot(snapshot => {
 
   let support = 0;
