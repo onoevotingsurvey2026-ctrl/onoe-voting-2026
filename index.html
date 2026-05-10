@@ -4,7 +4,7 @@
   <title>GLOBAL VOTING SYSTEM</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Firebase v8 ONLY (stable) -->
+  <!-- Firebase v8 (STABLE) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -12,10 +12,10 @@
   <style>
     body{
       font-family:Arial;
+      margin:0;
       background:#0b1220;
       color:white;
       text-align:center;
-      margin:0;
     }
 
     .box{
@@ -35,8 +35,6 @@
 
     .login{background:#2196F3;color:white;}
     .logout{background:#444;color:white;}
-
-    #voteBox{display:none;}
   </style>
 </head>
 
@@ -51,14 +49,14 @@
   <p id="status">NOT LOGGED IN</p>
 </div>
 
-<div class="box" id="voteBox">
+<div class="box">
   <h3>🗳 LIVE RESULTS</h3>
   <div id="result">Loading...</div>
 </div>
 
 <script>
 
-/* 🔥 FIREBASE CONFIG */
+/* 🔥 FIREBASE CONFIG (REPLACE ONLY IF NEEDED) */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -71,7 +69,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-/* 🔐 LOGIN (STABLE METHOD) */
+/* 🔐 LOGIN (FIXED REDIRECT METHOD) */
 function login(){
   auth.signInWithRedirect(provider);
 }
@@ -81,7 +79,7 @@ function logout(){
   auth.signOut();
 }
 
-/* 🔥 HANDLE LOGIN RESULT */
+/* 🔐 HANDLE LOGIN RESULT */
 auth.getRedirectResult()
 .then(result => {
   if(result.user){
@@ -89,28 +87,23 @@ auth.getRedirectResult()
   }
 })
 .catch(error => {
-  console.log("LOGIN ERROR:", error.message);
+  console.log("LOGIN ERROR:", error.code, error.message);
 });
 
-/* 🔥 AUTH STATE FIX */
+/* 🔐 AUTH STATE (MAIN FIX) */
 auth.onAuthStateChanged(user => {
 
   if(user){
     document.getElementById("status").innerText =
       "LOGGED IN: " + user.email;
-
-    document.getElementById("voteBox").style.display = "block";
-
   } else {
     document.getElementById("status").innerText =
       "NOT LOGGED IN";
-
-    document.getElementById("voteBox").style.display = "block";
   }
 
 });
 
-/* 🔥 LIVE RESULTS */
+/* 🔥 LIVE RESULTS (SAFE LISTENER) */
 db.collection("votes").onSnapshot(snapshot => {
 
   let support = 0;
@@ -126,6 +119,8 @@ db.collection("votes").onSnapshot(snapshot => {
     "👍 SUPPORT: " + support +
     "<br>👎 AGAINST: " + against;
 
+}, error => {
+  console.log("FIRESTORE ERROR:", error.message);
 });
 
 </script>
