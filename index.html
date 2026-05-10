@@ -1,68 +1,119 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GLOBAL VOTING DASHBOARD</title>
+  <title>ECI LEVEL GLOBAL SYSTEM</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
     body{
-      font-family: Arial;
+      margin:0;
+      font-family:Arial;
       background:#0b1220;
       color:white;
       text-align:center;
-      margin:0;
     }
 
-    .box{
+    .panel{
       margin:15px;
       padding:20px;
       background:#ffffff10;
       border-radius:12px;
     }
 
-    .big{
-      font-size:22px;
-      margin:10px 0;
+    button{
+      padding:10px;
+      margin:5px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
     }
 
-    .support{color:#4caf50;}
-    .against{color:#ff5252;}
+    .login{background:#2196F3;color:white;}
+    .vote{background:#4caf50;color:white;}
   </style>
 </head>
 
 <body>
 
-<h2>🌍 GLOBAL VOTING DASHBOARD (STABLE BASE)</h2>
+<h2>🌍 ECI PRODUCTION SYSTEM (NEXT LEVEL)</h2>
 
-<div class="box">
-  <div class="big support">👍 SUPPORT: <span id="support">0</span></div>
-  <div class="big against">👎 AGAINST: <span id="against">0</span></div>
+<div class="panel">
+  <button class="login" onclick="login()">🔐 Google Login</button>
+  <p id="user">NOT LOGGED IN</p>
 </div>
 
-<div class="box">
-  <h3>LIVE SYSTEM STATUS</h3>
-  <p id="status">SYSTEM RUNNING (NO LOGIN MODE)</p>
+<div class="panel">
+  <h3>🗳 VOTE PANEL</h3>
+  <button class="vote" onclick="vote('support')">👍 SUPPORT</button>
+  <button class="vote" onclick="vote('against')">👎 AGAINST</button>
+</div>
+
+<div class="panel">
+  <h3>📊 LIVE RESULT</h3>
+  <p id="result">Loading...</p>
 </div>
 
 <script>
 
-/* 🔥 DEMO LIVE DATA ENGINE (NO FIREBASE DEPENDENCY) */
-let support = 0;
-let against = 0;
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "onoevote2026.firebaseapp.com",
+  projectId: "onoevote2026"
+};
 
-/* simulate live voting updates */
-setInterval(() => {
+firebase.initializeApp(firebaseConfig);
 
-  support += Math.floor(Math.random() * 3);
-  against += Math.floor(Math.random() * 2);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const provider = new firebase.auth.GoogleAuthProvider();
 
-  document.getElementById("support").innerText = support;
-  document.getElementById("against").innerText = against;
+/* LOGIN */
+function login(){
+  auth.signInWithRedirect(provider);
+}
 
-}, 2000);
+/* AUTH */
+auth.onAuthStateChanged(user=>{
+  if(user){
+    document.getElementById("user").innerText = user.email;
+  } else {
+    document.getElementById("user").innerText = "NOT LOGGED IN";
+  }
+});
 
-/* system status */
-console.log("GLOBAL DASHBOARD RUNNING");
+/* VOTE (BASIC STRUCTURE) */
+function vote(type){
+  const user = auth.currentUser;
+  if(!user){
+    alert("Please login first");
+    return;
+  }
+
+  db.collection("votes").add({
+    uid: user.uid,
+    vote: type,
+    time: Date.now()
+  });
+}
+
+/* LIVE COUNT */
+db.collection("votes").onSnapshot(snap=>{
+  let support = 0;
+  let against = 0;
+
+  snap.forEach(d=>{
+    let v = d.data().vote;
+    if(v==="support") support++;
+    if(v==="against") against++;
+  });
+
+  document.getElementById("result").innerHTML =
+    "👍 " + support + " | 👎 " + against;
+});
 
 </script>
 
