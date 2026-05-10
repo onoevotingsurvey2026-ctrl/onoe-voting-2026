@@ -23,11 +23,10 @@
       padding:10px;
       white-space:nowrap;
       overflow:hidden;
-      font-size:14px;
     }
 
     .box{
-      background:rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.15);
       backdrop-filter:blur(10px);
       border:1px solid rgba(255,255,255,0.3);
       margin:15px;
@@ -62,7 +61,7 @@
 <body>
 
 <div id="ticker">
-🔥 LIVE: Global Voting System Active | One Gmail One Vote Secure Firebase System
+🔥 LIVE: Global Voting System Active | One Gmail One Vote Secure System
 </div>
 
 <div class="box">
@@ -71,7 +70,7 @@
   <button onclick="login()">Login with Google</button>
   <button onclick="logout()">Logout</button>
 
-  <p id="user">Please login with Google</p>
+  <p id="user">Login not done</p>
 
   <hr>
 
@@ -93,7 +92,7 @@
 <div id="toast"></div>
 
 <script>
-/* 🔥 FIREBASE CONFIG */
+
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -108,28 +107,36 @@ const db = firebase.firestore();
 let currentUser = null;
 let selectedVote = null;
 
-/* 🔐 GOOGLE LOGIN (MOBILE SAFE) */
+/* 🔐 GOOGLE LOGIN (REDIRECT SAFE) */
 const provider = new firebase.auth.GoogleAuthProvider();
 
 function login(){
   auth.signInWithRedirect(provider);
 }
 
-/* 🔁 HANDLE REDIRECT RESULT */
-auth.getRedirectResult().catch(console.error);
+/* 🔥 IMPORTANT: REDIRECT RESULT HANDLER */
+auth.getRedirectResult()
+.then(result => {
+  if(result.user){
+    console.log("LOGIN SUCCESS:", result.user.email);
+  }
+})
+.catch(error => console.log(error));
 
 /* 👤 AUTH STATE */
 auth.onAuthStateChanged(user=>{
   if(user){
     currentUser = user;
+
     document.getElementById("user").innerText =
       "Logged in: " + user.email;
 
     listenLive();
+
   } else {
     currentUser = null;
     document.getElementById("user").innerText =
-      "Please login with Google";
+      "Login not done";
   }
 });
 
@@ -204,6 +211,7 @@ function showToast(msg){
 
   setTimeout(()=>t.style.display="none",3000);
 }
+
 </script>
 
 </body>
