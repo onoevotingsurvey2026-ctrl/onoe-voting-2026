@@ -1,144 +1,132 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Global Voting System</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Global Voting Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-  <style>
-    body{
-      font-family: Arial;
-      background:#0f172a;
-      color:white;
-      text-align:center;
-      padding:20px;
-    }
-    .box{
-      background:#1e293b;
-      padding:20px;
-      margin:10px auto;
-      width:90%;
-      max-width:500px;
-      border-radius:10px;
-    }
-    button{
-      padding:10px 20px;
-      margin:5px;
-      border:none;
-      border-radius:5px;
-      cursor:pointer;
-    }
-    .login{background:#22c55e;color:white;}
-    .logout{background:#ef4444;color:white;}
-    .vote{background:#3b82f6;color:white;}
-  </style>
+<style>
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:white;
+  text-align:center;
+  margin:0;
+}
+
+header{
+  background:#1e293b;
+  padding:15px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.container{
+  margin-top:30px;
+}
+
+.card{
+  background:#111827;
+  padding:20px;
+  margin:15px auto;
+  width:300px;
+  border-radius:12px;
+  box-shadow:0 0 10px #000;
+}
+
+button{
+  padding:10px 15px;
+  margin:5px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.support{background:green;color:white;}
+.against{background:red;color:white;}
+.login{background:#2563eb;color:white;}
+</style>
 </head>
 
 <body>
 
-<h2>🌍 GLOBAL VOTING SYSTEM</h2>
+<header>🗳 Global Election Dashboard</header>
 
-<div class="box">
-  <p id="status">NOT LOGGED IN</p>
+<div class="container">
 
-  <button class="login" onclick="login()">🔐 Login with Google</button>
-  <button class="logout" onclick="logout()">Logout</button>
-</div>
+  <div class="card">
+    <h3>User Login</h3>
+    <button class="login" onclick="login()">Login with Google</button>
+    <p id="user">Not Logged In</p>
+  </div>
 
-<div class="box">
-  <h3>🗳 LIVE RESULTS</h3>
-  <p id="result">Loading...</p>
-</div>
+  <div class="card">
+    <h3>Vote Panel</h3>
+    <button class="support" onclick="vote('support')">👍 SUPPORT</button>
+    <button class="against" onclick="vote('against')">👎 AGAINST</button>
+  </div>
 
-<div class="box">
-  <h3>VOTE</h3>
-  <button class="vote" onclick="vote('support')">👍 SUPPORT</button>
-  <button class="vote" onclick="vote('against')">👎 AGAINST</button>
+  <div class="card">
+    <h3>Live Result</h3>
+    <p>Support: <span id="s">0</span></p>
+    <p>Against: <span id="a">0</span></p>
+  </div>
+
 </div>
 
 <script>
-
-/* 🔥 FIREBASE CONFIG */
+// Firebase config (your project)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  authDomain: "onoevote2026.firebaseapp.com",
+  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "onoevote2026",
+  storageBucket: "onoevote2026.firebasestorage.app",
+  messagingSenderId: "181065724520",
+  appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
-const db = firebase.firestore();
+const db = firebase.database();
 
-/* 🔐 LOGIN (FIXED POPUP VERSION) */
+/* LOGIN */
 function login(){
-  console.log("👉 LOGIN CLICKED");
-
   const provider = new firebase.auth.GoogleAuthProvider();
-
-  firebase.auth().signInWithPopup(provider)
-    .then(result => {
-      console.log("✅ LOGIN SUCCESS:", result.user.email);
-    })
-    .catch(error => {
-      console.log("❌ LOGIN ERROR:", error.code, error.message);
-      alert(error.message);
-    });
+  auth.signInWithPopup(provider)
+  .then(res=>{
+    document.getElementById("user").innerText = res.user.email;
+  })
+  .catch(err=>{
+    alert(err.message);
+  });
 }
 
-/* 🔓 LOGOUT */
-function logout(){
-  auth.signOut();
-}
-
-/* 👤 AUTH STATE */
-auth.onAuthStateChanged(user => {
-  if(user){
-    document.getElementById("status").innerText =
-      "LOGGED IN: " + user.email;
-  } else {
-    document.getElementById("status").innerText =
-      "NOT LOGGED IN";
-  }
-});
-
-/* 🗳 VOTE FUNCTION */
+/* VOTE */
 function vote(type){
-  let user = auth.currentUser;
+  const ref = db.ref("votes");
 
-  if(!user){
-    alert("Please login first");
-    return;
-  }
+  ref.once("value").then(snapshot=>{
+    let data = snapshot.val() || {support:0, against:0};
 
-  db.collection("votes").add({
-    uid: user.uid,
-    vote: type,
-    time: new Date()
+    if(type === "support") data.support++;
+    if(type === "against") data.against++;
+
+    ref.set(data);
   });
 }
 
-/* 📊 LIVE RESULTS */
-db.collection("votes").onSnapshot(snapshot => {
-
-  let support = 0;
-  let against = 0;
-
-  snapshot.forEach(doc => {
-    let v = doc.data().vote;
-    if(v === "support") support++;
-    if(v === "against") against++;
-  });
-
-  document.getElementById("result").innerHTML =
-    "👍 SUPPORT: " + support +
-    "<br>👎 AGAINST: " + against;
-
+/* LIVE UPDATE */
+db.ref("votes").on("value", snap=>{
+  let v = snap.val() || {support:0, against:0};
+  document.getElementById("s").innerText = v.support;
+  document.getElementById("a").innerText = v.against;
 });
 
 </script>
