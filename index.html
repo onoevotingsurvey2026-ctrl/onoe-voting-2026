@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Global Voting System</title>
+  <title>GLOBAL VOTING SYSTEM</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -11,10 +11,9 @@
   <style>
     body{
       font-family:Arial;
-      text-align:center;
       background:#0b1220;
       color:white;
-      margin:0;
+      text-align:center;
     }
 
     .box{
@@ -26,16 +25,13 @@
 
     button{
       padding:12px;
-      margin:5px;
+      margin:6px;
       border:none;
       border-radius:6px;
-      cursor:pointer;
     }
 
     .login{background:#2196F3;color:white;}
     .logout{background:#444;color:white;}
-
-    #voteBox{display:none;}
   </style>
 </head>
 
@@ -50,15 +46,14 @@
   <p id="status">NOT LOGGED IN</p>
 </div>
 
-<!-- DASHBOARD ALWAYS EXISTS -->
-<div class="box" id="voteBox">
+<div class="box">
   <h3>🗳 LIVE RESULTS</h3>
   <div id="result">Loading...</div>
 </div>
 
 <script>
 
-/* 🔥 FIREBASE CONFIG */
+/* 🔥 FIREBASE CONFIG (CHECK THIS FIRST) */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -71,11 +66,19 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-let user = null;
+/* DEBUG */
+console.log("Firebase loaded");
 
-/* LOGIN */
+/* LOGIN - SAFE METHOD */
 function login(){
-  auth.signInWithPopup(provider);
+  auth.signInWithPopup(provider)
+  .then(result => {
+    console.log("LOGIN SUCCESS:", result.user.email);
+  })
+  .catch(error => {
+    console.log("LOGIN ERROR:", error);
+    alert("Login failed. Check Firebase settings.");
+  });
 }
 
 /* LOGOUT */
@@ -83,35 +86,22 @@ function logout(){
   auth.signOut();
 }
 
-/* AUTH STATE FIX */
-auth.onAuthStateChanged(u => {
+/* AUTH STATE */
+auth.onAuthStateChanged(user => {
 
-  if(u){
-    user = u;
+  console.log("AUTH STATE:", user);
 
+  if(user){
     document.getElementById("status").innerText =
-      "LOGGED IN: " + u.email;
-
-    document.getElementById("voteBox").style.display = "block";
-
-    loadLive();
-
+      "LOGGED IN: " + user.email;
   } else {
-
-    user = null;
-
     document.getElementById("status").innerText =
       "NOT LOGGED IN";
-
-    document.getElementById("voteBox").style.display = "block"; 
-    // dashboard still visible (no missing issue)
-
-    loadLive();
   }
 
 });
 
-/* LIVE RESULTS */
+/* LIVE RESULTS SAFE */
 function loadLive(){
 
   db.collection("votes").onSnapshot(snapshot => {
@@ -129,9 +119,13 @@ function loadLive(){
       "👍 SUPPORT: " + support +
       "<br>👎 AGAINST: " + against;
 
+  }, error => {
+    console.log("DB ERROR:", error);
   });
 
 }
+
+loadLive();
 
 </script>
 
