@@ -1,43 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Firebase Login System</title>
+  <title>Stable Voting Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
     body{
       margin:0;
       font-family:Arial;
-      background:linear-gradient(135deg,#1e3c72,#2a5298);
+      background:linear-gradient(135deg,#141e30,#243b55);
       color:white;
       text-align:center;
     }
 
     .box{
-      background:rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.12);
       backdrop-filter:blur(10px);
-      margin:30px auto;
+      margin:15px;
       padding:20px;
-      width:90%;
-      max-width:400px;
       border-radius:15px;
     }
 
     button{
       padding:10px 15px;
+      margin:5px;
       border:none;
       border-radius:6px;
       cursor:pointer;
-      margin-top:10px;
     }
 
-    #status{
-      margin-top:15px;
-      font-weight:bold;
+    .support{background:green;color:white;}
+    .against{background:red;color:white;}
+
+    #toast{
+      position:fixed;
+      bottom:20px;
+      left:50%;
+      transform:translateX(-50%);
+      background:#222;
+      padding:10px 20px;
+      border-radius:8px;
+      display:none;
     }
   </style>
 </head>
@@ -45,17 +52,34 @@
 <body>
 
 <div class="box">
-  <h2>GLOBAL LOGIN SYSTEM</h2>
+  <h2>GLOBAL VOTING SYSTEM</h2>
 
   <button onclick="login()">Login with Google</button>
   <button onclick="logout()">Logout</button>
 
-  <div id="status">Please login</div>
+  <p id="status">Please login</p>
 </div>
+
+<div class="box" id="dashboardBox" style="display:none;">
+  <h3>SELECT YOUR VOTE</h3>
+
+  <button class="support" onclick="vote('support')">👍 SUPPORT</button>
+  <button class="against" onclick="vote('against')">👎 AGAINST</button>
+
+  <br><br>
+  <button onclick="submitVote()">SUBMIT VOTE</button>
+</div>
+
+<div class="box">
+  <h3>LIVE DASHBOARD</h3>
+  <div id="dashboard">Loading...</div>
+</div>
+
+<div id="toast"></div>
 
 <script>
 
-/* 🔥 Firebase Config */
+/* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -65,11 +89,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
+const db = firebase.firestore();
 
-/* 🔐 Google Provider */
 const provider = new firebase.auth.GoogleAuthProvider();
 
-/* 🚀 LOGIN FUNCTION */
+let currentUser = null;
+let selectedVote = null;
+
+/* 🔐 LOGIN (STABLE FIX) */
 function login(){
   auth.signInWithPopup(provider)
   .catch(() => {
@@ -77,24 +104,30 @@ function login(){
   });
 }
 
-/* 🔁 REDIRECT RESULT HANDLER */
-auth.getRedirectResult()
-.then(result => {
-  if(result.user){
-    console.log("LOGIN SUCCESS:", result.user.email);
-  }
-});
+/* 🔁 REDIRECT HANDLER */
+auth.getRedirectResult().catch(()=>{});
 
-/* 👤 AUTH STATE LISTENER */
+/* 👤 AUTH STATE (MAIN FIX) */
 auth.onAuthStateChanged(user => {
 
   if(user){
+    currentUser = user;
+
     document.getElementById("status").innerHTML =
-      "✅ Logged in as: " + user.email;
+      "✅ Logged in: " + user.email;
+
+    document.getElementById("dashboardBox").style.display = "block";
+
+    loadLive();
 
   } else {
+
+    currentUser = null;
+
     document.getElementById("status").innerHTML =
-      "❌ Not logged in";
+      "❌ Please login";
+
+    document.getElementById("dashboardBox").style.display = "none";
   }
 
 });
@@ -102,6 +135,74 @@ auth.onAuthStateChanged(user => {
 /* 🚪 LOGOUT */
 function logout(){
   auth.signOut();
+  showToast("Logged out");
+}
+
+/* 🗳 SELECT VOTE */
+function vote(v){
+  selectedVote = v;
+  showToast("Selected: " + v);
+}
+
+/* 📤 SUBMIT VOTE */
+function submitVote(){
+
+  if(!currentUser){
+    alert("Login first");
+    return;
+  }
+
+  if(!selectedVote){
+    alert("Select vote");
+    return;
+  }
+
+  const ref = db.collection("votes").doc(currentUser.email);
+
+  ref.get().then(doc => {
+    if(doc.exists){
+      showToast("❌ Already voted");
+      return;
+    }
+
+    ref.set({
+      vote: selectedVote,
+      time: new Date()
+    });
+
+    showToast("🎉 Vote Recorded");
+  });
+
+}
+
+/* 📊 LIVE DASHBOARD */
+function loadLive(){
+
+  db.collection("votes").onSnapshot(snapshot => {
+
+    let support = 0;
+    let against = 0;
+
+    snapshot.forEach(doc => {
+      let v = doc.data().vote;
+      if(v === "support") support++;
+      if(v === "against") against++;
+    });
+
+    document.getElementById("dashboard").innerHTML =
+      "👍 SUPPORT: " + support + "<br>👎 AGAINST: " + against;
+
+  });
+
+}
+
+/* 📱 TOAST */
+function showToast(msg){
+  let t = document.getElementById("toast");
+  t.innerText = msg;
+  t.style.display = "block";
+
+  setTimeout(()=> t.style.display="none", 2500);
 }
 
 </script>
