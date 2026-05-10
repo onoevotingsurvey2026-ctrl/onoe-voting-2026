@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GLOBAL VOTING SYSTEM</title>
+  <title>GLOBAL VOTING SYSTEM - FINAL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Firebase v8 STABLE -->
+  <!-- Firebase v8 (STABLE ONLY) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -53,7 +53,7 @@
   <p id="status">NOT LOGGED IN</p>
 </div>
 
-<!-- DASHBOARD ALWAYS PRESENT (FIXED ISSUE) -->
+<!-- DASHBOARD ALWAYS ACTIVE -->
 <div class="box" id="dashboard">
   <h3>🗳 LIVE RESULTS</h3>
   <div id="result">Loading...</div>
@@ -74,7 +74,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-/* 🔐 LOGIN (STABLE METHOD) */
+/* 🔐 LOGIN FIXED (REDIRECT METHOD ONLY) */
 function login(){
   auth.signInWithRedirect(provider);
 }
@@ -84,7 +84,7 @@ function logout(){
   auth.signOut();
 }
 
-/* 🔐 REDIRECT RESULT HANDLER */
+/* 🔐 HANDLE LOGIN RESULT */
 auth.getRedirectResult()
 .then(result => {
   if(result.user){
@@ -95,12 +95,13 @@ auth.getRedirectResult()
   console.log("LOGIN ERROR:", error.code, error.message);
 });
 
-/* 🔐 AUTH STATE (MAIN FIX FOR DASHBOARD ISSUE) */
+/* 🔐 AUTH STATE FIX (MAIN CRITICAL FIX) */
 auth.onAuthStateChanged(user => {
 
   if(user){
     document.getElementById("status").innerText =
       "LOGGED IN: " + user.email;
+
   } else {
     document.getElementById("status").innerText =
       "NOT LOGGED IN";
@@ -108,7 +109,7 @@ auth.onAuthStateChanged(user => {
 
 });
 
-/* 🔥 LIVE RESULTS (SAFE) */
+/* 🔥 LIVE RESULTS (SAFE FIRESTORE LISTENER) */
 db.collection("votes").onSnapshot(snapshot => {
 
   let support = 0;
