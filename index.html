@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GLOBAL VOTING SYSTEM</title>
+  <title>GLOBAL VOTING SYSTEM - CLEAN BUILD</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Firebase v8 STABLE -->
+  <!-- Firebase (ONLY REQUIRED MODULES) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -12,17 +12,17 @@
   <style>
     body{
       font-family:Arial;
-      margin:0;
       background:#0b1220;
       color:white;
       text-align:center;
+      margin:0;
     }
 
     .box{
       margin:15px;
       padding:20px;
       background:#ffffff10;
-      border-radius:10px;
+      border-radius:12px;
     }
 
     button{
@@ -56,9 +56,9 @@
 
 <script>
 
-/* 🔥 FIREBASE CONFIG */
+/* 🔥 CLEAN FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
+  apiKey: "YOUR_REAL_API_KEY",
   authDomain: "onoevote2026.firebaseapp.com",
   projectId: "onoevote2026"
 };
@@ -69,7 +69,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-/* 🔐 LOGIN (FIXED) */
+/* 🔐 LOGIN */
 function login(){
   auth.signInWithRedirect(provider);
 }
@@ -79,7 +79,7 @@ function logout(){
   auth.signOut();
 }
 
-/* 🔥 REDIRECT RESULT DEBUG (FIXED PART YOU ASKED) */
+/* 🔥 REDIRECT RESULT HANDLER (SAFE) */
 auth.getRedirectResult()
 .then(result => {
   if(result.user){
@@ -88,10 +88,9 @@ auth.getRedirectResult()
 })
 .catch(error => {
   console.log("LOGIN ERROR:", error.code, error.message);
-  alert(error.message);
 });
 
-/* 🔐 AUTH STATE (CRITICAL FIX) */
+/* 🔐 AUTH STATE LISTENER */
 auth.onAuthStateChanged(user => {
 
   if(user){
@@ -104,7 +103,7 @@ auth.onAuthStateChanged(user => {
 
 });
 
-/* 🔥 LIVE RESULTS */
+/* 🗳 LIVE VOTE COUNT (SAFE) */
 db.collection("votes").onSnapshot(snapshot => {
 
   let support = 0;
