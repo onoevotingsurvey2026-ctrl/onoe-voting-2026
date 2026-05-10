@@ -1,259 +1,460 @@
+# Final `index.html` Code
+
+```html
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="UTF-8">
-<title>Global Voting Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Indian Public Opinion Voting Platform</title>
+  <meta property="og:url" content="https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
 
-<style>
+    .header {
+      background: linear-gradient(135deg,#0f172a,#1e3a8a);
+      padding: 20px;
+      border-radius: 15px;
+      margin: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
 
-body{
-    font-family:Arial;
-    background:#0f172a;
-    color:white;
-    text-align:center;
-    margin:0;
-}
+    .header h1 {
+      font-size: 32px;
+      margin: 0;
+    }
 
-header{
-    background:#1e293b;
-    padding:15px;
-    font-size:24px;
-    font-weight:bold;
-}
+    .header h2 {
+      color: #facc15;
+      margin-top: 10px;
+    }
 
-.container{
-    margin-top:30px;
-}
+    .container {
+      padding: 20px;
+    }
 
-.card{
-    background:#111827;
-    padding:20px;
-    margin:15px auto;
-    width:320px;
-    border-radius:12px;
-    box-shadow:0 0 10px black;
-}
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      margin: 15px auto;
+      border-radius: 15px;
+      max-width: 500px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
 
-button{
-    padding:12px 18px;
-    margin:5px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:16px;
-}
+    button {
+      padding: 12px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-.support{
-    background:green;
-    color:white;
-}
+    .support {
+      background: #16a34a;
+      color: white;
+    }
 
-.against{
-    background:red;
-    color:white;
-}
+    .against {
+      background: #dc2626;
+      color: white;
+    }
 
-.login{
-    background:#2563eb;
-    color:white;
-}
+    .google {
+      background: white;
+      color: black;
+    }
 
-.result{
-    font-size:22px;
-    font-weight:bold;
-}
+    .result-box {
+      font-size: 20px;
+      margin-top: 15px;
+      line-height: 2;
+    }
 
-</style>
+    .footer {
+      margin-top: 30px;
+      padding: 15px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+  </style>
 </head>
-
 <body>
 
-<header>
-🗳 Global Election Dashboard
-</header>
+  <!-- HEADER -->
 
-<div class="container">
+  <div class="header">
+    <h1>🌍 உலகளாவிய இந்திய மக்களின் கருத்து பதிவு இணைய தளம்</h1>
 
-    <!-- LOGIN -->
+    <h2>Global Indian Public Opinion Voting Platform</h2>
+
+    <p>
+      ஒரே நாடு ஒரே தேர்தல் மற்றும் தொகுதி மறுசீரமைப்பு தொடர்பான
+      உலகளாவிய இந்திய மக்களின் கருத்து பதிவு தளம்
+    </p>
+  </div>
+
+
+  <div class="container">
+
+    <!-- LOGIN CARD -->
+
     <div class="card">
+      <h2>User Login</h2>
 
-        <h2>User Login</h2>
+      <button class="google" id="loginBtn">
+        Login with Google
+      </button>
 
-        <button class="login" onclick="login()">
-            Login with Google
-        </button>
-
-        <p id="user">
-            Not Logged In
-        </p>
-
+      <p id="userInfo">Not Logged In</p>
     </div>
 
 
-    <!-- VOTING -->
+    <!-- VOTING PANEL -->
+
     <div class="card">
 
-        <h2>Vote Panel</h2>
+      <h2>Vote Panel</h2>
 
-        <button class="support" onclick="vote('support')">
-            👍 SUPPORT
-        </button>
+      <button
+        id="supportBtn"
+        class="support"
+        onclick="submitVote('onoe_support')">
+        👍 ONOE SUPPORT
+      </button>
 
-        <button class="against" onclick="vote('against')">
-            👎 AGAINST
-        </button>
+      <button
+        id="againstBtn"
+        class="against"
+        onclick="submitVote('onoe_against')">
+        👎 ONOE AGAINST
+      </button>
 
     </div>
 
 
     <!-- LIVE RESULT -->
+
     <div class="card">
 
-        <h2>🔥 Live Result</h2>
+      <h2>📊 Live Result Dashboard</h2>
 
-        <p class="result">
-            Support :
-            <span id="s">0</span>
-        </p>
+      <div class="result-box">
 
-        <p class="result">
-            Against :
-            <span id="a">0</span>
-        </p>
+        👍 ONOE Support:
+        <span id="onoeSupport">0</span>
+
+        <br>
+
+        👎 ONOE Against:
+        <span id="onoeAgainst">0</span>
+
+        <br>
+
+        👍 DEL Support:
+        <span id="delSupport">0</span>
+
+        <br>
+
+        👎 DEL Against:
+        <span id="delAgainst">0</span>
+
+      </div>
 
     </div>
 
-</div>
 
-<script>
+    <div class="footer">
+      🌐 Official Website:<br>
+      https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
+      <br><br>
+      © 2026 Global Indian Public Opinion Platform
+    </div>
 
-// Firebase Config
-
-const firebaseConfig = {
-
-    apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-
-    authDomain: "onoevote2026.firebaseapp.com",
-
-    projectId: "onoevote2026",
-
-    storageBucket: "onoevote2026.firebasestorage.app",
-
-    messagingSenderId: "181065724520",
-
-    appId: "1:181065724520:web:f72a93869786373c1101dd"
-
-};
+  </div>
 
 
-// Initialize Firebase
+  <!-- FIREBASE SCRIPT -->
 
-firebase.initializeApp(firebaseConfig);
+  <script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      onSnapshot,
+      updateDoc,
+      increment,
+      getDoc,
+      setDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-// Firebase Services
+    // 🔥 YOUR FIREBASE CONFIG
 
-const auth = firebase.auth();
+    const firebaseConfig = {
 
-const db = firebase.firestore();
+      apiKey: "YOUR_API_KEY",
+
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+
+      projectId: "YOUR_PROJECT_ID",
+
+      storageBucket: "YOUR_PROJECT.appspot.com",
+
+      messagingSenderId: "YOUR_SENDER_ID",
+
+      appId: "YOUR_APP_ID"
+
+    };
 
 
-// LOGIN
+    const app = initializeApp(firebaseConfig);
 
-function login(){
+    const auth = getAuth(app);
 
-    const provider =
-        new firebase.auth.GoogleAuthProvider();
+    const db = getFirestore(app);
 
-    auth.signInWithPopup(provider)
+    const provider = new GoogleAuthProvider();
 
-    .then((result)=>{
 
-        document.getElementById("user").innerText =
-            result.user.email;
+    let currentUser = null;
 
-    })
 
-    .catch((error)=>{
+    // 🔊 AUTO VOICE MESSAGE
+
+    window.onload = () => {
+
+      const audio = new Audio("voice.mp3");
+
+      audio.volume = 1.0;
+
+      audio.play();
+
+    };
+
+
+    // 🔐 LOGIN
+
+    document.getElementById("loginBtn")
+    .addEventListener("click", async () => {
+
+      try {
+
+        await signInWithPopup(auth, provider);
+
+      } catch (error) {
 
         alert(error.message);
 
-    });
-
-}
-
-
-// VOTE FUNCTION
-
-function vote(type){
-
-    const voteRef =
-        db.collection("votes").doc("global_vote");
-
-    voteRef.get()
-
-    .then((doc)=>{
-
-        let data = doc.data() || {
-
-            onoe_support:0,
-
-            onoe_against:0
-
-        };
-
-
-        if(type === "support"){
-
-            data.onoe_support++;
-
-        }
-
-
-        if(type === "against"){
-
-            data.onoe_against++;
-
-        }
-
-
-        voteRef.set(data);
+      }
 
     });
 
-}
+
+    onAuthStateChanged(auth, async (user) => {
+
+      if (user) {
+
+        currentUser = user;
+
+        document.getElementById("userInfo").innerHTML =
+          `✅ ${user.email}`;
+
+        checkExistingVote();
+
+      }
+
+    });
 
 
-// LIVE RESULT UPDATE
+    // 🔥 FIRESTORE LIVE RESULT
 
-db.collection("votes")
+    const voteRef = doc(db, "votes", "global_vote");
 
-.doc("global_vote")
 
-.onSnapshot((doc)=>{
+    onSnapshot(voteRef, (docSnap) => {
 
-    if(doc.exists){
+      if (docSnap.exists()) {
 
-        let data = doc.data();
+        const data = docSnap.data();
 
-        document.getElementById("s").innerText =
-            data.onoe_support || 0;
+        document.getElementById("onoeSupport").innerText =
+          data.onoe_support || 0;
 
-        document.getElementById("a").innerText =
-            data.onoe_against || 0;
+        document.getElementById("onoeAgainst").innerText =
+          data.onoe_against || 0;
+
+        document.getElementById("delSupport").innerText =
+          data.del_support || 0;
+
+        document.getElementById("delAgainst").innerText =
+          data.del_against || 0;
+
+      }
+
+    });
+
+
+    // 🔐 CHECK EXISTING VOTE
+
+    async function checkExistingVote() {
+
+      if (!currentUser) return;
+
+      const userVoteRef =
+        doc(db, "user_votes", currentUser.uid);
+
+      const voteSnap = await getDoc(userVoteRef);
+
+      if (voteSnap.exists()) {
+
+        document.getElementById("supportBtn").disabled = true;
+
+        document.getElementById("againstBtn").disabled = true;
+
+        alert("✅ Your vote already recorded");
+
+      }
 
     }
 
-});
 
-</script>
+    // 🗳 SUBMIT VOTE
+
+    window.submitVote = async function(voteType) {
+
+      if (!currentUser) {
+
+        alert("⚠ Please login first");
+
+        return;
+
+      }
+
+      const userVoteRef =
+        doc(db, "user_votes", currentUser.uid);
+
+      const existingVote =
+        await getDoc(userVoteRef);
+
+
+      // 🚫 DUPLICATE BLOCK
+
+      if (existingVote.exists()) {
+
+        alert(
+          "✅ Your vote already recorded. One Gmail ID = One Vote only."
+        );
+
+        return;
+
+      }
+
+
+      // ✅ UPDATE GLOBAL VOTE
+
+      await updateDoc(voteRef, {
+
+        [voteType]: increment(1)
+
+      });
+
+
+      // ✅ SAVE USER VOTE
+
+      await setDoc(userVoteRef, {
+
+        email: currentUser.email,
+
+        vote: voteType,
+
+        timestamp: serverTimestamp()
+
+      });
+
+
+      // 🔒 LOCK BUTTONS
+
+      document.getElementById("supportBtn").disabled = true;
+
+      document.getElementById("againstBtn").disabled = true;
+
+
+      // 🔊 SUCCESS AUDIO
+
+      const successAudio = new Audio("success.mp3");
+
+      successAudio.play();
+
+
+      // ✅ SUCCESS MESSAGE
+
+      alert(
+        "🙏 உங்கள் வாக்கு வெற்றிகரமாக பதிவு செய்யப்பட்டது"
+      );
+
+    }
+
+  </script>
 
 </body>
 </html>
+```
+
+# Required Files
+
+Upload these files into your GitHub project folder:
+
+* `index.html`
+* `voice.mp3`
+* `success.mp3`
+
+# Firestore Collections
+
+## Collection 1
+
+`votes`
+
+Document:
+
+`global_vote`
+
+Fields:
+
+* onoe_support = 0
+* onoe_against = 0
+* del_support = 0
+* del_against = 0
+
+## Collection 2
+
+`user_votes`
+
+(automatic user vote storage)
+
+# Final Step
+
+1. Save file
+2. Push to GitHub
+3. Refresh website
+4. Test login + vote
