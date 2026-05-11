@@ -19,8 +19,21 @@ body{
   color:#fff;
   text-align:center;
   padding:18px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.6);
   border-bottom:2px solid #1976d2;
+}
+
+/* SEAL */
+.seal{
+  text-align:center;
+  margin-top:10px;
+}
+.seal-box{
+  display:inline-block;
+  border:3px solid #1976d2;
+  border-radius:50%;
+  padding:15px;
+  color:#90caf9;
+  font-weight:bold;
 }
 
 /* CARD */
@@ -32,7 +45,7 @@ body{
   border:1px solid #1f2a36;
 }
 
-/* BUTTONS */
+/* BUTTON */
 button{
   padding:10px;
   margin:5px;
@@ -49,20 +62,6 @@ button{
 /* TEXT */
 h3{color:#90caf9}
 .small{font-size:13px;color:#b0bec5}
-
-/* SEAL */
-.seal{
-  text-align:center;
-  margin-top:10px;
-}
-.seal-box{
-  display:inline-block;
-  border:3px solid #1976d2;
-  border-radius:50%;
-  padding:15px;
-  color:#90caf9;
-  font-weight:bold;
-}
 </style>
 
 </head>
@@ -75,7 +74,7 @@ h3{color:#90caf9}
 🗳️ Digital Democracy Platform
 </header>
 
-<!-- SEAL -->
+<!-- OFFICIAL SEAL -->
 <div class="seal">
   <div class="seal-box">
     🏛️ ELECTION COMMISSION<br>
@@ -83,26 +82,31 @@ h3{color:#90caf9}
   </div>
 </div>
 
+<!-- LOGIN -->
 <div class="card">
 <h3>Login</h3>
 <button onclick="googleLogin()">Login with Google</button>
-<p id="user"></p>
+<p id="user">Not Logged In</p>
 </div>
 
+<!-- VOTE -->
 <div class="card">
 <h3>Vote Panel</h3>
 <button class="support" onclick="vote('support')">👍 SUPPORT</button>
 <button class="against" onclick="vote('against')">👎 AGAINST</button>
 <button class="reset" onclick="resetVote()">RESET</button>
-<p class="small">One Email + One Device = One Vote (Secure System)</p>
+
+<p class="small">One Email + One Device + OTP Secure System</p>
 </div>
 
+<!-- VOICE -->
 <div class="card">
 <h3>Voice Guide</h3>
 <button onclick="playPolicy()">▶ Play Policy</button>
 <audio id="policyAudio" controls></audio>
 </div>
 
+<!-- RESULT -->
 <div class="card">
 <h3>Live Result</h3>
 <p>Support: <span id="s">0</span></p>
@@ -115,72 +119,97 @@ h3{color:#90caf9}
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
+/* FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  databaseURL: "YOUR_DB_URL",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-let currentUser=null;
+let currentUser = null;
+let generatedOTP = null;
 
-/* LOGIN */
-auth.onAuthStateChanged(user=>{
-  if(user){
-    currentUser=user;
-    document.getElementById("user").innerText=user.email;
-  }
-});
-
+/* GOOGLE LOGIN */
 function googleLogin(){
-  let provider=new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider);
+  let provider = new firebase.auth.GoogleAuthProvider();
+
+  auth.signInWithPopup(provider)
+  .then(res=>{
+    currentUser = res.user;
+
+    // STEP 2 OTP
+    sendOTP(currentUser.email);
+  })
+  .catch(err=>{
+    alert("Login Failed: " + err.message);
+  });
+}
+
+/* OTP SYSTEM */
+function sendOTP(email){
+  generatedOTP = Math.floor(100000 + Math.random()*900000);
+
+  alert("OTP Sent (Demo): " + generatedOTP);
+
+  let input = prompt("Enter OTP:");
+
+  if(input == generatedOTP){
+    document.getElementById("user").innerText = email;
+    alert("Authentication Success");
+  } else {
+    alert("Invalid OTP");
+    firebase.auth().signOut();
+  }
 }
 
 /* DEVICE ID */
 function getDeviceId(){
-  let id=localStorage.getItem("dev_id");
+  let id = localStorage.getItem("dev_id");
   if(!id){
-    id="DEV-"+Math.random().toString(36).substr(2,10);
+    id = "DEV-" + Math.random().toString(36).substr(2,10);
     localStorage.setItem("dev_id",id);
   }
   return id;
 }
 
-/* BLOCK HASH */
+/* VOTE HASH */
 function generateHash(email,vote,time,device){
   return btoa(email+vote+time+device);
 }
 
 /* VOTE SYSTEM */
 function vote(type){
-  if(!currentUser){alert("Login required");return;}
+  if(!currentUser){
+    alert("Login required");
+    return;
+  }
 
-  let deviceId=getDeviceId();
-  let time=Date.now();
+  let device = getDeviceId();
+  let time = Date.now();
 
   db.ref("votes/"+currentUser.uid).once("value",snap=>{
     if(snap.exists()){
-      alert("Already voted (Immutable Block)");
+      alert("Already Voted");
       return;
     }
 
-    let hash=generateHash(currentUser.email,type,time,deviceId);
+    let hash = generateHash(currentUser.email,type,time,device);
 
     db.ref("votes/"+currentUser.uid).set({
-      email:currentUser.email,
-      vote:type,
-      time:time,
-      device:deviceId,
-      blockHash:hash,
-      previousHash:"GENESIS"
+      email: currentUser.email,
+      vote: type,
+      time: time,
+      device: device,
+      blockHash: hash,
+      previousHash: "GENESIS"
     });
 
     alert("Vote Recorded Securely");
@@ -196,12 +225,12 @@ function resetVote(){
 
 /* LIVE RESULT */
 db.ref("votes").on("value",snap=>{
-  let data=snap.val()||{};
+  let data = snap.val() || {};
   let s=0,a=0;
 
   Object.values(data).forEach(v=>{
-    if(v.vote==="support")s++;
-    if(v.vote==="against")a++;
+    if(v.vote=="support")s++;
+    if(v.vote=="against")a++;
   });
 
   document.getElementById("s").innerText=s;
@@ -210,8 +239,8 @@ db.ref("votes").on("value",snap=>{
 
 /* VOICE */
 function playPolicy(){
-  let audio=document.getElementById("policyAudio");
-  audio.src="policy-intro.mp3";
+  let audio = document.getElementById("policyAudio");
+  audio.src = "policy-intro.mp3";
   audio.play();
 }
 </script>
