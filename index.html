@@ -1,218 +1,124 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Global Indian Vote Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-  font-family: Arial;
-  margin:0;
-  background:#f4f4f4;
-}
-header{
-  background:#0d47a1;
-  color:white;
-  padding:15px;
-  text-align:center;
-}
-.container{
-  padding:15px;
-}
-.card{
-  background:white;
-  padding:15px;
-  margin:10px 0;
-  border-radius:10px;
-  box-shadow:0 0 5px rgba(0,0,0,0.1);
-}
-button{
-  padding:10px;
-  margin:5px;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
-}
-.support{background:green;color:white;}
-.against{background:red;color:white;}
-.reset{background:gray;color:white;}
-.lang{float:right;}
-.small{font-size:13px;color:#555;}
+body{font-family:Arial;margin:0;background:#f4f4f4}
+header{background:#0d47a1;color:#fff;padding:15px;text-align:center}
+.container{padding:15px}
+.card{background:#fff;padding:15px;margin:10px 0;border-radius:10px}
+button{padding:10px;margin:5px;border:none;border-radius:5px;cursor:pointer}
+.support{background:green;color:#fff}
+.against{background:red;color:#fff}
+.reset{background:gray;color:#fff}
 </style>
 
 </head>
 <body>
 
 <header>
-  🌍 Global Indian Vote Dashboard
-  <button class="lang" onclick="toggleLang()">தமிழ் / EN</button>
+🌍 Global Indian Vote Dashboard  
+🗳️ Digital Democracy Platform
 </header>
 
 <div class="container">
 
-<!-- LOGIN -->
 <div class="card">
-  <h3 id="loginText">Login</h3>
-  <button onclick="googleLogin()">Login with Google</button>
-  <p id="user"></p>
+<h3>Login</h3>
+<button onclick="googleLogin()">Login with Google</button>
+<p id="user"></p>
 </div>
 
-<!-- VOTE PANEL -->
 <div class="card">
-  <h3 id="voteTitle">Vote Panel</h3>
-
-  <button class="support" onclick="vote('support')">👍 SUPPORT</button>
-  <button class="against" onclick="vote('against')">👎 AGAINST</button>
-  <button class="reset" onclick="resetVote()">RESET</button>
-
-  <p class="small" id="ruleText">
-    One Email = One Vote (Strict Rule)
-  </p>
+<h3>Vote Panel</h3>
+<button class="support" onclick="vote('support')">👍 SUPPORT</button>
+<button class="against" onclick="vote('against')">👎 AGAINST</button>
+<button class="reset" onclick="resetVote()">RESET</button>
 </div>
 
-<!-- VOICE MESSAGE -->
 <div class="card">
-  <h3>Voice Message</h3>
-  <button onclick="startRecord()">🎤 Start</button>
-  <button onclick="stopRecord()">⏹ Stop</button>
-  <audio id="audio" controls></audio>
+<h3>Voice Guide</h3>
+<button onclick="playPolicy()">▶ Play Policy</button>
+<audio id="policyAudio" controls></audio>
 </div>
 
-<!-- LIVE RESULT -->
 <div class="card">
-  <h3>Live Result</h3>
-  <p>Support: <span id="supportCount">0</span></p>
-  <p>Against: <span id="againstCount">0</span></p>
-</div>
-
-<!-- COPY -->
-<div class="card">
-  <button onclick="copyData()">📋 Copy Result (Notepad)</button>
+<h3>Live Result</h3>
+<p>Support: <span id="s">0</span></p>
+<p>Against: <span id="a">0</span></p>
 </div>
 
 </div>
 
-<!-- FIREBASE -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+<!-- CONFIG FILE (BEST PRACTICE) -->
+<script src="firebase-config.js"></script>
+
 <script>
-// 🔴 YOUR FIREBASE CONFIG (replace only this)
-const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
-};
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-let currentUser = null;
-let lang = "en";
+let currentUser=null;
 
-// LOGIN
+auth.onAuthStateChanged(user=>{
+  if(user){
+    currentUser=user;
+    document.getElementById("user").innerText=user.email;
+  }
+});
+
 function googleLogin(){
-  let provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).then(res=>{
-    currentUser = res.user;
-    document.getElementById("user").innerText = currentUser.email;
-  });
+  let provider=new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
 }
 
-// ONE VOTE RULE
 function vote(type){
-  if(!currentUser){
-    alert("Login required");
-    return;
-  }
+  if(!currentUser){alert("Login required");return;}
 
-  const userRef = db.ref("votes/" + currentUser.uid);
-
-  userRef.once("value", snap=>{
+  db.ref("votes/"+currentUser.uid).once("value",snap=>{
     if(snap.exists()){
-      alert("❌ Already voted (One Email One Vote Rule)");
+      alert("Already voted");
     } else {
-      userRef.set({
-        email: currentUser.email,
-        vote: type
+      db.ref("votes/"+currentUser.uid).set({
+        email:currentUser.email,
+        vote:type
       });
-      alert("✅ Vote Recorded");
+      alert("Vote recorded");
     }
   });
 }
 
-// RESET (only user own vote)
 function resetVote(){
-  if(!currentUser) return;
-  db.ref("votes/" + currentUser.uid).remove();
+  if(currentUser){
+    db.ref("votes/"+currentUser.uid).remove();
+  }
 }
 
-// LIVE COUNT
-db.ref("votes").on("value", snap=>{
-  let data = snap.val() || {};
-  let support=0, against=0;
+db.ref("votes").on("value",snap=>{
+  let data=snap.val()||{};
+  let s=0,a=0;
 
   Object.values(data).forEach(v=>{
-    if(v.vote==="support") support++;
-    if(v.vote==="against") against++;
+    if(v.vote=="support")s++;
+    if(v.vote=="against")a++;
   });
 
-  document.getElementById("supportCount").innerText = support;
-  document.getElementById("againstCount").innerText = against;
+  document.getElementById("s").innerText=s;
+  document.getElementById("a").innerText=a;
 });
 
-// VOICE RECORD
-let mediaRecorder;
-let audioChunks=[];
-
-function startRecord(){
-  navigator.mediaDevices.getUserMedia({audio:true})
-  .then(stream=>{
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.start();
-
-    mediaRecorder.ondataavailable = e=>{
-      audioChunks.push(e.data);
-    };
-  });
-}
-
-function stopRecord(){
-  mediaRecorder.stop();
-  mediaRecorder.onstop = ()=>{
-    const blob = new Blob(audioChunks,{type:'audio/mp3'});
-    const url = URL.createObjectURL(blob);
-    document.getElementById("audio").src = url;
-    audioChunks=[];
-  };
-}
-
-// COPY RESULT
-function copyData(){
-  let text =
-  "Support: " + document.getElementById("supportCount").innerText +
-  "\nAgainst: " + document.getElementById("againstCount").innerText;
-
-  navigator.clipboard.writeText(text);
-  alert("Copied to Notepad");
-}
-
-// LANGUAGE TOGGLE
-function toggleLang(){
-  if(lang==="en"){
-    lang="ta";
-    document.getElementById("voteTitle").innerText="Vote Panel (வாக்களிப்பு)";
-    document.getElementById("loginText").innerText="உள்நுழைவு";
-  } else {
-    lang="en";
-    location.reload();
-  }
+function playPolicy(){
+  let audio=document.getElementById("policyAudio");
+  audio.src="policy-intro.mp3";
+  audio.play();
 }
 </script>
 
