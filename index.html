@@ -14,26 +14,11 @@ body{
 }
 
 /* HEADER */
-.gov-header{
+header{
   background:linear-gradient(90deg,#0a2a43,#0d47a1,#0a2a43);
-  color:#fff;
+  color:white;
   text-align:center;
   padding:18px;
-  border-bottom:2px solid #1976d2;
-}
-
-/* SEAL */
-.seal{
-  text-align:center;
-  margin-top:10px;
-}
-.seal-box{
-  display:inline-block;
-  border:3px solid #1976d2;
-  border-radius:50%;
-  padding:15px;
-  color:#90caf9;
-  font-weight:bold;
 }
 
 /* CARD */
@@ -45,7 +30,16 @@ body{
   border:1px solid #1f2a36;
 }
 
-/* BUTTONS */
+/* INPUT */
+input{
+  width:90%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:5px;
+  border:none;
+}
+
+/* BUTTON */
 button{
   padding:10px;
   margin:5px;
@@ -55,6 +49,7 @@ button{
   font-weight:bold;
 }
 
+.login{background:#1565c0;color:white}
 .support{background:#1b5e20;color:white}
 .against{background:#b71c1c;color:white}
 .reset{background:#37474f;color:white}
@@ -68,45 +63,36 @@ h3{color:#90caf9}
 
 <body>
 
-<!-- HEADER -->
-<header class="gov-header">
+<header>
 🌍 Global Indian Vote Dashboard  
 🗳️ Digital Democracy Platform
 </header>
 
-<!-- SEAL -->
-<div class="seal">
-  <div class="seal-box">
-    🏛️ ELECTION COMMISSION<br>
-    DIGITAL SYSTEM
-  </div>
-</div>
-
 <!-- LOGIN -->
 <div class="card">
 <h3>Login</h3>
-<button onclick="googleLogin()">Login with Google</button>
+
+<input type="email" id="email" placeholder="Enter Email">
+<input type="password" id="password" placeholder="Enter Password">
+
+<button class="login" onclick="signup()">Sign Up</button>
+<button class="login" onclick="login()">Login</button>
+
 <p id="user">Not Logged In</p>
 </div>
 
 <!-- VOTE -->
 <div class="card">
 <h3>Vote Panel</h3>
+
 <button class="support" onclick="vote('support')">👍 SUPPORT</button>
 <button class="against" onclick="vote('against')">👎 AGAINST</button>
 <button class="reset" onclick="resetVote()">RESET</button>
 
-<p class="small">One Email + One Device Secure Voting System</p>
+<p class="small">One Email = One Vote System</p>
 </div>
 
-<!-- VOICE -->
-<div class="card">
-<h3>Voice Guide</h3>
-<button onclick="playPolicy()">▶ Play Policy</button>
-<audio id="policyAudio" controls></audio>
-</div>
-
-<!-- LIVE RESULT -->
+<!-- RESULT -->
 <div class="card">
 <h3>Live Result</h3>
 <p>Support: <span id="s">0</span></p>
@@ -121,38 +107,57 @@ h3{color:#90caf9}
 <script>
 /* FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  databaseURL: "YOUR_DB_URL",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
+
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.database();
 
 let currentUser = null;
 
-/* LOGIN */
+/* AUTH STATE */
 auth.onAuthStateChanged(user=>{
   if(user){
     currentUser = user;
-    document.getElementById("user").innerText = user.email;
-
-    // OPTIONAL: OTP / SMS HOOK PLACEHOLDER
-    console.log("User authenticated");
+    document.getElementById("user").innerText = "Logged in: " + user.email;
+  } else {
+    document.getElementById("user").innerText = "Not Logged In";
   }
 });
 
-/* GOOGLE LOGIN */
-function googleLogin(){
-  let provider = new firebase.auth.GoogleAuthProvider();
+/* SIGN UP */
+function signup(){
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
 
-  auth.signInWithPopup(provider)
+  auth.createUserWithEmailAndPassword(email,password)
+  .then(()=>{
+    alert("Signup Successful");
+  })
   .catch(err=>{
-    alert("Login Failed: " + err.message);
+    alert(err.message);
+  });
+}
+
+/* LOGIN */
+function login(){
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
+
+  auth.signInWithEmailAndPassword(email,password)
+  .then(()=>{
+    alert("Login Successful");
+  })
+  .catch(err=>{
+    alert(err.message);
   });
 }
 
@@ -161,41 +166,29 @@ function getDeviceId(){
   let id = localStorage.getItem("device_id");
   if(!id){
     id = "DEV-" + Math.random().toString(36).substr(2,10);
-    localStorage.setItem("device_id", id);
+    localStorage.setItem("device_id",id);
   }
   return id;
 }
 
-/* HASH (BLOCKCHAIN STYLE) */
-function generateHash(email,vote,time,device){
-  return btoa(email + vote + time + device);
-}
-
-/* VOTE SYSTEM */
+/* VOTE */
 function vote(type){
   if(!currentUser){
     alert("Login required");
     return;
   }
 
-  let device = getDeviceId();
-  let time = Date.now();
-
   db.ref("votes/" + currentUser.uid).once("value",snap=>{
     if(snap.exists()){
-      alert("Already voted");
+      alert("Already Voted");
       return;
     }
-
-    let hash = generateHash(currentUser.email,type,time,device);
 
     db.ref("votes/" + currentUser.uid).set({
       email: currentUser.email,
       vote: type,
-      time: time,
-      device: device,
-      blockHash: hash,
-      previousHash: "GENESIS"
+      device: getDeviceId(),
+      time: Date.now()
     });
 
     alert("Vote Recorded Successfully");
@@ -222,13 +215,6 @@ db.ref("votes").on("value",snap=>{
   document.getElementById("s").innerText = s;
   document.getElementById("a").innerText = a;
 });
-
-/* VOICE */
-function playPolicy(){
-  let audio = document.getElementById("policyAudio");
-  audio.src = "policy-intro.mp3";
-  audio.play();
-}
 </script>
 
 </body>
