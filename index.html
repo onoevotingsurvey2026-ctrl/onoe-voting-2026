@@ -13,12 +13,12 @@ body{
   color:#e0e0e0;
 }
 
-/* HEADER */
 header{
-  background:linear-gradient(90deg,#0a2a43,#0d47a1,#0a2a43);
+  background:#0d47a1;
   color:white;
   text-align:center;
-  padding:18px;
+  padding:15px;
+  font-size:18px;
 }
 
 /* CARD */
@@ -30,16 +30,7 @@ header{
   border:1px solid #1f2a36;
 }
 
-/* INPUT */
-input{
-  width:90%;
-  padding:10px;
-  margin:5px 0;
-  border-radius:5px;
-  border:none;
-}
-
-/* BUTTON */
+/* BUTTONS */
 button{
   padding:10px;
   margin:5px;
@@ -49,14 +40,24 @@ button{
   font-weight:bold;
 }
 
-.login{background:#1565c0;color:white}
+.primary{background:#1565c0;color:white}
 .support{background:#1b5e20;color:white}
 .against{background:#b71c1c;color:white}
 .reset{background:#37474f;color:white}
+.logout{background:#ff5252;color:white}
 
 /* TEXT */
 h3{color:#90caf9}
 .small{font-size:13px;color:#b0bec5}
+
+/* INPUT */
+input{
+  width:90%;
+  padding:10px;
+  margin:5px 0;
+  border:none;
+  border-radius:5px;
+}
 </style>
 
 </head>
@@ -64,21 +65,22 @@ h3{color:#90caf9}
 <body>
 
 <header>
-🌍 Global Indian Vote Dashboard  
-🗳️ Digital Democracy Platform
+🌍 Global Indian Vote Dashboard 🗳️
 </header>
 
 <!-- LOGIN -->
 <div class="card">
 <h3>Login</h3>
 
-<input type="email" id="email" placeholder="Enter Email">
-<input type="password" id="password" placeholder="Enter Password">
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
 
-<button class="login" onclick="signup()">Sign Up</button>
-<button class="login" onclick="login()">Login</button>
+<button class="primary" onclick="signup()">Sign Up</button>
+<button class="primary" onclick="login()">Login</button>
 
 <p id="user">Not Logged In</p>
+
+<button class="logout" onclick="logout()">Logout</button>
 </div>
 
 <!-- VOTE -->
@@ -90,6 +92,16 @@ h3{color:#90caf9}
 <button class="reset" onclick="resetVote()">RESET</button>
 
 <p class="small">One Email = One Vote System</p>
+</div>
+
+<!-- VOICE (OPTIONAL SAFE FEATURE) -->
+<div class="card">
+<h3>Voice Record</h3>
+
+<button onclick="startRec()">🎤 Start</button>
+<button onclick="stopRec()">⏹ Stop</button>
+
+<audio id="audio" controls></audio>
 </div>
 
 <!-- RESULT -->
@@ -105,16 +117,16 @@ h3{color:#90caf9}
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-/* FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  databaseURL: "YOUR_DB_URL",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
+
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
@@ -132,18 +144,14 @@ auth.onAuthStateChanged(user=>{
   }
 });
 
-/* SIGN UP */
+/* SIGNUP */
 function signup(){
   let email = document.getElementById("email").value;
   let password = document.getElementById("password").value;
 
   auth.createUserWithEmailAndPassword(email,password)
-  .then(()=>{
-    alert("Signup Successful");
-  })
-  .catch(err=>{
-    alert(err.message);
-  });
+  .then(()=>alert("Signup Success"))
+  .catch(err=>alert(err.message));
 }
 
 /* LOGIN */
@@ -152,20 +160,21 @@ function login(){
   let password = document.getElementById("password").value;
 
   auth.signInWithEmailAndPassword(email,password)
-  .then(()=>{
-    alert("Login Successful");
-  })
-  .catch(err=>{
-    alert(err.message);
-  });
+  .then(()=>alert("Login Success"))
+  .catch(err=>alert(err.message));
 }
 
-/* DEVICE ID */
-function getDeviceId(){
-  let id = localStorage.getItem("device_id");
+/* LOGOUT */
+function logout(){
+  auth.signOut();
+}
+
+/* DEVICE */
+function device(){
+  let id = localStorage.getItem("dev");
   if(!id){
-    id = "DEV-" + Math.random().toString(36).substr(2,10);
-    localStorage.setItem("device_id",id);
+    id = "DEV-"+Math.random().toString(36).substr(2,8);
+    localStorage.setItem("dev",id);
   }
   return id;
 }
@@ -177,27 +186,27 @@ function vote(type){
     return;
   }
 
-  db.ref("votes/" + currentUser.uid).once("value",snap=>{
+  db.ref("votes/"+currentUser.uid).once("value",snap=>{
     if(snap.exists()){
       alert("Already Voted");
       return;
     }
 
-    db.ref("votes/" + currentUser.uid).set({
-      email: currentUser.email,
-      vote: type,
-      device: getDeviceId(),
-      time: Date.now()
+    db.ref("votes/"+currentUser.uid).set({
+      email:currentUser.email,
+      vote:type,
+      device:device(),
+      time:Date.now()
     });
 
-    alert("Vote Recorded Successfully");
+    alert("Vote Recorded");
   });
 }
 
 /* RESET */
 function resetVote(){
   if(currentUser){
-    db.ref("votes/" + currentUser.uid).remove();
+    db.ref("votes/"+currentUser.uid).remove();
   }
 }
 
@@ -211,9 +220,32 @@ db.ref("votes").on("value",snap=>{
     if(v.vote==="against") a++;
   });
 
-  document.getElementById("s").innerText = s;
-  document.getElementById("a").innerText = a;
+  document.getElementById("s").innerText=s;
+  document.getElementById("a").innerText=a;
 });
+
+/* VOICE SIMPLE RECORD */
+let rec, chunks=[];
+
+function startRec(){
+  navigator.mediaDevices.getUserMedia({audio:true})
+  .then(stream=>{
+    rec = new MediaRecorder(stream);
+    rec.start();
+
+    rec.ondataavailable = e=>chunks.push(e.data);
+  });
+}
+
+function stopRec(){
+  rec.stop();
+  rec.onstop = ()=>{
+    let blob = new Blob(chunks);
+    let url = URL.createObjectURL(blob);
+    document.getElementById("audio").src = url;
+    chunks=[];
+  };
+}
 </script>
 
 </body>
