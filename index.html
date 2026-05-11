@@ -13,6 +13,7 @@ body{
   color:#e0e0e0;
 }
 
+/* HEADER */
 header{
   background:#0d47a1;
   color:white;
@@ -30,7 +31,16 @@ header{
   border:1px solid #1f2a36;
 }
 
-/* BUTTONS */
+/* INPUT */
+input{
+  width:90%;
+  padding:10px;
+  margin:5px 0;
+  border:none;
+  border-radius:5px;
+}
+
+/* BUTTON */
 button{
   padding:10px;
   margin:5px;
@@ -49,15 +59,6 @@ button{
 /* TEXT */
 h3{color:#90caf9}
 .small{font-size:13px;color:#b0bec5}
-
-/* INPUT */
-input{
-  width:90%;
-  padding:10px;
-  margin:5px 0;
-  border:none;
-  border-radius:5px;
-}
 </style>
 
 </head>
@@ -94,16 +95,6 @@ input{
 <p class="small">One Email = One Vote System</p>
 </div>
 
-<!-- VOICE (OPTIONAL SAFE FEATURE) -->
-<div class="card">
-<h3>Voice Record</h3>
-
-<button onclick="startRec()">🎤 Start</button>
-<button onclick="stopRec()">⏹ Stop</button>
-
-<audio id="audio" controls></audio>
-</div>
-
 <!-- RESULT -->
 <div class="card">
 <h3>Live Result</h3>
@@ -118,14 +109,15 @@ input{
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  databaseURL: "YOUR_DB_URL",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
+
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
@@ -133,7 +125,7 @@ const db = firebase.database();
 
 let currentUser = null;
 
-/* AUTH STATE */
+/* AUTH */
 auth.onAuthStateChanged(user=>{
   if(user){
     currentUser = user;
@@ -168,12 +160,12 @@ function logout(){
   auth.signOut();
 }
 
-/* DEVICE */
-function device(){
-  let id = localStorage.getItem("dev");
+/* DEVICE ID */
+function deviceId(){
+  let id = localStorage.getItem("device");
   if(!id){
-    id = "DEV-"+Math.random().toString(36).substr(2,8);
-    localStorage.setItem("dev",id);
+    id = "DEV-" + Math.random().toString(36).substr(2,10);
+    localStorage.setItem("device",id);
   }
   return id;
 }
@@ -192,13 +184,13 @@ function vote(type){
     }
 
     db.ref("votes/"+currentUser.uid).set({
-      email:currentUser.email,
-      vote:type,
-      device:device(),
-      time:Date.now()
+      email: currentUser.email,
+      vote: type,
+      device: deviceId(),
+      time: Date.now()
     });
 
-    alert("Vote Recorded");
+    alert("Vote Recorded Successfully");
   });
 }
 
@@ -222,29 +214,6 @@ db.ref("votes").on("value",snap=>{
   document.getElementById("s").innerText=s;
   document.getElementById("a").innerText=a;
 });
-
-/* VOICE SIMPLE RECORD */
-let rec, chunks=[];
-
-function startRec(){
-  navigator.mediaDevices.getUserMedia({audio:true})
-  .then(stream=>{
-    rec = new MediaRecorder(stream);
-    rec.start();
-
-    rec.ondataavailable = e=>chunks.push(e.data);
-  });
-}
-
-function stopRec(){
-  rec.stop();
-  rec.onstop = ()=>{
-    let blob = new Blob(chunks);
-    let url = URL.createObjectURL(blob);
-    document.getElementById("audio").src = url;
-    chunks=[];
-  };
-}
 </script>
 
 </body>
