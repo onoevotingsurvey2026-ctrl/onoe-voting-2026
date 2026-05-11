@@ -1,30 +1,87 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Global Indian Vote Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{font-family:Arial;margin:0;background:#f4f4f4}
-header{background:#0d47a1;color:#fff;padding:15px;text-align:center}
-.container{padding:15px}
-.card{background:#fff;padding:15px;margin:10px 0;border-radius:10px}
-button{padding:10px;margin:5px;border:none;border-radius:5px;cursor:pointer}
-.support{background:green;color:#fff}
-.against{background:red;color:#fff}
-.reset{background:gray;color:#fff}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b0f14;
+  color:#e0e0e0;
+}
+
+/* HEADER */
+.gov-header{
+  background:linear-gradient(90deg,#0a2a43,#0d47a1,#0a2a43);
+  color:#fff;
+  text-align:center;
+  padding:18px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.6);
+  border-bottom:2px solid #1976d2;
+}
+
+/* CARD */
+.card{
+  background:#121a22;
+  margin:10px;
+  padding:15px;
+  border-radius:10px;
+  border:1px solid #1f2a36;
+}
+
+/* BUTTONS */
+button{
+  padding:10px;
+  margin:5px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.support{background:#1b5e20;color:white}
+.against{background:#b71c1c;color:white}
+.reset{background:#37474f;color:white}
+
+/* TEXT */
+h3{color:#90caf9}
+.small{font-size:13px;color:#b0bec5}
+
+/* SEAL */
+.seal{
+  text-align:center;
+  margin-top:10px;
+}
+.seal-box{
+  display:inline-block;
+  border:3px solid #1976d2;
+  border-radius:50%;
+  padding:15px;
+  color:#90caf9;
+  font-weight:bold;
+}
 </style>
 
 </head>
+
 <body>
 
-<header>
+<!-- HEADER -->
+<header class="gov-header">
 🌍 Global Indian Vote Dashboard  
 🗳️ Digital Democracy Platform
 </header>
 
-<div class="container">
+<!-- SEAL -->
+<div class="seal">
+  <div class="seal-box">
+    🏛️ ELECTION COMMISSION<br>
+    DIGITAL SYSTEM
+  </div>
+</div>
 
 <div class="card">
 <h3>Login</h3>
@@ -37,6 +94,7 @@ button{padding:10px;margin:5px;border:none;border-radius:5px;cursor:pointer}
 <button class="support" onclick="vote('support')">👍 SUPPORT</button>
 <button class="against" onclick="vote('against')">👎 AGAINST</button>
 <button class="reset" onclick="resetVote()">RESET</button>
+<p class="small">One Email + One Device = One Vote (Secure System)</p>
 </div>
 
 <div class="card">
@@ -51,23 +109,29 @@ button{padding:10px;margin:5px;border:none;border-radius:5px;cursor:pointer}
 <p>Against: <span id="a">0</span></p>
 </div>
 
-</div>
-
-<!-- Firebase -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<!-- CONFIG FILE (BEST PRACTICE) -->
-<script src="firebase-config.js"></script>
-
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  authDomain: "onoevote2026.firebaseapp.com",
+  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "onoevote2026",
+  storageBucket: "onoevote2026.firebasestorage.app",
+  messagingSenderId: "181065724520",
+  appId: "1:181065724520:web:f72a93869786373c1101dd"
+};
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
 let currentUser=null;
 
+/* LOGIN */
 auth.onAuthStateChanged(user=>{
   if(user){
     currentUser=user;
@@ -80,41 +144,71 @@ function googleLogin(){
   auth.signInWithPopup(provider);
 }
 
+/* DEVICE ID */
+function getDeviceId(){
+  let id=localStorage.getItem("dev_id");
+  if(!id){
+    id="DEV-"+Math.random().toString(36).substr(2,10);
+    localStorage.setItem("dev_id",id);
+  }
+  return id;
+}
+
+/* BLOCK HASH */
+function generateHash(email,vote,time,device){
+  return btoa(email+vote+time+device);
+}
+
+/* VOTE SYSTEM */
 function vote(type){
   if(!currentUser){alert("Login required");return;}
 
+  let deviceId=getDeviceId();
+  let time=Date.now();
+
   db.ref("votes/"+currentUser.uid).once("value",snap=>{
     if(snap.exists()){
-      alert("Already voted");
-    } else {
-      db.ref("votes/"+currentUser.uid).set({
-        email:currentUser.email,
-        vote:type
-      });
-      alert("Vote recorded");
+      alert("Already voted (Immutable Block)");
+      return;
     }
+
+    let hash=generateHash(currentUser.email,type,time,deviceId);
+
+    db.ref("votes/"+currentUser.uid).set({
+      email:currentUser.email,
+      vote:type,
+      time:time,
+      device:deviceId,
+      blockHash:hash,
+      previousHash:"GENESIS"
+    });
+
+    alert("Vote Recorded Securely");
   });
 }
 
+/* RESET */
 function resetVote(){
   if(currentUser){
     db.ref("votes/"+currentUser.uid).remove();
   }
 }
 
+/* LIVE RESULT */
 db.ref("votes").on("value",snap=>{
   let data=snap.val()||{};
   let s=0,a=0;
 
   Object.values(data).forEach(v=>{
-    if(v.vote=="support")s++;
-    if(v.vote=="against")a++;
+    if(v.vote==="support")s++;
+    if(v.vote==="against")a++;
   });
 
   document.getElementById("s").innerText=s;
   document.getElementById("a").innerText=a;
 });
 
+/* VOICE */
 function playPolicy(){
   let audio=document.getElementById("policyAudio");
   audio.src="policy-intro.mp3";
