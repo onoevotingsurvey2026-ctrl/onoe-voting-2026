@@ -1,64 +1,153 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ta">
 <head>
   <meta charset="UTF-8">
-  <title>ONOE Voting System</title>
+  <title>ONOE Voting Dashboard</title>
+
   <style>
     body {
       font-family: Arial;
       text-align: center;
-      margin-top: 50px;
+      margin: 0;
+      background: #f4f6f9;
     }
 
+    /* HEADER */
+    .header {
+      background: white;
+      padding: 20px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 5px;
+    }
+
+    h3 {
+      font-size: 14px;
+      color: gray;
+    }
+
+    /* BUTTONS */
     button {
-      padding: 10px 20px;
-      margin: 10px;
+      padding: 10px 18px;
+      margin: 8px;
       cursor: pointer;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
 
     .selected {
-      background-color: green;
+      background: green;
       color: white;
+    }
+
+    /* DASHBOARD */
+    .card {
+      margin-top: 20px;
+      padding: 20px;
+      background: white;
+      display: inline-block;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px #ddd;
+    }
+
+    /* MOBILE */
+    @media (max-width: 768px) {
+      button {
+        width: 80%;
+        font-size: 16px;
+      }
+
+      .card {
+        width: 90%;
+      }
+    }
+
+    /* TV MODE */
+    .tv-mode body {
+      background: black;
+      color: white;
+    }
+
+    .tv-mode .card {
+      background: #222;
+      color: white;
+    }
+
+    .toggle-btn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: black;
+      color: white;
+    }
+
+    /* FOOTER */
+    .footer {
+      margin-top: 30px;
+      padding: 15px;
+      background: #f2f2f2;
+      font-size: 14px;
     }
   </style>
 </head>
 
 <body>
 
-  <h2>🗳️ LIVE VOTING SYSTEM</h2>
+  <!-- MODE BUTTON -->
+  <button class="toggle-btn" onclick="toggleMode()">TV / Mobile Mode</button>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>🗳️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு</h1>
+    <h3>உலகளாவிய இந்திய மக்கள் கருத்து & பகுப்பாய்வு தளம்</h3>
+    <p>One Nation One Election & Delimitation | Global Civic Platform</p>
+  </div>
+
+  <!-- VOTING -->
+  <h2>உங்கள் வாக்கை தேர்வு செய்யவும்</h2>
 
   <div>
-    <button id="supportBtn">Support</button>
-    <button id="againstBtn">Against</button>
-    <button id="neutralBtn">Neutral</button>
+    <button id="supportBtn">ஆதரவு</button>
+    <button id="againstBtn">எதிர்ப்பு</button>
+    <button id="neutralBtn">நடுநிலை</button>
   </div>
 
   <br>
+  <button onclick="submitVote()">வாக்கை பதிவு செய்யவும்</button>
 
-  <button onclick="submitVote()">Submit Vote</button>
+  <!-- DASHBOARD -->
+  <div class="card">
+    <h2>📊 LIVE DASHBOARD</h2>
 
-  <!-- Firebase -->
+    <p>ஆதரவு: <span id="supportCount">0</span></p>
+    <p>எதிர்ப்பு: <span id="againstCount">0</span></p>
+    <p>நடுநிலை: <span id="neutralCount">0</span></p>
+    <p><b>மொத்தம்:</b> <span id="totalCount">0</span></p>
+  </div>
+
+  <!-- FIREBASE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 🔥 Firebase config (replace with your own)
     const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
-};
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     let selectedVote = "";
 
-    // Button selection
+    // VOTE SELECT
     document.getElementById("supportBtn").onclick = () => {
       selectedVote = "support";
       highlight("supportBtn");
@@ -75,33 +164,80 @@
     };
 
     function highlight(id) {
-      document.querySelectorAll("button").forEach(btn => {
-        btn.classList.remove("selected");
+      document.querySelectorAll("button").forEach(b => {
+        if (!b.classList.contains("toggle-btn")) {
+          b.classList.remove("selected");
+        }
       });
       document.getElementById(id).classList.add("selected");
     }
 
-    // Submit vote
+    // SUBMIT VOTE
     window.submitVote = async function () {
       if (!selectedVote) {
-        alert("Please select a vote");
+        alert("ஒரு வாக்கை தேர்வு செய்யவும்");
         return;
       }
 
-      try {
-        await addDoc(collection(db, "votes"), {
-          vote: selectedVote,
-          timestamp: new Date()
-        });
+      await addDoc(collection(db, "votes"), {
+        vote: selectedVote,
+        timestamp: new Date()
+      });
 
-        alert("Vote submitted successfully 🚀");
-        selectedVote = "";
-      } catch (e) {
-        console.error(e);
-        alert("Error submitting vote");
-      }
+      alert("வாக்கு பதிவு செய்யப்பட்டது 🚀");
+      selectedVote = "";
     };
+
+    // REALTIME DASHBOARD
+    const votesRef = collection(db, "votes");
+
+    onSnapshot(votesRef, (snapshot) => {
+
+      let support = 0;
+      let against = 0;
+      let neutral = 0;
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+
+        if (data.vote === "support") support++;
+        if (data.vote === "against") against++;
+        if (data.vote === "neutral") neutral++;
+      });
+
+      document.getElementById("supportCount").innerText = support;
+      document.getElementById("againstCount").innerText = against;
+      document.getElementById("neutralCount").innerText = neutral;
+      document.getElementById("totalCount").innerText = support + against + neutral;
+    });
+
   </script>
+
+  <!-- MODE TOGGLE -->
+  <script>
+    function toggleMode() {
+      document.body.classList.toggle("tv-mode");
+    }
+  </script>
+
+  <!-- FOOTER -->
+  <div class="footer">
+
+    <p>
+      🌐 Official Website:  
+      <a href="https://onoe.voting.survey2026-ctrl.github.io/global-indian-vote" target="_blank">
+        global-indian-vote
+      </a>
+    </p>
+
+    <p>
+      📧 Email:  
+      <a href="mailto:onoe.voting.survey2026@gmail.com">
+        onoe.voting.survey2026@gmail.com
+      </a>
+    </p>
+
+  </div>
 
 </body>
 </html>
