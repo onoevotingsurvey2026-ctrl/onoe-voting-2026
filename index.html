@@ -1,646 +1,328 @@
-﻿<!DOCTYPE html>
-<html lang="ta">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Global Civic Voting Platform</title>
+<title>Live Voting Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
 body{
-  font-family:Arial,sans-serif;
-  margin:0;
-  background:#0f172a;
-  color:white;
-  text-align:center;
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+    margin:0;
+    padding:20px;
+    text-align:center;
 }
 
-/* HEADER */
-
-.header{
-  background:#111827;
-  padding:20px;
-  border-bottom:2px solid #334155;
+.container{
+    max-width:1000px;
+    margin:auto;
 }
 
 h1{
-  font-size:24px;
-  margin:5px;
+    color:#222;
 }
 
-h3{
-  font-size:14px;
-  color:#cbd5e1;
-  margin:5px;
+.vote-box{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
-
-/* BREAKING NEWS */
-
-.breaking{
-  display:flex;
-  align-items:center;
-  background:#dc2626;
-  color:white;
-  overflow:hidden;
-  border-top:2px solid yellow;
-  border-bottom:2px solid yellow;
-  height:50px;
-}
-
-.speaker{
-  background:#991b1b;
-  padding:0 15px;
-  height:50px;
-  display:flex;
-  align-items:center;
-  font-weight:bold;
-  border-right:2px solid yellow;
-}
-
-.ticker{
-  overflow:hidden;
-  flex:1;
-  white-space:nowrap;
-}
-
-.ticker span{
-  display:inline-block;
-  padding-left:100%;
-  animation:scroll 80s linear infinite;
-  line-height:50px;
-  font-weight:bold;
-}
-
-@keyframes scroll{
-  0%{
-    transform:translateX(0);
-  }
-  100%{
-    transform:translateX(-100%);
-  }
-}
-
-/* BUTTONS */
 
 button{
-  padding:12px 18px;
-  margin:8px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:15px;
-  font-weight:bold;
+    padding:12px 25px;
+    margin:10px;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+    cursor:pointer;
 }
 
-.login{
-  background:#22c55e;
-  color:white;
+.support{
+    background:#28a745;
+    color:white;
 }
 
-.logout{
-  background:#ef4444;
-  color:white;
+.neutral{
+    background:#ffc107;
+    color:black;
 }
 
-.voteBtn{
-  background:#334155;
-  color:white;
-}
-
-.voteBtn:hover{
-  background:#475569;
+.oppose{
+    background:#dc3545;
+    color:white;
 }
 
 .reset{
-  background:#000;
-  color:white;
+    background:#000;
+    color:white;
 }
 
-/* CARD */
-
-.card{
-  display:inline-block;
-  margin-top:20px;
-  padding:20px;
-  background:#1e293b;
-  border-radius:12px;
-  width:300px;
-  box-shadow:0 0 10px rgba(0,0,0,0.3);
-}
-
-/* CHART */
-
-.chartBox{
-  width:90%;
-  max-width:500px;
-  margin:20px auto;
-  background:white;
-  padding:20px;
-  border-radius:12px;
+.chart-container{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
 }
 
 canvas{
-  background:white;
+    background:white;
+    padding:10px;
+    border-radius:10px;
+    width:400px !important;
+    height:400px !important;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-/* FOOTER */
-
-.footer{
-  margin-top:40px;
-  padding:20px;
-  background:#111827;
-  font-size:13px;
-  color:#cbd5e1;
-  line-height:1.8;
+.result-box{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    margin-top:20px;
+    font-size:20px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-#user{
-  margin-top:10px;
-  color:#facc15;
-  font-weight:bold;
-}
-
-@media(max-width:600px){
-
-.card{
-  width:90%;
-}
-
-button{
-  width:85%;
-}
-
+.live{
+    color:red;
+    font-weight:bold;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<!-- HEADER -->
+<div class="container">
 
-<div class="header">
+<h1>🗳️ LIVE Voting Dashboard</h1>
 
-<h1>
-🗳️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு
-</h1>
+<p class="live">
+🔴 LIVE Results Updating Automatically
+</p>
 
-<h3>
-உலகளாவிய இந்திய மக்கள் கருத்து & பகுப்பாய்வு தளம்
-</h3>
+<div class="vote-box">
 
-<h3>
-One Nation One Election & Delimitation
-</h3>
+<h2>Select Your Opinion</h2>
 
-</div>
-
-<!-- BREAKING NEWS -->
-
-<div class="breaking">
-
-<div class="speaker">
-🔊 LIVE
-</div>
-
-<div class="ticker">
-
-<span>
-
-🌍 உலக இந்தியர்கள் பங்கேற்கலாம் |
-
-🗳️ மக்கள் கருத்து பதிவு நடைபெற்று வருகிறது |
-
-📊 LIVE Results Updating |
-
-🇮🇳 உங்கள் கருத்து இந்திய ஜனநாயகத்திற்கு முக்கியம் |
-
-🌐 Vote Now :
-https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
-
-</span>
-
-</div>
-
-</div>
-
-<!-- LOGIN -->
-
-<div style="margin-top:20px;">
-
-<button class="login" onclick="login()">
-🔐 Login with Google
+<button class="support" onclick="vote('support')">
+✅ Support
 </button>
 
-<button class="logout" onclick="logout()">
-🚪 Logout
+<button class="neutral" onclick="vote('neutral')">
+⚖️ Neutral
 </button>
 
-<p id="user"></p>
-
-</div>
-
-<!-- VOTE -->
-
-<h2 style="margin-top:20px;">
-உங்கள் வாக்கை தேர்வு செய்யவும்
-</h2>
-
-<button class="voteBtn" onclick="setVote('support')">
-✅ ஆதரவு
+<button class="oppose" onclick="vote('oppose')">
+❌ Oppose
 </button>
 
-<button class="voteBtn" onclick="setVote('against')">
-❌ எதிர்ப்பு
-</button>
+<br><br>
 
-<button class="voteBtn" onclick="setVote('neutral')">
-⚖️ நடுநிலை
-</button>
-
-<br>
-
-<button class="login" onclick="submitVote()">
-🗳️ வாக்கை பதிவு செய்யவும்
-</button>
-
-<button class="reset" onclick="resetResults()">
+<button class="reset" onclick="resetVotes()">
 🔄 Reset Results
 </button>
 
-<!-- LIVE RESULTS -->
-
-<h2 style="margin-top:30px;">
-📊 LIVE RESULTS
-</h2>
-
-<div class="card">
-
-<p>
-✅ ஆதரவு :
-<span id="s">0</span>
-</p>
-
-<p>
-❌ எதிர்ப்பு :
-<span id="a">0</span>
-</p>
-
-<p>
-⚖️ நடுநிலை :
-<span id="n">0</span>
-</p>
-
-<hr>
-
-<p>
-🧮 மொத்தம் :
-<span id="t">0</span>
-</p>
-
 </div>
 
-<!-- PIE CHART -->
+<div class="result-box">
+Total Votes:
+<span id="totalVotes">0</span>
+</div>
 
-<div class="chartBox">
+<div class="chart-container">
 
 <canvas id="pieChart"></canvas>
-
-</div>
-
-<!-- BAR CHART -->
-
-<div class="chartBox">
 
 <canvas id="barChart"></canvas>
 
 </div>
 
-<!-- FOOTER -->
-
-<div class="footer">
-
-🌐 https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
-
-<br><br>
-
-📧 onoe.voting.survey2026@gmail.com
-
-<br><br>
-
-🇮🇳 Global Indian Public Civic Participation Platform
-
 </div>
 
-<!-- FIREBASE -->
+<script>
 
-<script type="module">
+// RESET PASSWORD
+const RESET_PASSWORD = "admin123";
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-import {
-getFirestore,
-collection,
-addDoc,
-query,
-where,
-getDocs,
-onSnapshot,
-getDocs as getAllDocs,
-deleteDoc,
-doc
-}
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-import {
-getAuth,
-GoogleAuthProvider,
-signInWithPopup,
-signOut
-}
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-/* FIREBASE */
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+// VOTE STORAGE
+let votes = {
+    support: 0,
+    neutral: 0,
+    oppose: 0
 };
 
-const app = initializeApp(firebaseConfig);
+// LOAD SAVED VOTES
+if(localStorage.getItem("liveVotes")){
 
-const db = getFirestore(app);
-
-const auth = getAuth();
-
-const provider = new GoogleAuthProvider();
-
-let user = null;
-
-let vote = "";
-
-/* LOGIN */
-
-window.login = async () => {
-
-try{
-
-const res = await signInWithPopup(auth, provider);
-
-user = res.user;
-
-document.getElementById("user").innerText =
-"✅ Logged in : " + user.email;
-
-}catch(err){
-
-alert("Login Failed");
-
+    votes = JSON.parse(
+        localStorage.getItem("liveVotes")
+    );
 }
 
-};
+// PIE CHART
+const pieCtx =
+document.getElementById('pieChart');
 
-/* LOGOUT */
+const pieChart = new Chart(pieCtx, {
 
-window.logout = async () => {
+    type: 'pie',
 
-await signOut(auth);
+    data: {
 
-user = null;
+        labels: [
+            'Support',
+            'Neutral',
+            'Oppose'
+        ],
 
-vote = "";
+        datasets: [{
 
-document.getElementById("user").innerText = "";
+            data: [
+                votes.support,
+                votes.neutral,
+                votes.oppose
+            ],
 
-alert("Logged out");
-
-};
-
-/* SELECT VOTE */
-
-window.setVote = (v) => {
-
-vote = v;
-
-alert("Selected : " + v);
-
-};
-
-/* SUBMIT */
-
-window.submitVote = async () => {
-
-if(!user){
-
-alert("🔐 Login required");
-
-return;
-
-}
-
-if(!vote){
-
-alert("🗳️ Select your vote");
-
-return;
-
-}
-
-const q = query(
-collection(db,"votes"),
-where("email","==",user.email)
-);
-
-const snap = await getDocs(q);
-
-if(!snap.empty){
-
-alert("⚠️ Already voted");
-
-return;
-
-}
-
-await addDoc(collection(db,"votes"),{
-
-email:user.email,
-
-vote:vote,
-
-time:new Date()
-
+            backgroundColor: [
+                '#28a745',
+                '#ffc107',
+                '#dc3545'
+            ]
+        }]
+    }
 });
 
-alert("✅ Vote recorded successfully");
+// BAR CHART
+const barCtx =
+document.getElementById('barChart');
 
-};
+const barChart = new Chart(barCtx, {
 
-/* RESET */
+    type: 'bar',
 
-window.resetResults = async () => {
+    data: {
 
-const pass = prompt(
-"Enter Admin Password"
-);
+        labels: [
+            'Support',
+            'Neutral',
+            'Oppose'
+        ],
 
-if(pass !== "admin123"){
+        datasets: [{
 
-alert("❌ Wrong Password");
+            label: 'Votes',
 
-return;
+            data: [
+                votes.support,
+                votes.neutral,
+                votes.oppose
+            ],
 
-}
+            backgroundColor: [
+                '#28a745',
+                '#ffc107',
+                '#dc3545'
+            ]
+        }]
+    },
 
-const snapshot =
-await getAllDocs(collection(db,"votes"));
+    options: {
 
-const promises = [];
+        responsive:true,
 
-snapshot.forEach((d)=>{
-
-promises.push(
-deleteDoc(doc(db,"votes",d.id))
-);
-
+        scales:{
+            y:{
+                beginAtZero:true
+            }
+        }
+    }
 });
 
-await Promise.all(promises);
+// VOTE FUNCTION
+function vote(type){
 
-alert("✅ All Results Reset Completed");
+    votes[type]++;
 
-};
+    saveVotes();
 
-/* CHART */
-
-const pieChart = new Chart(
-
-document.getElementById("pieChart"),
-
-{
-type:"pie",
-
-data:{
-labels:[
-"Support",
-"Against",
-"Neutral"
-],
-
-datasets:[{
-
-data:[0,0,0],
-
-backgroundColor:[
-"#22c55e",
-"#ef4444",
-"#facc15"
-]
-
-}]
+    updateCharts();
 }
 
+// UPDATE CHARTS
+function updateCharts(){
+
+    // PIE CHART UPDATE
+    pieChart.data.datasets[0].data = [
+        votes.support,
+        votes.neutral,
+        votes.oppose
+    ];
+
+    pieChart.update();
+
+    // BAR CHART UPDATE
+    barChart.data.datasets[0].data = [
+        votes.support,
+        votes.neutral,
+        votes.oppose
+    ];
+
+    barChart.update();
+
+    // TOTAL VOTES
+    document.getElementById("totalVotes").innerText =
+
+        votes.support +
+        votes.neutral +
+        votes.oppose;
 }
 
-);
+// SAVE VOTES
+function saveVotes(){
 
-const barChart = new Chart(
-
-document.getElementById("barChart"),
-
-{
-type:"bar",
-
-data:{
-labels:[
-"Support",
-"Against",
-"Neutral"
-],
-
-datasets:[{
-
-label:"Votes",
-
-data:[0,0,0],
-
-backgroundColor:[
-"#22c55e",
-"#ef4444",
-"#facc15"
-]
-
-}]
-},
-
-options:{
-responsive:true,
-scales:{
-y:{
-beginAtZero:true
-}
-}
+    localStorage.setItem(
+        "liveVotes",
+        JSON.stringify(votes)
+    );
 }
 
+<!-- RESET PASSWORD PROTECTION -->
+
+const RESET_PASSWORD = "admin123";
+
+function resetVotes(){
+
+    let enteredPassword = prompt("Enter Admin Password");
+
+    if(enteredPassword === RESET_PASSWORD){
+
+        votes = {
+            support:0,
+            neutral:0,
+            oppose:0
+        };
+
+        saveVotes();
+
+        updateCharts();
+
+        alert("✅ Live Results Reset Successfully");
+
+    } else {
+
+        alert("❌ Wrong Password");
+
+    }
 }
 
-);
-
-/* LIVE UPDATE */
-
-onSnapshot(collection(db,"votes"),(snap)=>{
-
-let s=0,a=0,n=0;
-
-snap.forEach((doc)=>{
-
-const v = doc.data().vote;
-
-if(v==="support") s++;
-
-if(v==="against") a++;
-
-if(v==="neutral") n++;
-
-});
-
-/* TEXT UPDATE */
-
-document.getElementById("s").innerText = s;
-
-document.getElementById("a").innerText = a;
-
-document.getElementById("n").innerText = n;
-
-document.getElementById("t").innerText = s+a+n;
-
-/* PIE UPDATE */
-
-pieChart.data.datasets[0].data = [
-s,a,n
-];
-
-pieChart.update();
-
-/* BAR UPDATE */
-
-barChart.data.datasets[0].data = [
-s,a,n
-];
-
-barChart.update();
-
-});
+// INITIAL LOAD
+updateCharts();
 
 </script>
 
