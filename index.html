@@ -18,28 +18,22 @@ body{
   padding:20px;
 }
 
-h1{font-size:22px;}
-h3{font-size:14px;color:#cbd5e1;}
+h1{font-size:22px;margin:5px;}
+h3{font-size:14px;color:#cbd5e1;margin:5px;}
 
-.btn{
+button{
   padding:10px 15px;
-  margin:5px;
+  margin:6px;
   border:none;
-  cursor:pointer;
   border-radius:6px;
+  cursor:pointer;
 }
 
 .login{background:#22c55e;color:white;}
 .logout{background:#ef4444;color:white;}
+.voteBtn{background:#334155;color:white;}
 
-.vote{
-  background:#334155;
-  color:white;
-}
-
-.vote:hover{
-  background:#475569;
-}
+.voteBtn:hover{background:#475569;}
 
 .card{
   display:inline-block;
@@ -47,19 +41,8 @@ h3{font-size:14px;color:#cbd5e1;}
   padding:20px;
   background:#1e293b;
   border-radius:10px;
-  width:250px;
+  width:260px;
 }
-
-.grid{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.support{color:#22c55e;}
-.against{color:#ef4444;}
-.neutral{color:#facc15;}
 
 .footer{
   margin-top:30px;
@@ -80,63 +63,47 @@ h3{font-size:14px;color:#cbd5e1;}
 </div>
 
 <!-- LOGIN -->
-<button class="btn login" onclick="login()">🔐 Login</button>
-<button class="btn logout" onclick="logout()">🚪 Logout</button>
+<button class="login" onclick="login()">🔐 Login with Google</button>
+<button class="logout" onclick="logout()">🚪 Logout</button>
 
 <p id="user"></p>
 
 <!-- VOTE -->
 <h2>உங்கள் வாக்கை தேர்வு செய்யவும்</h2>
 
-<button class="btn vote" onclick="selectVote('support')">ஆதரவு</button>
-<button class="btn vote" onclick="selectVote('against')">எதிர்ப்பு</button>
-<button class="btn vote" onclick="selectVote('neutral')">நடுநிலை</button>
+<button class="voteBtn" onclick="setVote('support')">ஆதரவு</button>
+<button class="voteBtn" onclick="setVote('against')">எதிர்ப்பு</button>
+<button class="voteBtn" onclick="setVote('neutral')">நடுநிலை</button>
 
-<br><br>
-<button class="btn login" onclick="submitVote()">🗳️ வாக்கை பதிவு செய்யவும்</button>
+<br>
+<button class="login" onclick="submitVote()">🗳️ வாக்கை பதிவு செய்யவும்</button>
 
 <!-- DASHBOARD -->
-<h2>📊 LIVE GLOBAL RESULTS</h2>
-
-<div class="grid">
+<h2>📊 LIVE RESULTS</h2>
 
 <div class="card">
-<h3 class="support">ஆதரவு</h3>
-<h2 id="s">0</h2>
-</div>
-
-<div class="card">
-<h3 class="against">எதிர்ப்பு</h3>
-<h2 id="a">0</h2>
-</div>
-
-<div class="card">
-<h3 class="neutral">நடுநிலை</h3>
-<h2 id="n">0</h2>
-</div>
-
-<div class="card">
-<h3>மொத்தம்</h3>
-<h2 id="t">0</h2>
-</div>
-
+<p>ஆதரவு: <span id="s">0</span></p>
+<p>எதிர்ப்பு: <span id="a">0</span></p>
+<p>நடுநிலை: <span id="n">0</span></p>
+<p><b>மொத்தம்:</b> <span id="t">0</span></p>
 </div>
 
 <!-- FOOTER -->
 <div class="footer">
-🌐 https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote  
-<br>
+🌐 https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote<br>
 📧 onoe.voting.survey2026@gmail.com
 </div>
 
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, getDocs, onSnapshot }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+getFirestore, collection, addDoc, query, where, getDocs, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+getAuth, GoogleAuthProvider, signInWithPopup, signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
@@ -153,72 +120,78 @@ const db = getFirestore(app);
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
-let user=null;
-let vote="";
+let user = null;
+let vote = "";
 
-// LOGIN
-window.login = async ()=>{
- const res = await signInWithPopup(auth,provider);
- user=res.user;
- document.getElementById("user").innerText="Logged in: "+user.email;
+/* LOGIN */
+window.login = async () => {
+const res = await signInWithPopup(auth, provider);
+user = res.user;
+document.getElementById("user").innerText =
+"Logged in: " + user.email;
 };
 
-// LOGOUT
-window.logout = async ()=>{
- await signOut(auth);
- user=null;
- document.getElementById("user").innerText="Logged out";
+/* LOGOUT */
+window.logout = async () => {
+await signOut(auth);
+user = null;
+vote = "";
+document.getElementById("user").innerText = "";
 };
 
-// SELECT
-window.selectVote=(v)=>{vote=v;};
-
-// SUBMIT
-window.submitVote=async()=>{
-
- if(!user){
-  alert("Login required");
-  return;
- }
-
- if(!vote){
-  alert("Select vote");
-  return;
- }
-
- const q=query(collection(db,"votes"),where("email","==",user.email));
- const snap=await getDocs(q);
-
- if(!snap.empty){
-  alert("⚠️ Already voted!");
-  return;
- }
-
- await addDoc(collection(db,"votes"),{
-  email:user.email,
-  vote:vote,
-  time:new Date()
- });
-
- alert("Vote recorded successfully 🚀");
+/* SET VOTE */
+window.setVote = (v) => {
+vote = v;
 };
 
-// LIVE DASHBOARD
-onSnapshot(collection(db,"votes"),(snap)=>{
+/* SUBMIT VOTE (ONE GMAIL ONE VOTE) */
+window.submitVote = async () => {
 
- let s=0,a=0,n=0;
+if (!user) {
+alert("Login required");
+return;
+}
 
- snap.forEach(d=>{
-  let v=d.data().vote;
-  if(v==="support")s++;
-  if(v==="against")a++;
-  if(v==="neutral")n++;
- });
+if (!vote) {
+alert("Select vote");
+return;
+}
 
- document.getElementById("s").innerText=s;
- document.getElementById("a").innerText=a;
- document.getElementById("n").innerText=n;
- document.getElementById("t").innerText=s+a+n;
+// CHECK ALREADY VOTED
+const q = query(collection(db, "votes"), where("email", "==", user.email));
+const snap = await getDocs(q);
+
+if (!snap.empty) {
+alert("⚠️ You already voted with this Gmail account");
+return;
+}
+
+// SAVE VOTE
+await addDoc(collection(db, "votes"), {
+email: user.email,
+vote: vote,
+time: new Date()
+});
+
+alert("Thank You 🙏 Vote recorded successfully 🚀");
+};
+
+/* LIVE DASHBOARD */
+onSnapshot(collection(db, "votes"), (snap) => {
+
+let s = 0, a = 0, n = 0;
+
+snap.forEach(doc => {
+const v = doc.data().vote;
+if (v === "support") s++;
+if (v === "against") a++;
+if (v === "neutral") n++;
+});
+
+document.getElementById("s").innerText = s;
+document.getElementById("a").innerText = a;
+document.getElementById("n").innerText = n;
+document.getElementById("t").innerText = s + a + n;
 });
 
 </script>
