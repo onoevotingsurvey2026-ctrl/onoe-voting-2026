@@ -1,10 +1,13 @@
 ﻿<!DOCTYPE html>
 <html lang="ta">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Global Civic Voting Platform</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -55,10 +58,7 @@ h3{
   display:flex;
   align-items:center;
   font-weight:bold;
-  font-size:16px;
-  white-space:nowrap;
   border-right:2px solid yellow;
-  z-index:2;
 }
 
 .ticker{
@@ -70,15 +70,14 @@ h3{
 .ticker span{
   display:inline-block;
   padding-left:100%;
-  animation:slowTicker 80s linear infinite;
-  font-size:17px;
-  font-weight:bold;
+  animation:scroll 80s linear infinite;
   line-height:50px;
+  font-weight:bold;
 }
 
-@keyframes slowTicker{
+@keyframes scroll{
   0%{
-    transform:translateX(0%);
+    transform:translateX(0);
   }
   100%{
     transform:translateX(-100%);
@@ -116,6 +115,11 @@ button{
   background:#475569;
 }
 
+.reset{
+  background:#000;
+  color:white;
+}
+
 /* CARD */
 
 .card{
@@ -124,8 +128,23 @@ button{
   padding:20px;
   background:#1e293b;
   border-radius:12px;
-  width:280px;
+  width:300px;
   box-shadow:0 0 10px rgba(0,0,0,0.3);
+}
+
+/* CHART */
+
+.chartBox{
+  width:90%;
+  max-width:500px;
+  margin:20px auto;
+  background:white;
+  padding:20px;
+  border-radius:12px;
+}
+
+canvas{
+  background:white;
 }
 
 /* FOOTER */
@@ -145,17 +164,7 @@ button{
   font-weight:bold;
 }
 
-/* MOBILE */
-
 @media(max-width:600px){
-
-h1{
-  font-size:20px;
-}
-
-.ticker span{
-  font-size:14px;
-}
 
 .card{
   width:90%;
@@ -168,6 +177,7 @@ button{
 }
 
 </style>
+
 </head>
 
 <body>
@@ -176,15 +186,21 @@ button{
 
 <div class="header">
 
-<h1>🗳️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு</h1>
+<h1>
+🗳️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு
+</h1>
 
-<h3>உலகளாவிய இந்திய மக்கள் கருத்து & பகுப்பாய்வு தளம்</h3>
+<h3>
+உலகளாவிய இந்திய மக்கள் கருத்து & பகுப்பாய்வு தளம்
+</h3>
 
-<h3>One Nation One Election & Delimitation | Global Civic Platform</h3>
+<h3>
+One Nation One Election & Delimitation
+</h3>
 
 </div>
 
-<!-- LIVE BREAKING NEWS -->
+<!-- BREAKING NEWS -->
 
 <div class="breaking">
 
@@ -196,17 +212,16 @@ button{
 
 <span>
 
-🌍 உலகம் முழுவதும் வாழும் இந்தியர்கள் பங்கேற்கலாம் |
+🌍 உலக இந்தியர்கள் பங்கேற்கலாம் |
 
-🗳️ One Nation One Election & Delimitation மக்கள் கருத்து பதிவு நடைபெற்று வருகிறது |
+🗳️ மக்கள் கருத்து பதிவு நடைபெற்று வருகிறது |
 
-🙏 “இந்திய ஜனநாயகத்தில் உங்கள் குரலும் முக்கியம்” |
+📊 LIVE Results Updating |
 
-📢 உங்கள் நண்பர்கள் மற்றும் குடும்பத்தினருக்கும் பகிருங்கள் |
+🇮🇳 உங்கள் கருத்து இந்திய ஜனநாயகத்திற்கு முக்கியம் |
 
-🌐 Vote Now : https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/ |
-
-🇮🇳 உலக இந்தியர்களின் மக்கள் கருத்து பதிவு தளம்
+🌐 Vote Now :
+https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
 
 </span>
 
@@ -230,7 +245,7 @@ button{
 
 </div>
 
-<!-- VOTING -->
+<!-- VOTE -->
 
 <h2 style="margin-top:20px;">
 உங்கள் வாக்கை தேர்வு செய்யவும்
@@ -254,7 +269,11 @@ button{
 🗳️ வாக்கை பதிவு செய்யவும்
 </button>
 
-<!-- LIVE DASHBOARD -->
+<button class="reset" onclick="resetResults()">
+🔄 Reset Results
+</button>
+
+<!-- LIVE RESULTS -->
 
 <h2 style="margin-top:30px;">
 📊 LIVE RESULTS
@@ -262,18 +281,43 @@ button{
 
 <div class="card">
 
-<p>✅ ஆதரவு : <span id="s">0</span></p>
+<p>
+✅ ஆதரவு :
+<span id="s">0</span>
+</p>
 
-<p>❌ எதிர்ப்பு : <span id="a">0</span></p>
+<p>
+❌ எதிர்ப்பு :
+<span id="a">0</span>
+</p>
 
-<p>⚖️ நடுநிலை : <span id="n">0</span></p>
+<p>
+⚖️ நடுநிலை :
+<span id="n">0</span>
+</p>
 
 <hr>
 
 <p>
-<b>🧮 மொத்தம் :</b>
+🧮 மொத்தம் :
 <span id="t">0</span>
 </p>
+
+</div>
+
+<!-- PIE CHART -->
+
+<div class="chartBox">
+
+<canvas id="pieChart"></canvas>
+
+</div>
+
+<!-- BAR CHART -->
+
+<div class="chartBox">
+
+<canvas id="barChart"></canvas>
 
 </div>
 
@@ -307,7 +351,10 @@ addDoc,
 query,
 where,
 getDocs,
-onSnapshot
+onSnapshot,
+getDocs as getAllDocs,
+deleteDoc,
+doc
 }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -319,7 +366,7 @@ signOut
 }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* FIREBASE CONFIG */
+/* FIREBASE */
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
@@ -376,11 +423,11 @@ vote = "";
 
 document.getElementById("user").innerText = "";
 
-alert("Logged out successfully");
+alert("Logged out");
 
 };
 
-/* SET VOTE */
+/* SELECT VOTE */
 
 window.setVote = (v) => {
 
@@ -390,7 +437,7 @@ alert("Selected : " + v);
 
 };
 
-/* SUBMIT VOTE */
+/* SUBMIT */
 
 window.submitVote = async () => {
 
@@ -404,13 +451,11 @@ return;
 
 if(!vote){
 
-alert("🗳️ Please select your vote");
+alert("🗳️ Select your vote");
 
 return;
 
 }
-
-/* CHECK EXISTING VOTE */
 
 const q = query(
 collection(db,"votes"),
@@ -421,13 +466,11 @@ const snap = await getDocs(q);
 
 if(!snap.empty){
 
-alert("⚠️ You already voted using this Gmail account");
+alert("⚠️ Already voted");
 
 return;
 
 }
-
-/* SAVE */
 
 await addDoc(collection(db,"votes"),{
 
@@ -439,11 +482,121 @@ time:new Date()
 
 });
 
-alert("🙏 Thank You! Vote recorded successfully 🚀");
+alert("✅ Vote recorded successfully");
 
 };
 
-/* LIVE DASHBOARD */
+/* RESET */
+
+window.resetResults = async () => {
+
+const pass = prompt(
+"Enter Admin Password"
+);
+
+if(pass !== "admin123"){
+
+alert("❌ Wrong Password");
+
+return;
+
+}
+
+const snapshot =
+await getAllDocs(collection(db,"votes"));
+
+const promises = [];
+
+snapshot.forEach((d)=>{
+
+promises.push(
+deleteDoc(doc(db,"votes",d.id))
+);
+
+});
+
+await Promise.all(promises);
+
+alert("✅ All Results Reset Completed");
+
+};
+
+/* CHART */
+
+const pieChart = new Chart(
+
+document.getElementById("pieChart"),
+
+{
+type:"pie",
+
+data:{
+labels:[
+"Support",
+"Against",
+"Neutral"
+],
+
+datasets:[{
+
+data:[0,0,0],
+
+backgroundColor:[
+"#22c55e",
+"#ef4444",
+"#facc15"
+]
+
+}]
+}
+
+}
+
+);
+
+const barChart = new Chart(
+
+document.getElementById("barChart"),
+
+{
+type:"bar",
+
+data:{
+labels:[
+"Support",
+"Against",
+"Neutral"
+],
+
+datasets:[{
+
+label:"Votes",
+
+data:[0,0,0],
+
+backgroundColor:[
+"#22c55e",
+"#ef4444",
+"#facc15"
+]
+
+}]
+},
+
+options:{
+responsive:true,
+scales:{
+y:{
+beginAtZero:true
+}
+}
+}
+
+}
+
+);
+
+/* LIVE UPDATE */
 
 onSnapshot(collection(db,"votes"),(snap)=>{
 
@@ -461,6 +614,8 @@ if(v==="neutral") n++;
 
 });
 
+/* TEXT UPDATE */
+
 document.getElementById("s").innerText = s;
 
 document.getElementById("a").innerText = a;
@@ -468,6 +623,22 @@ document.getElementById("a").innerText = a;
 document.getElementById("n").innerText = n;
 
 document.getElementById("t").innerText = s+a+n;
+
+/* PIE UPDATE */
+
+pieChart.data.datasets[0].data = [
+s,a,n
+];
+
+pieChart.update();
+
+/* BAR UPDATE */
+
+barChart.data.datasets[0].data = [
+s,a,n
+];
+
+barChart.update();
 
 });
 
