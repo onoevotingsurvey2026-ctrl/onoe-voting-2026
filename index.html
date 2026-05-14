@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>தமிழ் | English Live Voting Dashboard</title>
+<title>One Nation One Election - Live Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -18,8 +18,6 @@ body{
     text-align:center;
 }
 
-/* HEADER */
-
 header{
     background:#111;
     color:white;
@@ -28,33 +26,24 @@ header{
 
 header h1{
     margin:0;
-    font-size:32px;
 }
 
 header h2{
-    margin-top:10px;
     color:#ffc107;
 }
-
-/* BREAKING NEWS */
 
 .breaking-news{
     background:red;
     color:white;
-    padding:12px;
-    font-size:18px;
+    padding:10px;
     font-weight:bold;
 }
-
-/* CONTAINER */
 
 .container{
     max-width:1200px;
     margin:auto;
     padding:20px;
 }
-
-/* CARD */
 
 .card{
     background:white;
@@ -63,8 +52,6 @@ header h2{
     border-radius:10px;
     box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
-
-/* BUTTONS */
 
 button{
     padding:12px 25px;
@@ -105,22 +92,16 @@ button{
     color:white;
 }
 
-/* USER INFO */
-
 .user-info{
     color:green;
     font-weight:bold;
     font-size:18px;
 }
 
-/* RESULT */
-
 .result-box{
     font-size:24px;
     font-weight:bold;
 }
-
-/* CHARTS */
 
 .chart-container{
     display:flex;
@@ -131,14 +112,12 @@ button{
 
 canvas{
     background:white;
-    padding:10px;
     border-radius:10px;
+    padding:10px;
     width:450px !important;
     height:450px !important;
     box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
-
-/* FOOTER */
 
 footer{
     background:#111;
@@ -146,8 +125,6 @@ footer{
     padding:15px;
     margin-top:20px;
 }
-
-/* MOBILE */
 
 @media(max-width:768px){
 
@@ -161,8 +138,6 @@ footer{
 </head>
 
 <body>
-
-<!-- HEADER -->
 
 <header>
 
@@ -184,17 +159,15 @@ One Nation One Election
 
 </header>
 
-<!-- LIVE BREAKING NEWS -->
-
 <div class="breaking-news">
 
-<marquee behavior="scroll" direction="left">
+<marquee>
 
 🔴 BREAKING NEWS :
-🗳️ One Nation One Election LIVE Voting Started |
-🌍 இந்தியர்கள் உலகம் முழுவதும் வாக்களிக்கலாம் |
-📊 Live Results Automatically Updating |
-🔥 தமிழ் + English Global Civic Dashboard LIVE
+🗳️ LIVE Voting Started |
+🌍 Indians Worldwide Can Participate |
+📊 Pie Chart & Bar Chart Updating Automatically |
+⚠️ Duplicate Vote Protected Automatically
 
 </marquee>
 
@@ -202,7 +175,7 @@ One Nation One Election
 
 <div class="container">
 
-<!-- LOGIN SECTION -->
+<!-- LOGIN -->
 
 <div class="card">
 
@@ -224,7 +197,7 @@ Not Logged In
 
 </div>
 
-<!-- VOTING SECTION -->
+<!-- VOTING -->
 
 <div class="card">
 
@@ -256,7 +229,7 @@ Not Logged In
 
 </div>
 
-<!-- LIVE RESULTS -->
+<!-- RESULT -->
 
 <div class="card result-box">
 
@@ -277,8 +250,6 @@ Not Logged In
 
 </div>
 
-<!-- FOOTER -->
-
 <footer>
 
 © 2026 Tamil + English Global Voting Platform
@@ -287,10 +258,7 @@ Not Logged In
 
 <script>
 
-// ADMIN PASSWORD
-const ADMIN_PASSWORD = "admin123";
-
-// LOGIN STORAGE
+// LOGIN USER
 let currentUser = localStorage.getItem("gmailUser");
 
 // DISPLAY USER
@@ -300,7 +268,7 @@ if(currentUser){
     "✅ Logged in as : " + currentUser;
 }
 
-// LOGIN
+// LOGIN FUNCTION
 function loginUser(){
 
     let email = prompt("Enter Gmail ID");
@@ -318,11 +286,11 @@ function loginUser(){
 
     }else{
 
-        alert("❌ Enter Valid Gmail");
+        alert("❌ Please Enter Valid Gmail");
     }
 }
 
-// LOGOUT
+// LOGOUT FUNCTION
 function logoutUser(){
 
     localStorage.removeItem("gmailUser");
@@ -464,6 +432,7 @@ function updateCharts(){
 // VOTE FUNCTION
 function vote(type){
 
+    // LOGIN REQUIRED
     if(!currentUser){
 
         alert("❌ Please Login First");
@@ -471,17 +440,19 @@ function vote(type){
         return;
     }
 
+    // DUPLICATE VOTE CHECK
     let votedUsers = JSON.parse(
         localStorage.getItem("votedUsers")
     ) || {};
 
     if(votedUsers[currentUser]){
 
-        alert("⚠️ You Already Voted");
+        alert("⚠️ Duplicate Vote Blocked");
 
         return;
     }
 
+    // RECORD VOTE
     votes[type]++;
 
     votedUsers[currentUser] = type;
@@ -495,35 +466,25 @@ function vote(type){
 
     updateCharts();
 
-    alert("✅ Vote Recorded Successfully");
+    alert("✅ One Vote Accepted Successfully");
 }
 
 // RESET RESULTS
 function resetResults(){
 
-    let password =
-    prompt("Enter Admin Password");
+    votes = {
+        support:0,
+        neutral:0,
+        oppose:0
+    };
 
-    if(password === ADMIN_PASSWORD){
+    localStorage.removeItem("votedUsers");
 
-        votes = {
-            support:0,
-            neutral:0,
-            oppose:0
-        };
+    saveVotes();
 
-        localStorage.removeItem("votedUsers");
+    updateCharts();
 
-        saveVotes();
-
-        updateCharts();
-
-        alert("✅ Results Reset Successfully");
-
-    }else{
-
-        alert("❌ Wrong Password");
-    }
+    alert("✅ Results Reset Successfully");
 }
 
 // INITIAL LOAD
