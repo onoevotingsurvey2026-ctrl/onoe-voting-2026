@@ -1,38 +1,70 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Voting Dashboard</title>
+
+<title>தமிழ் | English Live Voting Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
 body{
-    font-family: Arial, sans-serif;
-    background:#f4f4f4;
     margin:0;
-    padding:20px;
+    padding:0;
+    font-family:Arial, sans-serif;
+    background:#f4f4f4;
     text-align:center;
 }
 
+/* HEADER */
+
+header{
+    background:#111;
+    color:white;
+    padding:20px;
+}
+
+header h1{
+    margin:0;
+    font-size:32px;
+}
+
+header h2{
+    margin-top:10px;
+    color:#ffc107;
+}
+
+/* BREAKING NEWS */
+
+.breaking-news{
+    background:red;
+    color:white;
+    padding:12px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+/* CONTAINER */
+
 .container{
-    max-width:1000px;
+    max-width:1200px;
     margin:auto;
+    padding:20px;
 }
 
-h1{
-    color:#222;
-}
+/* CARD */
 
-.vote-box{
+.card{
     background:white;
     padding:20px;
-    border-radius:10px;
     margin-bottom:20px;
+    border-radius:10px;
     box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
+
+/* BUTTONS */
 
 button{
     padding:12px 25px;
@@ -41,6 +73,16 @@ button{
     border-radius:8px;
     font-size:16px;
     cursor:pointer;
+}
+
+.login-btn{
+    background:#4285F4;
+    color:white;
+}
+
+.logout-btn{
+    background:#555;
+    color:white;
 }
 
 .support{
@@ -59,9 +101,26 @@ button{
 }
 
 .reset{
-    background:#000;
+    background:black;
     color:white;
 }
+
+/* USER INFO */
+
+.user-info{
+    color:green;
+    font-weight:bold;
+    font-size:18px;
+}
+
+/* RESULT */
+
+.result-box{
+    font-size:24px;
+    font-weight:bold;
+}
+
+/* CHARTS */
 
 .chart-container{
     display:flex;
@@ -74,23 +133,28 @@ canvas{
     background:white;
     padding:10px;
     border-radius:10px;
-    width:400px !important;
-    height:400px !important;
+    width:450px !important;
+    height:450px !important;
     box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-.result-box{
-    background:white;
+/* FOOTER */
+
+footer{
+    background:#111;
+    color:white;
     padding:15px;
-    border-radius:10px;
     margin-top:20px;
-    font-size:20px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-.live{
-    color:red;
-    font-weight:bold;
+/* MOBILE */
+
+@media(max-width:768px){
+
+    canvas{
+        width:100% !important;
+        height:auto !important;
+    }
 }
 
 </style>
@@ -98,42 +162,110 @@ canvas{
 
 <body>
 
-<div class="container">
+<!-- HEADER -->
 
-<h1>🗳️ LIVE Voting Dashboard</h1>
+<header>
 
-<p class="live">
-🔴 LIVE Results Updating Automatically
+<h1>
+🗳️ ஒரே நாடு - ஒரே தேர்தல்
+</h1>
+
+<h2>
+One Nation One Election
+</h2>
+
+<p>
+🌍 உலகளாவிய இந்திய மக்கள் கருத்து தளம்
 </p>
 
-<div class="vote-box">
+<p>
+🌍 Global Indian Public Opinion Platform
+</p>
 
-<h2>Select Your Opinion</h2>
+</header>
+
+<!-- LIVE BREAKING NEWS -->
+
+<div class="breaking-news">
+
+<marquee behavior="scroll" direction="left">
+
+🔴 BREAKING NEWS :
+🗳️ One Nation One Election LIVE Voting Started |
+🌍 இந்தியர்கள் உலகம் முழுவதும் வாக்களிக்கலாம் |
+📊 Live Results Automatically Updating |
+🔥 தமிழ் + English Global Civic Dashboard LIVE
+
+</marquee>
+
+</div>
+
+<div class="container">
+
+<!-- LOGIN SECTION -->
+
+<div class="card">
+
+<h2>
+🔐 Gmail Login / Logout
+</h2>
+
+<button class="login-btn" onclick="loginUser()">
+Login with Gmail
+</button>
+
+<button class="logout-btn" onclick="logoutUser()">
+Logout
+</button>
+
+<p class="user-info" id="userInfo">
+Not Logged In
+</p>
+
+</div>
+
+<!-- VOTING SECTION -->
+
+<div class="card">
+
+<h2>
+🗳️ உங்கள் கருத்தை பதிவு செய்யுங்கள்
+</h2>
+
+<h3>
+🗳️ Record Your Opinion
+</h3>
 
 <button class="support" onclick="vote('support')">
-✅ Support
+✅ ஆதரவு | Support
 </button>
 
 <button class="neutral" onclick="vote('neutral')">
-⚖️ Neutral
+⚖️ நடுநிலை | Neutral
 </button>
 
 <button class="oppose" onclick="vote('oppose')">
-❌ Oppose
+❌ எதிர்ப்பு | Oppose
 </button>
 
 <br><br>
 
-<button class="reset" onclick="resetVotes()">
+<button class="reset" onclick="resetResults()">
 🔄 Reset Results
 </button>
 
 </div>
 
-<div class="result-box">
-Total Votes:
+<!-- LIVE RESULTS -->
+
+<div class="card result-box">
+
+📊 LIVE RESULT :
 <span id="totalVotes">0</span>
+
 </div>
+
+<!-- CHARTS -->
 
 <div class="chart-container">
 
@@ -145,16 +277,69 @@ Total Votes:
 
 </div>
 
+<!-- FOOTER -->
+
+<footer>
+
+© 2026 Tamil + English Global Voting Platform
+
+</footer>
+
 <script>
 
-// RESET PASSWORD
-const RESET_PASSWORD = "admin123";
+// ADMIN PASSWORD
+const ADMIN_PASSWORD = "admin123";
+
+// LOGIN STORAGE
+let currentUser = localStorage.getItem("gmailUser");
+
+// DISPLAY USER
+if(currentUser){
+
+    document.getElementById("userInfo").innerText =
+    "✅ Logged in as : " + currentUser;
+}
+
+// LOGIN
+function loginUser(){
+
+    let email = prompt("Enter Gmail ID");
+
+    if(email && email.includes("@gmail.com")){
+
+        localStorage.setItem("gmailUser", email);
+
+        currentUser = email;
+
+        document.getElementById("userInfo").innerText =
+        "✅ Logged in as : " + email;
+
+        alert("✅ Login Successful");
+
+    }else{
+
+        alert("❌ Enter Valid Gmail");
+    }
+}
+
+// LOGOUT
+function logoutUser(){
+
+    localStorage.removeItem("gmailUser");
+
+    currentUser = null;
+
+    document.getElementById("userInfo").innerText =
+    "Not Logged In";
+
+    alert("✅ Logged Out");
+}
 
 // VOTE STORAGE
 let votes = {
-    support: 0,
-    neutral: 0,
-    oppose: 0
+    support:0,
+    neutral:0,
+    oppose:0
 };
 
 // LOAD SAVED VOTES
@@ -167,29 +352,28 @@ if(localStorage.getItem("liveVotes")){
 
 // PIE CHART
 const pieCtx =
-document.getElementById('pieChart');
+document.getElementById("pieChart");
 
 const pieChart = new Chart(pieCtx, {
 
-    type: 'pie',
+    type:'pie',
 
-    data: {
-
-        labels: [
+    data:{
+        labels:[
             'Support',
             'Neutral',
             'Oppose'
         ],
 
-        datasets: [{
+        datasets:[{
 
-            data: [
+            data:[
                 votes.support,
                 votes.neutral,
                 votes.oppose
             ],
 
-            backgroundColor: [
+            backgroundColor:[
                 '#28a745',
                 '#ffc107',
                 '#dc3545'
@@ -200,31 +384,30 @@ const pieChart = new Chart(pieCtx, {
 
 // BAR CHART
 const barCtx =
-document.getElementById('barChart');
+document.getElementById("barChart");
 
 const barChart = new Chart(barCtx, {
 
-    type: 'bar',
+    type:'bar',
 
-    data: {
-
-        labels: [
+    data:{
+        labels:[
             'Support',
             'Neutral',
             'Oppose'
         ],
 
-        datasets: [{
+        datasets:[{
 
-            label: 'Votes',
+            label:'Votes',
 
-            data: [
+            data:[
                 votes.support,
                 votes.neutral,
                 votes.oppose
             ],
 
-            backgroundColor: [
+            backgroundColor:[
                 '#28a745',
                 '#ffc107',
                 '#dc3545'
@@ -232,8 +415,7 @@ const barChart = new Chart(barCtx, {
         }]
     },
 
-    options: {
-
+    options:{
         responsive:true,
 
         scales:{
@@ -244,45 +426,6 @@ const barChart = new Chart(barCtx, {
     }
 });
 
-// VOTE FUNCTION
-function vote(type){
-
-    votes[type]++;
-
-    saveVotes();
-
-    updateCharts();
-}
-
-// UPDATE CHARTS
-function updateCharts(){
-
-    // PIE CHART UPDATE
-    pieChart.data.datasets[0].data = [
-        votes.support,
-        votes.neutral,
-        votes.oppose
-    ];
-
-    pieChart.update();
-
-    // BAR CHART UPDATE
-    barChart.data.datasets[0].data = [
-        votes.support,
-        votes.neutral,
-        votes.oppose
-    ];
-
-    barChart.update();
-
-    // TOTAL VOTES
-    document.getElementById("totalVotes").innerText =
-
-        votes.support +
-        votes.neutral +
-        votes.oppose;
-}
-
 // SAVE VOTES
 function saveVotes(){
 
@@ -292,15 +435,76 @@ function saveVotes(){
     );
 }
 
-<!-- RESET PASSWORD PROTECTION -->
+// UPDATE CHARTS
+function updateCharts(){
 
-const RESET_PASSWORD = "admin123";
+    pieChart.data.datasets[0].data = [
+        votes.support,
+        votes.neutral,
+        votes.oppose
+    ];
 
-function resetVotes(){
+    pieChart.update();
 
-    let enteredPassword = prompt("Enter Admin Password");
+    barChart.data.datasets[0].data = [
+        votes.support,
+        votes.neutral,
+        votes.oppose
+    ];
 
-    if(enteredPassword === RESET_PASSWORD){
+    barChart.update();
+
+    document.getElementById("totalVotes").innerText =
+
+        votes.support +
+        votes.neutral +
+        votes.oppose;
+}
+
+// VOTE FUNCTION
+function vote(type){
+
+    if(!currentUser){
+
+        alert("❌ Please Login First");
+
+        return;
+    }
+
+    let votedUsers = JSON.parse(
+        localStorage.getItem("votedUsers")
+    ) || {};
+
+    if(votedUsers[currentUser]){
+
+        alert("⚠️ You Already Voted");
+
+        return;
+    }
+
+    votes[type]++;
+
+    votedUsers[currentUser] = type;
+
+    localStorage.setItem(
+        "votedUsers",
+        JSON.stringify(votedUsers)
+    );
+
+    saveVotes();
+
+    updateCharts();
+
+    alert("✅ Vote Recorded Successfully");
+}
+
+// RESET RESULTS
+function resetResults(){
+
+    let password =
+    prompt("Enter Admin Password");
+
+    if(password === ADMIN_PASSWORD){
 
         votes = {
             support:0,
@@ -308,16 +512,17 @@ function resetVotes(){
             oppose:0
         };
 
+        localStorage.removeItem("votedUsers");
+
         saveVotes();
 
         updateCharts();
 
-        alert("✅ Live Results Reset Successfully");
+        alert("✅ Results Reset Successfully");
 
-    } else {
+    }else{
 
         alert("❌ Wrong Password");
-
     }
 }
 
