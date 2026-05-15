@@ -234,7 +234,21 @@
       <div class="status" id="status">🔴 Not Logged In</div>
       <div id="userEmail" style="font-weight:bold; margin-bottom:15px;"></div>
 
-      <button class="btn login-btn" onclick="login()">Login with Gmail</button>
+      <div style="max-width:420px; margin:auto; text-align:left; margin-top:20px;">
+
+        <label><strong>📧 Gmail Login ID</strong></label>
+        <input type="email" id="gmailInput" placeholder="Enter Gmail ID"
+        style="width:100%; padding:12px; margin-top:8px; margin-bottom:15px; border-radius:8px; border:1px solid #ccc;">
+
+        <label><strong>🔑 Password</strong></label>
+        <input type="password" id="passwordInput" placeholder="Enter Password"
+        style="width:100%; padding:12px; margin-top:8px; margin-bottom:20px; border-radius:8px; border:1px solid #ccc;">
+
+        <div style="text-align:center;">
+          <button class="btn login-btn" onclick="login()">🔓 Login</button>
+        </div>
+
+      </div>
 
       <div style="margin-top:20px; text-align:left; max-width:400px; margin-left:auto; margin-right:auto; line-height:2;">
         <h3 style="text-align:center; margin-bottom:15px;">🗳️ Select Your Opinion</h3>
@@ -358,9 +372,12 @@ database.ref('votes').on('value', (snapshot) => {
 });
 
 function login(){
-  const gmail = prompt('Enter Your Gmail ID');
 
-  if(!gmail){
+  const gmail = document.getElementById('gmailInput').value;
+  const password = document.getElementById('passwordInput').value;
+
+  if(!gmail || !password){
+    alert('Please enter Gmail ID and Password');
     return;
   }
 
