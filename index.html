@@ -76,23 +76,28 @@ const firebaseConfig = {
   messagingSenderId: "181065724520",
   appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
+<script>
+
+// 🔥 Firebase config + init
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+
 let currentUser = null;
 
-// 👤 LOGIN
+// LOGIN
 function login(){
   let email = prompt("Enter Gmail ID");
 
   if(email && email.includes("@gmail.com")){
     currentUser = email;
-    document.getElementById("userInfo").innerText = "Logged in: " + email;
-  }else{
+    document.getElementById("userInfo").innerText =
+    "Logged in: " + email;
+  } else {
     alert("Invalid Gmail");
   }
 }
 
-// 🗳️ VOTE SAVE (FIXED)
+// VOTE
 function vote(type){
 
   if(!currentUser){
@@ -104,23 +109,20 @@ function vote(type){
     vote: type,
     timestamp: firebase.database.ServerValue.TIMESTAMP
   });
-
 }
 
-// 📊 LIVE LISTENER (FIXED)
+// LISTENER
 db.ref("user_votes").on("value", (snapshot)=>{
 
   let data = snapshot.val() || {};
 
   let support=0, neutral=0, oppose=0;
 
-  for(let user in data){
-    let v = data[user].vote;
-
-    if(v==="support") support++;
-    else if(v==="neutral") neutral++;
-    else if(v==="oppose") oppose++;
-  }
+  Object.values(data).forEach(v=>{
+    if(v.vote==="support") support++;
+    if(v.vote==="neutral") neutral++;
+    if(v.vote==="oppose") oppose++;
+  });
 
   document.getElementById("s").innerText = support;
   document.getElementById("n").innerText = neutral;
@@ -129,10 +131,9 @@ db.ref("user_votes").on("value", (snapshot)=>{
 
   chart.data.datasets[0].data = [support,neutral,oppose];
   chart.update();
-
 });
 
-// 📊 CHART
+// CHART
 const chart = new Chart(document.getElementById("chart"), {
 type:'pie',
 data:{
@@ -143,7 +144,6 @@ data:{
   }]
 }
 });
-
 </script>
 
 </body>
