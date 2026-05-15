@@ -8,7 +8,12 @@
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script><style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<!-- PDF LIB -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
 body{
   font-family: Arial;
   text-align:center;
@@ -34,6 +39,7 @@ button{
 .support{background:green;color:white;}
 .neutral{background:orange;}
 .oppose{background:red;color:white;}
+.download{background:#007bff;color:white;}
 </style>
 
 </head>
@@ -60,31 +66,31 @@ button{
 <p>Neutral: <span id="n">0</span></p>
 <p>Oppose: <span id="o">0</span></p>
 <p>Total: <span id="t">0</span></p>
+
+<button class="download" onclick="downloadPDF()">📄 Download PDF Report</button>
 </div>
 
 <canvas id="chart" width="300"></canvas>
 
 <script>
 
-// 🔥 FIREBASE CONFIG (REPLACE THIS)
+// 🔥 Firebase Config
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_DB_URL.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_ID",
+  appId: "YOUR_APP_ID"
 };
-<script>
 
-// 🔥 Firebase config + init
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let currentUser = null;
 
-// LOGIN
+// 👤 LOGIN (simple)
 function login(){
   let email = prompt("Enter Gmail ID");
 
@@ -92,12 +98,12 @@ function login(){
     currentUser = email;
     document.getElementById("userInfo").innerText =
     "Logged in: " + email;
-  } else {
+  }else{
     alert("Invalid Gmail");
   }
 }
 
-// VOTE
+// 🗳️ VOTE
 function vote(type){
 
   if(!currentUser){
@@ -107,11 +113,12 @@ function vote(type){
 
   db.ref("user_votes/" + currentUser).set({
     vote: type,
-    timestamp: firebase.database.ServerValue.TIMESTAMP
+    timestamp: Date.now()
   });
+
 }
 
-// LISTENER
+// 📊 LIVE LISTENER
 db.ref("user_votes").on("value", (snapshot)=>{
 
   let data = snapshot.val() || {};
@@ -131,9 +138,10 @@ db.ref("user_votes").on("value", (snapshot)=>{
 
   chart.data.datasets[0].data = [support,neutral,oppose];
   chart.update();
+
 });
 
-// CHART
+// 📊 CHART
 const chart = new Chart(document.getElementById("chart"), {
 type:'pie',
 data:{
@@ -144,6 +152,32 @@ data:{
   }]
 }
 });
+
+// 📄 PDF DOWNLOAD
+function downloadPDF(){
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let support = document.getElementById("s").innerText;
+  let neutral = document.getElementById("n").innerText;
+  let oppose = document.getElementById("o").innerText;
+  let total = document.getElementById("t").innerText;
+
+  doc.setFontSize(16);
+  doc.text("Global Indian Vote Report", 20, 20);
+
+  doc.setFontSize(12);
+  doc.text("Support: " + support, 20, 40);
+  doc.text("Neutral: " + neutral, 20, 50);
+  doc.text("Oppose: " + oppose, 20, 60);
+  doc.text("Total: " + total, 20, 70);
+
+  doc.text("Generated: " + new Date().toLocaleString(), 20, 90);
+
+  doc.save("vote-report.pdf");
+}
+
 </script>
 
 </body>
