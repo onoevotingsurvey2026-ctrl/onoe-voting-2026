@@ -3,14 +3,10 @@
 <head>
   <title>Live Vote Dashboard</title>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
-
   <style>
     body{
       font-family: Arial;
-      text-align: center;
+      text-align:center;
       background:#f4f4f4;
       padding:20px;
     }
@@ -47,40 +43,43 @@
   🔴 Oppose <h1 id="oppose">0</h1>
 </div>
 
+<!-- Firebase (IMPORTANT: compat version) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
 <script>
-// 🔥 Firebase Config (உன் config போடு)
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-};
+  // 🔥 Firebase Config (உன் project details போடு)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT"
+  };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
+  // 📊 LIVE UPDATE
+  db.ref("user_votes").on("value", (snapshot) => {
 
-// 📊 LIVE LISTENER
-db.ref("user_votes").on("value", (snapshot) => {
+    let data = snapshot.val();
 
-  let data = snapshot.val();
+    let support = 0;
+    let neutral = 0;
+    let oppose = 0;
 
-  let support = 0;
-  let neutral = 0;
-  let oppose = 0;
+    for(let id in data){
+      let vote = data[id].vote;
 
-  for(let user in data){
-    let vote = data[user].vote;
+      if(vote === "support") support++;
+      else if(vote === "neutral") neutral++;
+      else if(vote === "oppose") oppose++;
+    }
 
-    if(vote === "support") support++;
-    else if(vote === "neutral") neutral++;
-    else if(vote === "oppose") oppose++;
-  }
-
-  document.getElementById("support").innerText = support;
-  document.getElementById("neutral").innerText = neutral;
-  document.getElementById("oppose").innerText = oppose;
-});
+    document.getElementById("support").innerText = support;
+    document.getElementById("neutral").innerText = neutral;
+    document.getElementById("oppose").innerText = oppose;
+  });
 
 </script>
 
