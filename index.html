@@ -1,165 +1,479 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="ta">
 <head>
-  <title>Global Indian Vote 2026</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body { font-family: Arial; text-align:center; padding:20px; }
-    button { padding:10px 15px; margin:5px; cursor:pointer; }
-    .card { border:1px solid #ccc; padding:15px; margin:10px auto; width:90%; max-width:400px; }
-  </style>
+<title>Global Civic Voting Platform</title>
+
+<style>
+
+body{
+  font-family:Arial,sans-serif;
+  margin:0;
+  background:#0f172a;
+  color:white;
+  text-align:center;
+}
+
+/* HEADER */
+
+.header{
+  background:#111827;
+  padding:20px;
+  border-bottom:2px solid #334155;
+}
+
+h1{
+  font-size:24px;
+  margin:5px;
+}
+
+h3{
+  font-size:14px;
+  color:#cbd5e1;
+  margin:5px;
+}
+
+/* BREAKING NEWS */
+
+.breaking{
+  display:flex;
+  align-items:center;
+  background:#dc2626;
+  color:white;
+  overflow:hidden;
+  border-top:2px solid yellow;
+  border-bottom:2px solid yellow;
+  height:50px;
+}
+
+.speaker{
+  background:#991b1b;
+  padding:0 15px;
+  height:50px;
+  display:flex;
+  align-items:center;
+  font-weight:bold;
+  font-size:16px;
+  white-space:nowrap;
+  border-right:2px solid yellow;
+  z-index:2;
+}
+
+.ticker{
+  overflow:hidden;
+  flex:1;
+  white-space:nowrap;
+}
+
+.ticker span{
+  display:inline-block;
+  padding-left:100%;
+  animation:slowTicker 80s linear infinite;
+  font-size:17px;
+  font-weight:bold;
+  line-height:50px;
+}
+
+@keyframes slowTicker{
+  0%{
+    transform:translateX(0%);
+  }
+  100%{
+    transform:translateX(-100%);
+  }
+}
+
+/* BUTTONS */
+
+button{
+  padding:12px 18px;
+  margin:8px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:15px;
+  font-weight:bold;
+}
+
+.login{
+  background:#22c55e;
+  color:white;
+}
+
+.logout{
+  background:#ef4444;
+  color:white;
+}
+
+.voteBtn{
+  background:#334155;
+  color:white;
+}
+
+.voteBtn:hover{
+  background:#475569;
+}
+
+/* CARD */
+
+.card{
+  display:inline-block;
+  margin-top:20px;
+  padding:20px;
+  background:#1e293b;
+  border-radius:12px;
+  width:280px;
+  box-shadow:0 0 10px rgba(0,0,0,0.3);
+}
+
+/* FOOTER */
+
+.footer{
+  margin-top:40px;
+  padding:20px;
+  background:#111827;
+  font-size:13px;
+  color:#cbd5e1;
+  line-height:1.8;
+}
+
+#user{
+  margin-top:10px;
+  color:#facc15;
+  font-weight:bold;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+h1{
+  font-size:20px;
+}
+
+.ticker span{
+  font-size:14px;
+}
+
+.card{
+  width:90%;
+}
+
+button{
+  width:85%;
+}
+
+}
+
+</style>
 </head>
 
 <body>
 
-<h2>🌍 Global Indian Vote 2026</h2>
+<!-- HEADER -->
 
-<p id="status">Not logged in</p>
+<div class="header">
 
-<button id="loginBtn">Login with Google</button>
-<button id="logoutBtn" style="display:none;">Logout</button>
+<h1>🗳️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு</h1>
 
-<p><b>User:</b> <span id="userEmail"></span></p>
+<h3>உலகளாவிய இந்திய மக்கள் கருத்து & பகுப்பாய்வு தளம்</h3>
+
+<h3>One Nation One Election & Delimitation | Global Civic Platform</h3>
+
+</div>
+
+<!-- LIVE BREAKING NEWS -->
+
+<div class="breaking">
+
+<div class="speaker">
+🔊 LIVE
+</div>
+
+<div class="ticker">
+
+<span>
+
+🌍 உலகம் முழுவதும் வாழும் இந்தியர்கள் பங்கேற்கலாம் |
+
+🗳️ One Nation One Election & Delimitation மக்கள் கருத்து பதிவு நடைபெற்று வருகிறது |
+
+🙏 “இந்திய ஜனநாயகத்தில் உங்கள் குரலும் முக்கியம்” |
+
+📢 உங்கள் நண்பர்கள் மற்றும் குடும்பத்தினருக்கும் பகிருங்கள் |
+
+🌐 Vote Now : https://onoevatingsurvey2026-ctrl.github.io/global-indian-vote/ |
+
+🇮🇳 உலக இந்தியர்களின் மக்கள் கருத்து பதிவு தளம்
+
+</span>
+
+</div>
+
+</div>
+
+<!-- LOGIN -->
+
+<div style="margin-top:20px;">
+
+<button class="login" onclick="login()">
+🔐 Login with Google
+</button>
+
+<button class="logout" onclick="logout()">
+🚪 Logout
+</button>
+
+<p id="user"></p>
+
+</div>
+
+<!-- VOTING -->
+
+<h2 style="margin-top:20px;">
+உங்கள் வாக்கை தேர்வு செய்யவும்
+</h2>
+
+<button class="voteBtn" onclick="setVote('support')">
+✅ ஆதரவு
+</button>
+
+<button class="voteBtn" onclick="setVote('against')">
+❌ எதிர்ப்பு
+</button>
+
+<button class="voteBtn" onclick="setVote('neutral')">
+⚖️ நடுநிலை
+</button>
+
+<br>
+
+<button class="login" onclick="submitVote()">
+🗳️ வாக்கை பதிவு செய்யவும்
+</button>
+
+<!-- LIVE DASHBOARD -->
+
+<h2 style="margin-top:30px;">
+📊 LIVE RESULTS
+</h2>
+
+<div class="card">
+
+<p>✅ ஆதரவு : <span id="s">0</span></p>
+
+<p>❌ எதிர்ப்பு : <span id="a">0</span></p>
+
+<p>⚖️ நடுநிலை : <span id="n">0</span></p>
 
 <hr>
 
-<div class="card">
-<h3>🗳️ Vote</h3>
+<p>
+<b>🧮 மொத்தம் :</b>
+<span id="t">0</span>
+</p>
 
-<button onclick="vote('support')">👍 Support</button>
-<button onclick="vote('oppose')">👎 Oppose</button>
-<button onclick="vote('neutral')">⚖️ Neutral</button>
-
-<p id="msg"></p>
 </div>
 
-<!-- 📊 DASHBOARD -->
-<div class="card">
-<h3>📊 Live Dashboard</h3>
+<!-- FOOTER -->
 
-<p>👍 Support: <span id="supportCount">0</span></p>
-<p>👎 Oppose: <span id="opposeCount">0</span></p>
-<p>⚖️ Neutral: <span id="neutralCount">0</span></p>
+<div class="footer">
+
+🌐 https://onoevatingsurvey2026-ctrl.github.io/global-indian-vote/
+
+<br><br>
+
+📧 onoe.voting.survey2026@gmail.com
+
+<br><br>
+
+🇮🇳 Global Indian Public Civic Participation Platform
+
 </div>
+
+<!-- FIREBASE -->
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
 import {
-  getDatabase,
-  ref,
-  get,
-  set,
-  onValue
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+getFirestore,
+collection,
+addDoc,
+query,
+where,
+getDocs,
+onSnapshot
+}
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Firebase Config
+import {
+getAuth,
+GoogleAuthProvider,
+signInWithPopup,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+/* FIREBASE CONFIG */
+
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+
+apiKey: "YOUR_API_KEY",
+
+authDomain: "YOUR_AUTH_DOMAIN",
+
+projectId: "YOUR_PROJECT_ID",
+
+storageBucket: "YOUR_STORAGE_BUCKET",
+
+messagingSenderId: "YOUR_SENDER_ID",
+
+appId: "YOUR_APP_ID"
+
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+
+const db = getFirestore(app);
+
+const auth = getAuth();
+
 const provider = new GoogleAuthProvider();
 
-// UI
-const status = document.getElementById("status");
-const userEmail = document.getElementById("userEmail");
-const msg = document.getElementById("msg");
+let user = null;
 
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
+let vote = "";
 
-// LOGIN
-loginBtn.onclick = () => {
-  signInWithPopup(auth, provider);
+/* LOGIN */
+
+window.login = async () => {
+
+try{
+
+const res = await signInWithPopup(auth, provider);
+
+user = res.user;
+
+document.getElementById("user").innerText =
+"✅ Logged in : " + user.email;
+
+}catch(err){
+
+alert("Login Failed");
+
+}
+
 };
 
-// LOGOUT
-logoutBtn.onclick = () => {
-  signOut(auth);
+/* LOGOUT */
+
+window.logout = async () => {
+
+await signOut(auth);
+
+user = null;
+
+vote = "";
+
+document.getElementById("user").innerText = "";
+
+alert("Logged out successfully");
+
 };
 
-// AUTH STATE
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    status.innerText = "Logged in ✔️";
-    userEmail.innerText = user.email;
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "inline-block";
-  } else {
-    status.innerText = "Not logged in";
-    userEmail.innerText = "";
-    loginBtn.style.display = "inline-block";
-    logoutBtn.style.display = "none";
-  }
+/* SET VOTE */
+
+window.setVote = (v) => {
+
+vote = v;
+
+alert("Selected : " + v);
+
+};
+
+/* SUBMIT VOTE */
+
+window.submitVote = async () => {
+
+if(!user){
+
+alert("🔐 Login required");
+
+return;
+
+}
+
+if(!vote){
+
+alert("🗳️ Please select your vote");
+
+return;
+
+}
+
+/* CHECK EXISTING VOTE */
+
+const q = query(
+collection(db,"votes"),
+where("email","==",user.email)
+);
+
+const snap = await getDocs(q);
+
+if(!snap.empty){
+
+alert("⚠️ You already voted using this Gmail account");
+
+return;
+
+}
+
+/* SAVE */
+
+await addDoc(collection(db,"votes"),{
+
+email:user.email,
+
+vote:vote,
+
+time:new Date()
+
 });
 
-// VOTE SYSTEM (ONE USER ONE VOTE)
-window.vote = async function(choice) {
+alert("🙏 Thank You! Vote recorded successfully 🚀");
 
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Please login first");
-    return;
-  }
-
-  const uid = user.uid;
-  const voteRef = ref(db, "votes/" + uid);
-
-  const snapshot = await get(voteRef);
-
-  if (snapshot.exists()) {
-    msg.innerText = "❌ Already voted!";
-    return;
-  }
-
-  await set(voteRef, {
-    email: user.email,
-    choice: choice,
-    time: Date.now()
-  });
-
-  msg.innerText = "✅ Vote submitted!";
 };
 
-// 📊 DASHBOARD LIVE COUNT
-const votesRef = ref(db, "votes");
+/* LIVE DASHBOARD */
 
-onValue(votesRef, (snapshot) => {
+onSnapshot(collection(db,"votes"),(snap)=>{
 
-  let support = 0;
-  let oppose = 0;
-  let neutral = 0;
+let s=0,a=0,n=0;
 
-  snapshot.forEach((child) => {
-    const data = child.val();
+snap.forEach((doc)=>{
 
-    if (data.choice === "support") support++;
-    if (data.choice === "oppose") oppose++;
-    if (data.choice === "neutral") neutral++;
-  });
+const v = doc.data().vote;
 
-  document.getElementById("supportCount").innerText = support;
-  document.getElementById("opposeCount").innerText = oppose;
-  document.getElementById("neutralCount").innerText = neutral;
+if(v==="support") s++;
+
+if(v==="against") a++;
+
+if(v==="neutral") n++;
+
+});
+
+document.getElementById("s").innerText = s;
+
+document.getElementById("a").innerText = a;
+
+document.getElementById("n").innerText = n;
+
+document.getElementById("t").innerText = s+a+n;
 
 });
 
