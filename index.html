@@ -110,17 +110,13 @@ footer{
 <header>
 
 <h1>🗳️ ஒரே நாடு - ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு</h1>
-
 <h2>One Nation One Election & Delimitation</h2>
 
 <p>🌍 உலகளாவிய இந்திய மக்கள் கருத்து கணிப்பு & பகுப்பாய்வு தளம்</p>
-
 <p>🇮🇳 Patriotism • Nationalism • Deshbhakti • Democratic Voice</p>
 
 <p>🔬 Research Head : N RAMAN</p>
-
 <p>📧 Gmail : onoe.voting.survey2026@gmail.com</p>
-
 <p>🌐 Website : https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/</p>
 
 </header>
@@ -140,6 +136,7 @@ footer{
 
 <div class="container">
 
+<!-- LOGIN -->
 <div class="card">
 
 <h2>🔐 Gmail Login</h2>
@@ -151,6 +148,7 @@ footer{
 
 </div>
 
+<!-- VOTE -->
 <div class="card">
 
 <h2>🗳️ Vote Your Opinion</h2>
@@ -165,10 +163,12 @@ footer{
 
 </div>
 
+<!-- RESULT -->
 <div class="card result-box">
 📊 Total Votes : <span id="totalVotes">0</span>
 </div>
 
+<!-- CHARTS -->
 <div class="chart-container">
 <canvas id="pieChart"></canvas>
 <canvas id="barChart"></canvas>
@@ -179,21 +179,13 @@ footer{
 
 <h2>🔔 Disclaimer & Privacy Policy</h2>
 
-<p>
-This platform is an independent civic awareness and public opinion research initiative.
-</p>
+<p>This platform is an independent civic awareness and public opinion research initiative.</p>
 
-<p>
-⚠️ NOT an official Government or Election Commission platform.
-</p>
+<p>⚠️ NOT an official Government or Election Commission platform.</p>
 
-<p>
-🔐 Gmail login is only for one-person-one-vote verification. No passwords are stored.
-</p>
+<p>🔐 Gmail login only for one-person-one-vote verification.</p>
 
-<p>
-📊 Data is used only for awareness and research purposes.
-</p>
+<p>📊 Data used only for awareness and research purposes.</p>
 
 </div>
 
@@ -203,7 +195,7 @@ This platform is an independent civic awareness and public opinion research init
 
 © 2026 Global Indian Vote Platform<br><br>
 
-🇮🇳 Democracy • Patriotism • National Unity<br>
+🇮🇳 Democracy • National Unity • Patriotism<br>
 🔬 Research Head: N RAMAN
 
 </footer>
@@ -275,6 +267,7 @@ options:{scales:{y:{beginAtZero:true}}}
 });
 
 function updateCharts(){
+
 pieChart.data.datasets[0].data =
 [votes.support,votes.neutral,votes.oppose];
 
@@ -286,6 +279,7 @@ barChart.update();
 
 document.getElementById("totalVotes").innerText =
 votes.support + votes.neutral + votes.oppose;
+
 }
 
 function vote(type){
