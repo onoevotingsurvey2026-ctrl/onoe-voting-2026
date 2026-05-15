@@ -1,537 +1,137 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>One Nation One Election | Public Opinion Platform</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-
+  <title>Global Indian Vote 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      background: #f5f5f5;
-      color: #111;
-      padding: 15px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: auto;
-    }
-
-    .header {
-      background: #111;
-      color: white;
-      padding: 25px;
-      border-radius: 12px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-
-    .header h1 {
-      font-size: 32px;
-      margin-bottom: 10px;
-    }
-
-    .header h2 {
-      font-size: 20px;
-      color: #00ff90;
-      margin-bottom: 10px;
-    }
-
-    .ticker {
-      margin-top: 15px;
-      background: #b30000;
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    .ticker span {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll 18s linear infinite;
-    }
-
-    @keyframes scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
-    }
-
-    .section {
-      background: white;
-      margin-top: 20px;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .disclaimer {
-      border-left: 5px solid #ff9800;
-      background: #fff8e1;
-      line-height: 1.7;
-    }
-
-    .login-box {
-      text-align: center;
-    }
-
-    .status {
-      color: #d32f2f;
-      font-weight: bold;
-      margin-bottom: 15px;
-      font-size: 18px;
-    }
-
-    .btn {
-      padding: 12px 24px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: 0.3s;
-      color: white;
-      font-weight: bold;
-    }
-
-    .btn:hover {
-      transform: scale(1.05);
-    }
-
-    .login-btn {
-      background: #1976d2;
-    }
-
-    .support {
-      background: #2e7d32;
-    }
-
-    .neutral {
-      background: #f9a825;
-      color: black;
-    }
-
-    .oppose {
-      background: #c62828;
-    }
-
-    .reset {
-      background: #424242;
-    }
-
-    .votes {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 28px;
-      font-weight: bold;
-      color: #111;
-    }
-
-    .chart-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .chart-card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    .footer {
-      margin-top: 30px;
-      background: #111;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      border-radius: 12px;
-      line-height: 1.8;
-    }
-
-    .live {
-      color: #00ff90;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    @media (max-width: 768px) {
-      .header h1 {
-        font-size: 24px;
-      }
-
-      .header h2 {
-        font-size: 16px;
-      }
-
-      .btn {
-        width: 100%;
-        margin: 8px 0;
-      }
-
-      .votes {
-        font-size: 22px;
-      }
-    }
+    body { font-family: Arial; text-align:center; padding:20px; }
+    button { padding:10px 15px; margin:5px; cursor:pointer; }
+    .box { margin-top:20px; padding:15px; border:1px solid #ccc; display:inline-block; }
   </style>
 </head>
+
 <body>
 
-  <div class="container">
+  <h2>🌍 Global Indian Vote 2026</h2>
+  <p id="status">Not logged in</p>
 
-    <div class="header">
-      <h1>🗳️ ஒரே நாடு - ஒரே தேர்தல்</h1>
-      <h2>One Nation One Election</h2>
-      <p>🇮🇳 இந்திய ஜனநாயகத்தில் உங்கள் குரலும் முக்கியத்துவம் வாய்ந்தது</p>
-      <p>🌍 Global Indian Public Opinion Platform</p>
-      <p>📚 Civic Awareness • Public Participation • Policy Discussion Initiative</p>
+  <button id="loginBtn">Login with Google</button>
+  <button id="logoutBtn" style="display:none;">Logout</button>
 
-      <div class="live">🟢 LIVE RESULTS DASHBOARD</div>
-
-      <div class="ticker">
-        <span>
-          🌍 உலகம் முழுவதும் வாழும் இந்தியர்கள் பங்கேற்கலாம் | 🇮🇳 பாரதத்தின் எதிர்காலம் இந்திய மக்களின் குரலில் உருவாகிறது | 🤝 நாம் இந்தியர்கள் — ஒன்றுபட்ட தேசம் நமது பெருமை | 🗳️ இந்திய ஜனநாயகத்தில் உங்கள் குரலும் முக்கியத்துவம் வாய்ந்தது | 📢 உங்கள் குடும்பத்தினர், நண்பர்கள் மற்றும் இந்திய வாக்காளர்களுடன் பகிருங்கள் | 🔐 Duplicate & Spam Voting Restricted
-        </span>
-      </div>
-    </div>
-
-    <div class="section">
-      <h3>🙏 Public Participation & Awareness</h3>
-      <br>
-      <p>🌍 உலகம் முழுவதும் வாழும் இந்தியர்கள் பங்கேற்கலாம்</p>
-      <p>🇮🇳 பாரதத்தின் எதிர்காலம் இந்திய மக்களின் குரலில் உருவாகிறது</p>
-      <p>🤝 நாம் இந்தியர்கள் — ஒன்றுபட்ட தேசம் நமது பெருமை</p>
-      <p>📢 உங்கள் குடும்பத்தினர், நண்பர்கள் மற்றும் இந்திய வாக்காளர்களுடன் இந்த தளத்தை பகிருங்கள்</p>
-      <p>🔍 தேர்தல் அமைப்பு, நிர்வாக திறன், மக்கள் பிரதிநிதித்துவம் மற்றும் தொடர்புடைய பொதுக் கொள்கைகள் குறித்த மக்கள் கருத்து மற்றும் விழிப்புணர்வு முயற்சி</p>
-    </div>
-
-    <div class="section disclaimer">
-      <p>
-        இந்த தளம் ஒரு சுயாதீன மக்கள் கருத்து பதிவு தளம் மட்டுமே. இது இந்திய அரசு, தேர்தல் ஆணையம் அல்லது எந்த அரசியல் கட்சியுடனும் தொடர்புடையதல்ல.
-      </p>
-      <br>
-      <p>
-        This is an independent public opinion platform. This website is not affiliated with the Government of India, Election Commission of India, or any political party.
-      </p>
-    </div>
-
-    <div class="section login-box">
-      <div class="status" id="status">🔴 Not Logged In</div>
-      <div id="userEmail" style="font-weight:bold; margin-bottom:15px;"></div>
-
-      <div style="max-width:420px; margin:auto; text-align:left; margin-top:20px;">
-
-        <label><strong>📧 Gmail Login ID</strong></label>
-        <input type="email" id="gmailInput" placeholder="Enter Gmail ID"
-        style="width:100%; padding:12px; margin-top:8px; margin-bottom:15px; border-radius:8px; border:1px solid #ccc;">
-
-        <label><strong>🔑 Password</strong></label>
-        <input type="password" id="passwordInput" placeholder="Enter Password"
-        style="width:100%; padding:12px; margin-top:8px; margin-bottom:20px; border-radius:8px; border:1px solid #ccc;">
-
-        <div style="text-align:center;">
-          <button class="btn login-btn" onclick="login()">🔓 Login</button>
-        </div>
-
-      </div>
-
-      <div style="margin-top:20px; text-align:left; max-width:400px; margin-left:auto; margin-right:auto; line-height:2;">
-        <h3 style="text-align:center; margin-bottom:15px;">🗳️ Select Your Opinion</h3>
-
-        <label>
-          <input type="radio" name="voteOption" value="support">
-          ✅ Support
-        </label>
-        <br>
-
-        <label>
-          <input type="radio" name="voteOption" value="neutral">
-          ⚖️ Neutral
-        </label>
-        <br>
-
-        <label>
-          <input type="radio" name="voteOption" value="oppose">
-          ❌ Against
-        </label>
-
-        <div style="text-align:center; margin-top:20px;">
-          <button class="btn support" onclick="submitVote()">🗳️ Submit Vote</button>
-        </div>
-      </div>
-
-      <div style="margin-top:15px;">
-        <button class="btn reset" onclick="logout()">🔓 Logout & Exit</button>
-        <button class="btn reset" onclick="resetVotes()">🔄 Reset Votes</button>
-      </div>
-
-      <div style="margin-top:20px; background:#fff3cd; padding:15px; border-radius:10px; line-height:1.8; text-align:left;">
-        <strong>⚠️ Important Notice</strong><br><br>
-        🗳️ உங்கள் வாக்கு பதிவு செய்யப்பட்ட பிறகு, தயவுசெய்து “Logout & Exit” பொத்தானை அழுத்தி வெளியேறுங்கள்.<br><br>
-        🔐 இது உங்கள் Gmail அடையாள பாதுகாப்பிற்கும், அடுத்த பயனரின் தனியுரிமைக்கும் உதவும்.<br><br>
-        📱 பொதுமக்கள் பயன்படுத்தும் மொபைல் / லேப்டாப் சாதனங்களில் Logout செய்வது பரிந்துரைக்கப்படுகிறது.
-      </div>
-
-      <div class="votes">
-        Total Votes : <span id="totalVotes">0</span>
-      </div>
-    </div>
-
-    <div class="chart-grid">
-
-      <div class="chart-card">
-        <h3>📊 Public Opinion Flow Analysis</h3>
-        <canvas id="pieChart"></canvas>
-      </div>
-
-      <div class="chart-card">
-        <h3>📈 Live Participation Analytics</h3>
-        <canvas id="barChart"></canvas>
-      </div>
-
-    </div>
-
-    <div class="section">
-      <h3>🔐 Transparency & Participation</h3>
-      <br>
-      <p>Duplicate and spam voting attempts are restricted.</p>
-      <p>Results shown are public opinion responses submitted by participants.</p>
-      <p>This is not an official government election system.</p>
-    </div>
-
-    <div class="footer">
-      <p>© 2026 Global Indian Public Opinion Platform</p>
-      <p>🌍 Independent Civic Awareness Initiative</p>
-      <br>
-      <p><strong>Project Research Head :</strong> N RAMAN</p>
-      <p>No.9, 1st Floor, 2nd Cross Street, Gomathipuram</p>
-      <p>Thiruninravur, Pincode : 602024</p>
-      <p>Thiruvallur District, Tamilnadu State, India</p>
-      <p>📱 Mobile : +91 8939324309, +91 9384695599</p>
-      <p>📧 Gmail : onoe.voting.survey2026@gmail.com</p>
-      <p>🌐 Website :</p>
-      <p>https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/</p>
-      <br>
-      <p>🔐 Public Awareness • Transparency • Participation</p>
-    </div>
-
+  <div class="box" id="userBox" style="display:none;">
+    <p><b>User:</b> <span id="userEmail"></span></p>
   </div>
 
-<script>
+  <hr>
 
-let loggedIn = false;
-let voted = false;
+  <h3>🗳️ Cast Your Vote</h3>
 
-// Firebase Configuration
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+  <button onclick="vote('support')">👍 Support</button>
+  <button onclick="vote('oppose')">👎 Oppose</button>
+  <button onclick="vote('neutral')">⚖️ Neutral</button>
 
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+  <p id="voteMsg"></p>
 
-let votes = {
-  support: 0,
-  neutral: 0,
-  oppose: 0
-};
+  <script type="module">
 
-function saveVotes(){
-  database.ref('votes').set(votes);
-}
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { 
+      getAuth, 
+      GoogleAuthProvider, 
+      signInWithPopup, 
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Real-time Global Sync
-database.ref('votes').on('value', (snapshot) => {
-  const data = snapshot.val();
+    import { 
+      getDatabase, 
+      ref, 
+      get, 
+      set 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  if(data){
-    votes = data;
-    updateCharts();
-  }
-});
-
-function login(){
-
-  const gmail = document.getElementById('gmailInput').value;
-  const password = document.getElementById('passwordInput').value;
-
-  if(!gmail || !password){
-    alert('Please enter Gmail ID and Password');
-    return;
-  }
-
-  loggedIn = true;
-
-  document.getElementById('status').innerHTML = '🟢 Logged In Successfully';
-  document.getElementById('status').style.color = 'green';
-
-  document.getElementById('userEmail').innerHTML = '🔐 Logged in as : ' + gmail;
-}
-
-function submitVote(){
-
-  if(!loggedIn){
-    alert('Please login first');
-    return;
-  }
-
-  if(voted){
-    alert('Duplicate voting restricted');
-    return;
-  }
-
-  const selected = document.querySelector('input[name="voteOption"]:checked');
-
-  if(!selected){
-    alert('Please select your opinion');
-    return;
-  }
-
-  const type = selected.value;
-
-  const confirmVote = confirm('You selected: ' + type.toUpperCase() + '. Submit vote?');
-
-  if(!confirmVote){
-    return;
-  }
-
-  votes[type]++;
-  voted = true;
-
-  saveVotes();
-  updateCharts();
-
-  alert('✅ Vote Submitted Successfully');
-
-  setTimeout(() => {
-    alert('⚠️ Please Logout / Exit');
-  }, 300);
-}
-}
-
-function logout(){
-  loggedIn = false;
-  voted = false;
-
-  document.getElementById('status').innerHTML = '🔴 Not Logged In';
-  document.getElementById('status').style.color = '#d32f2f';
-  document.getElementById('userEmail').innerHTML = '';
-
-  const selected = document.querySelector('input[name="voteOption"]:checked');
-
-  if(selected){
-    selected.checked = false;
-  }
-
-  alert('Logged Out Successfully');
-}
-
-function resetVotes(){
-
-  const confirmReset = confirm('Are you sure to reset all votes?');
-
-  if(confirmReset){
-    votes = {
-      support: 0,
-      neutral: 0,
-      oppose: 0
+    // 🔥 Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+      authDomain: "onoevote2026.firebaseapp.com",
+      databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "onoevote2026",
+      storageBucket: "onoevote2026.firebasestorage.app",
+      messagingSenderId: "181065724520",
+      appId: "1:181065724520:web:f72a93869786373c1101dd"
     };
 
-    voted = false;
+    // Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const provider = new GoogleAuthProvider();
 
-    saveVotes();
-    updateCharts();
-  }
-}
+    // UI
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const status = document.getElementById("status");
+    const userEmail = document.getElementById("userEmail");
+    const userBox = document.getElementById("userBox");
+    const voteMsg = document.getElementById("voteMsg");
 
-const pieCtx = document.getElementById('pieChart');
-const barCtx = document.getElementById('barChart');
+    // LOGIN
+    loginBtn.onclick = () => {
+      signInWithPopup(auth, provider)
+        .catch(err => alert(err.message));
+    };
 
-const pieChart = new Chart(pieCtx, {
-  type: 'pie',
-  data: {
-    labels: ['Support', 'Neutral', 'Oppose'],
-    datasets: [{
-      data: [0,0,0],
-      backgroundColor: ['#2e7d32','#f9a825','#c62828']
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top'
+    // LOGOUT
+    logoutBtn.onclick = () => {
+      signOut(auth);
+    };
+
+    // AUTH STATE
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        status.innerText = "Logged in ✔️";
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        userBox.style.display = "block";
+        userEmail.innerText = user.email;
+      } else {
+        status.innerText = "Not logged in";
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        userBox.style.display = "none";
       }
-    }
-  }
-});
+    });
 
-const barChart = new Chart(barCtx, {
-  type: 'bar',
-  data: {
-    labels: ['Support', 'Neutral', 'Oppose'],
-    datasets: [{
-      label: 'Votes',
-      data: [0,0,0],
-      backgroundColor: ['#2e7d32','#f9a825','#c62828']
-    }]
-  },
-  options: {
-    responsive: true,
-    scales: {
-      y: {
-        beginAtZero: true
+    // 🗳️ VOTE FUNCTION (ONE USER ONE VOTE)
+    window.vote = async function(choice) {
+
+      const user = auth.currentUser;
+
+      if (!user) {
+        alert("Please login first");
+        return;
       }
-    }
-  }
-});
 
-function updateCharts(){
+      const uid = user.uid;
+      const voteRef = ref(db, "votes/" + uid);
 
-  const total = votes.support + votes.neutral + votes.oppose;
+      const snapshot = await get(voteRef);
 
-  document.getElementById('totalVotes').innerText = total;
+      if (snapshot.exists()) {
+        voteMsg.innerText = "❌ You already voted!";
+        return;
+      }
 
-  pieChart.data.datasets[0].data = [
-    votes.support,
-    votes.neutral,
-    votes.oppose
-  ];
+      await set(voteRef, {
+        email: user.email,
+        choice: choice,
+        time: Date.now()
+      });
 
-  barChart.data.datasets[0].data = [
-    votes.support,
-    votes.neutral,
-    votes.oppose
-  ];
+      voteMsg.innerText = "✅ Vote submitted successfully!";
+    };
 
-  pieChart.update();
-  barChart.update();
-}
-
-updateCharts();
-
-</script>
+  </script>
 
 </body>
 </html>
