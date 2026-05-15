@@ -91,11 +91,14 @@ canvas{
     box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
+/* FOOTER */
 footer{
     background:#111;
     color:white;
-    padding:15px;
+    padding:20px;
     margin-top:20px;
+    line-height:1.6;
+    font-size:14px;
 }
 
 @media(max-width:768px){
@@ -126,7 +129,6 @@ footer{
 <marquee>
 🔴 LIVE UPDATE :
 🗳️ One Nation One Election & Delimitation Opinion Poll LIVE |
-🇮🇳 National Unity • Democracy • Patriotism |
 🌍 Global Indian Participation Enabled |
 📊 Live Charts Active |
 ⚠️ Anti-Duplicate Vote System Enabled
@@ -136,7 +138,6 @@ footer{
 
 <div class="container">
 
-<!-- LOGIN -->
 <div class="card">
 
 <h2>🔐 Gmail Login</h2>
@@ -148,7 +149,6 @@ footer{
 
 </div>
 
-<!-- VOTE -->
 <div class="card">
 
 <h2>🗳️ Vote Your Opinion</h2>
@@ -163,45 +163,38 @@ footer{
 
 </div>
 
-<!-- RESULT -->
 <div class="card result-box">
 📊 Total Votes : <span id="totalVotes">0</span>
 </div>
 
-<!-- CHARTS -->
 <div class="chart-container">
 <canvas id="pieChart"></canvas>
 <canvas id="barChart"></canvas>
-</div>
-
-<!-- DISCLAIMER -->
-<div class="card">
-
-<h2>🔔 Disclaimer & Privacy Policy</h2>
-
-<p>This platform is an independent civic awareness and public opinion research initiative.</p>
-
-<p>⚠️ NOT an official Government or Election Commission platform.</p>
-
-<p>🔐 Gmail login only for one-person-one-vote verification.</p>
-
-<p>📊 Data used only for awareness and research purposes.</p>
-
 </div>
 
 </div>
 
 <footer>
 
-© 2026 Global Indian Vote Platform<br><br>
+<b>Project Research Head:</b> N RAMAN<br><br>
 
-🇮🇳 Democracy • National Unity • Patriotism<br>
-🔬 Research Head: N RAMAN
+<b>Address:</b><br>
+9, 1st Floor, 2nd Cross Street,<br>
+Gomathipuram, Thiruninravur,<br>
+Pincode : 602024,<br>
+Thiruvallur District,<br>
+Tamilnadu State, India<br><br>
+
+<b>Mobile:</b> +91 8939324309 / +91 9384695599<br><br>
+
+© 2026 Global Indian Vote Platform<br>
+🇮🇳 Democracy • National Unity • Patriotism
 
 </footer>
 
 <script>
 
+// LOGIN
 let currentUser = localStorage.getItem("gmailUser");
 
 if(currentUser){
@@ -232,6 +225,7 @@ document.getElementById("userInfo").innerText = "Not Logged In";
 alert("Logged Out");
 }
 
+// VOTES
 let votes = {support:0,neutral:0,oppose:0};
 
 if(localStorage.getItem("liveVotes")){
@@ -242,6 +236,7 @@ function saveVotes(){
 localStorage.setItem("liveVotes", JSON.stringify(votes));
 }
 
+// CHARTS
 const pieChart = new Chart(document.getElementById("pieChart"), {
 type:'pie',
 data:{
@@ -279,9 +274,9 @@ barChart.update();
 
 document.getElementById("totalVotes").innerText =
 votes.support + votes.neutral + votes.oppose;
-
 }
 
+// VOTE LOGIC
 function vote(type){
 
 if(!currentUser){
@@ -307,6 +302,7 @@ updateCharts();
 alert("Vote Recorded Successfully");
 }
 
+// RESET
 function resetResults(){
 votes = {support:0,neutral:0,oppose:0};
 localStorage.removeItem("votedUsers");
