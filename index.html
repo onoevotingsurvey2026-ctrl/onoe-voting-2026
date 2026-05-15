@@ -384,7 +384,12 @@ function submitVote(){
   saveVotes();
   updateCharts();
 
-  alert('Vote Submitted Successfully');
+  alert('✅ Vote Submitted Successfully');
+
+  setTimeout(() => {
+    alert('⚠️ Please Logout / Exit');
+  }, 300);
+}
 }
 
 function logout(){
