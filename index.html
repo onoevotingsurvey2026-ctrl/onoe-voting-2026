@@ -10,9 +10,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
-<!-- PDF LIB -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
 body{
   font-family: Arial;
@@ -41,7 +38,6 @@ button{
 .oppose{background:red;color:white;}
 .download{background:#007bff;color:white;}
 </style>
-
 </head>
 
 <body>
@@ -67,22 +63,22 @@ button{
 <p>Oppose: <span id="o">0</span></p>
 <p>Total: <span id="t">0</span></p>
 
-<button class="download" onclick="downloadPDF()">📄 Download PDF Report</button>
+<button class="download" onclick="downloadPDF()">📄 Download PDF</button>
 </div>
 
-<canvas id="chart" width="300"></canvas>
+<canvas id="chart"></canvas>
 
 <script>
 
-// 🔥 Firebase Config
+// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_DB_URL.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+  authDomain: "onoevote2026.firebaseapp.com",
+  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "onoevote2026",
+  storageBucket: "onoevote2026.firebasestorage.app",
+  messagingSenderId: "181065724520",
+  appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -90,20 +86,20 @@ const db = firebase.database();
 
 let currentUser = null;
 
-// 👤 LOGIN (simple)
+// 👤 LOGIN
 function login(){
   let email = prompt("Enter Gmail ID");
 
   if(email && email.includes("@gmail.com")){
     currentUser = email;
     document.getElementById("userInfo").innerText =
-    "Logged in: " + email;
+      "Logged in: " + email;
   }else{
     alert("Invalid Gmail");
   }
 }
 
-// 🗳️ VOTE
+// 🗳️ VOTE (FIXED + DEBUG)
 function vote(type){
 
   if(!currentUser){
@@ -111,34 +107,42 @@ function vote(type){
     return;
   }
 
+  console.log("VOTE CLICKED:", type);
+
   db.ref("user_votes/" + currentUser).set({
     vote: type,
     timestamp: Date.now()
+  })
+  .then(()=>{
+    console.log("Vote saved successfully");
+  })
+  .catch((err)=>{
+    console.log("Firebase error:", err);
   });
-
 }
 
-// 📊 LIVE LISTENER
+// 📊 REALTIME LISTENER (FIXED)
 db.ref("user_votes").on("value", (snapshot)=>{
 
   let data = snapshot.val() || {};
 
-  let support=0, neutral=0, oppose=0;
+  let support = 0;
+  let neutral = 0;
+  let oppose = 0;
 
   Object.values(data).forEach(v=>{
-    if(v.vote==="support") support++;
-    if(v.vote==="neutral") neutral++;
-    if(v.vote==="oppose") oppose++;
+    if(v.vote === "support") support++;
+    if(v.vote === "neutral") neutral++;
+    if(v.vote === "oppose") oppose++;
   });
 
   document.getElementById("s").innerText = support;
   document.getElementById("n").innerText = neutral;
   document.getElementById("o").innerText = oppose;
-  document.getElementById("t").innerText = support+neutral+oppose;
+  document.getElementById("t").innerText = support + neutral + oppose;
 
-  chart.data.datasets[0].data = [support,neutral,oppose];
+  chart.data.datasets[0].data = [support, neutral, oppose];
   chart.update();
-
 });
 
 // 📊 CHART
@@ -156,24 +160,20 @@ data:{
 // 📄 PDF DOWNLOAD
 function downloadPDF(){
 
+  const support = document.getElementById("s").innerText;
+  const neutral = document.getElementById("n").innerText;
+  const oppose = document.getElementById("o").innerText;
+  const total = document.getElementById("t").innerText;
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  let support = document.getElementById("s").innerText;
-  let neutral = document.getElementById("n").innerText;
-  let oppose = document.getElementById("o").innerText;
-  let total = document.getElementById("t").innerText;
-
-  doc.setFontSize(16);
   doc.text("Global Indian Vote Report", 20, 20);
-
-  doc.setFontSize(12);
   doc.text("Support: " + support, 20, 40);
   doc.text("Neutral: " + neutral, 20, 50);
   doc.text("Oppose: " + oppose, 20, 60);
   doc.text("Total: " + total, 20, 70);
-
-  doc.text("Generated: " + new Date().toLocaleString(), 20, 90);
+  doc.text("Date: " + new Date().toLocaleString(), 20, 90);
 
   doc.save("vote-report.pdf");
 }
