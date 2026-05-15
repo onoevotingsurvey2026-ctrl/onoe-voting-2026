@@ -1,15 +1,13 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <title>Global Indian Vote 2026</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body { font-family: Arial; text-align:center; padding:20px; background:#f4f4f4; }
-    .card { background:white; padding:15px; margin:10px auto; width:90%; max-width:420px; border-radius:10px; }
+    body { font-family: Arial; text-align:center; padding:20px; }
     button { padding:10px 15px; margin:5px; cursor:pointer; }
-    input { padding:8px; margin:5px; width:80%; }
+    .card { border:1px solid #ccc; padding:15px; margin:10px auto; width:90%; max-width:400px; }
   </style>
 </head>
 
@@ -17,28 +15,17 @@
 
 <h2>🌍 Global Indian Vote 2026</h2>
 
-<!-- 🔐 LOGIN SECTION -->
-<div class="card">
-<h3>🔐 Login System</h3>
+<p id="status">Not logged in</p>
 
-<input id="email" placeholder="Email"><br>
-<input id="password" type="password" placeholder="Password"><br>
-
-<button onclick="signup()">Sign Up</button>
-<button onclick="login()">Login</button>
-
-<br><br>
-<button id="googleLogin">Login with Google</button>
-
+<button id="loginBtn">Login with Google</button>
 <button id="logoutBtn" style="display:none;">Logout</button>
 
-<p id="status">Not logged in</p>
 <p><b>User:</b> <span id="userEmail"></span></p>
-</div>
 
-<!-- 🗳️ VOTING -->
+<hr>
+
 <div class="card">
-<h3>🗳️ Vote Section</h3>
+<h3>🗳️ Vote</h3>
 
 <button onclick="vote('support')">👍 Support</button>
 <button onclick="vote('oppose')">👎 Oppose</button>
@@ -63,8 +50,6 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -77,7 +62,7 @@ import {
   onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// 🔥 Firebase Config
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -88,7 +73,6 @@ const firebaseConfig = {
   appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
-// Init
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
@@ -98,28 +82,12 @@ const provider = new GoogleAuthProvider();
 const status = document.getElementById("status");
 const userEmail = document.getElementById("userEmail");
 const msg = document.getElementById("msg");
+
+const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 
-// 🔐 EMAIL SIGNUP
-window.signup = function () {
-  createUserWithEmailAndPassword(
-    auth,
-    document.getElementById("email").value,
-    document.getElementById("password").value
-  ).then(() => alert("Account created"));
-};
-
-// 🔐 EMAIL LOGIN
-window.login = function () {
-  signInWithEmailAndPassword(
-    auth,
-    document.getElementById("email").value,
-    document.getElementById("password").value
-  ).then(() => alert("Login success"));
-};
-
-// 🔵 GOOGLE LOGIN
-document.getElementById("googleLogin").onclick = function () {
+// LOGIN
+loginBtn.onclick = () => {
   signInWithPopup(auth, provider);
 };
 
@@ -133,15 +101,17 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     status.innerText = "Logged in ✔️";
     userEmail.innerText = user.email;
+    loginBtn.style.display = "none";
     logoutBtn.style.display = "inline-block";
   } else {
     status.innerText = "Not logged in";
     userEmail.innerText = "";
+    loginBtn.style.display = "inline-block";
     logoutBtn.style.display = "none";
   }
 });
 
-// 🗳️ VOTE SYSTEM (ONE USER ONE VOTE)
+// VOTE SYSTEM (ONE USER ONE VOTE)
 window.vote = async function(choice) {
 
   const user = auth.currentUser;
@@ -170,12 +140,14 @@ window.vote = async function(choice) {
   msg.innerText = "✅ Vote submitted!";
 };
 
-// 📊 LIVE DASHBOARD
+// 📊 DASHBOARD LIVE COUNT
 const votesRef = ref(db, "votes");
 
 onValue(votesRef, (snapshot) => {
 
-  let support = 0, oppose = 0, neutral = 0;
+  let support = 0;
+  let oppose = 0;
+  let neutral = 0;
 
   snapshot.forEach((child) => {
     const data = child.val();
