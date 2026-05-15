@@ -230,17 +230,45 @@
 
     <div class="section login-box">
       <div class="status" id="status">🔴 Not Logged In</div>
+      <div id="userEmail" style="font-weight:bold; margin-bottom:15px;"></div>
 
       <button class="btn login-btn" onclick="login()">Login with Gmail</button>
 
-      <div style="margin-top:20px;">
-        <button class="btn support" onclick="vote('support')">✅ Support</button>
-        <button class="btn neutral" onclick="vote('neutral')">⚖️ Neutral</button>
-        <button class="btn oppose" onclick="vote('oppose')">❌ Oppose</button>
+      <div style="margin-top:20px; text-align:left; max-width:400px; margin-left:auto; margin-right:auto; line-height:2;">
+        <h3 style="text-align:center; margin-bottom:15px;">🗳️ Select Your Opinion</h3>
+
+        <label>
+          <input type="radio" name="voteOption" value="support">
+          ✅ Support
+        </label>
+        <br>
+
+        <label>
+          <input type="radio" name="voteOption" value="neutral">
+          ⚖️ Neutral
+        </label>
+        <br>
+
+        <label>
+          <input type="radio" name="voteOption" value="oppose">
+          ❌ Against
+        </label>
+
+        <div style="text-align:center; margin-top:20px;">
+          <button class="btn support" onclick="submitVote()">🗳️ Submit Vote</button>
+        </div>
       </div>
 
       <div style="margin-top:15px;">
+        <button class="btn reset" onclick="logout()">🔓 Logout & Exit</button>
         <button class="btn reset" onclick="resetVotes()">🔄 Reset Votes</button>
+      </div>
+
+      <div style="margin-top:20px; background:#fff3cd; padding:15px; border-radius:10px; line-height:1.8; text-align:left;">
+        <strong>⚠️ Important Notice</strong><br><br>
+        🗳️ உங்கள் வாக்கு பதிவு செய்யப்பட்ட பிறகு, தயவுசெய்து “Logout & Exit” பொத்தானை அழுத்தி வெளியேறுங்கள்.<br><br>
+        🔐 இது உங்கள் Gmail அடையாள பாதுகாப்பிற்கும், அடுத்த பயனரின் தனியுரிமைக்கும் உதவும்.<br><br>
+        📱 பொதுமக்கள் பயன்படுத்தும் மொபைல் / லேப்டாப் சாதனங்களில் Logout செய்வது பரிந்துரைக்கப்படுகிறது.
       </div>
 
       <div class="votes">
@@ -309,12 +337,21 @@ function saveVotes(){
 }
 
 function login(){
+  const gmail = prompt('Enter Your Gmail ID');
+
+  if(!gmail){
+    return;
+  }
+
   loggedIn = true;
+
   document.getElementById('status').innerHTML = '🟢 Logged In Successfully';
   document.getElementById('status').style.color = 'green';
+
+  document.getElementById('userEmail').innerHTML = '🔐 Logged in as : ' + gmail;
 }
 
-function vote(type){
+function submitVote(){
 
   if(!loggedIn){
     alert('Please login first');
@@ -326,6 +363,21 @@ function vote(type){
     return;
   }
 
+  const selected = document.querySelector('input[name="voteOption"]:checked');
+
+  if(!selected){
+    alert('Please select your opinion');
+    return;
+  }
+
+  const type = selected.value;
+
+  const confirmVote = confirm('You selected: ' + type.toUpperCase() + '. Submit vote?');
+
+  if(!confirmVote){
+    return;
+  }
+
   votes[type]++;
   voted = true;
 
@@ -333,6 +385,23 @@ function vote(type){
   updateCharts();
 
   alert('Vote Submitted Successfully');
+}
+
+function logout(){
+  loggedIn = false;
+  voted = false;
+
+  document.getElementById('status').innerHTML = '🔴 Not Logged In';
+  document.getElementById('status').style.color = '#d32f2f';
+  document.getElementById('userEmail').innerHTML = '';
+
+  const selected = document.querySelector('input[name="voteOption"]:checked');
+
+  if(selected){
+    selected.checked = false;
+  }
+
+  alert('Logged Out Successfully');
 }
 
 function resetVotes(){
