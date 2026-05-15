@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>One Nation One Election - Live Dashboard</title>
+<title>One Nation One Election & Delimitation - Global Indian Vote</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -24,13 +24,8 @@ header{
     padding:20px;
 }
 
-header h1{
-    margin:0;
-}
-
-header h2{
-    color:#ffc107;
-}
+header h1{margin:0;}
+header h2{color:#ffc107;}
 
 .breaking-news{
     background:red;
@@ -62,35 +57,12 @@ button{
     cursor:pointer;
 }
 
-.login-btn{
-    background:#4285F4;
-    color:white;
-}
-
-.logout-btn{
-    background:#555;
-    color:white;
-}
-
-.support{
-    background:#28a745;
-    color:white;
-}
-
-.neutral{
-    background:#ffc107;
-    color:black;
-}
-
-.oppose{
-    background:#dc3545;
-    color:white;
-}
-
-.reset{
-    background:black;
-    color:white;
-}
+.login-btn{background:#4285F4;color:white;}
+.logout-btn{background:#555;color:white;}
+.support{background:#28a745;color:white;}
+.neutral{background:#ffc107;color:black;}
+.oppose{background:#dc3545;color:white;}
+.reset{background:black;color:white;}
 
 .user-info{
     color:green;
@@ -127,11 +99,7 @@ footer{
 }
 
 @media(max-width:768px){
-
-    canvas{
-        width:100% !important;
-        height:auto !important;
-    }
+    canvas{width:100% !important;height:auto !important;}
 }
 
 </style>
@@ -141,110 +109,91 @@ footer{
 
 <header>
 
-<h1>
-🗳️ ஒரே நாடு - ஒரே தேர்தல்
-</h1>
+<h1>🗳️ ஒரே நாடு - ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு</h1>
 
-<h2>
-One Nation One Election
-</h2>
+<h2>One Nation One Election & Delimitation</h2>
 
-<p>
-🌍 உலகளாவிய இந்திய மக்கள் கருத்து தளம்
-</p>
+<p>🌍 உலகளாவிய இந்திய மக்கள் கருத்து கணிப்பு & பகுப்பாய்வு தளம்</p>
 
-<p>
-🌍 Global Indian Public Opinion Platform
-</p>
+<p>🇮🇳 Patriotism • Nationalism • Deshbhakti • Democratic Voice</p>
+
+<p>🔬 Research Head : N RAMAN</p>
+
+<p>📧 Gmail : onoe.voting.survey2026@gmail.com</p>
+
+<p>🌐 Website : https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/</p>
 
 </header>
 
 <div class="breaking-news">
 
 <marquee>
-
-🔴 BREAKING NEWS :
-🗳️ LIVE Voting Started |
-🌍 Indians Worldwide Can Participate |
-📊 Pie Chart & Bar Chart Updating Automatically |
-⚠️ Duplicate Vote Protected Automatically
-
+🔴 LIVE UPDATE :
+🗳️ One Nation One Election & Delimitation Opinion Poll LIVE |
+🇮🇳 National Unity • Democracy • Patriotism |
+🌍 Global Indian Participation Enabled |
+📊 Live Charts Active |
+⚠️ Anti-Duplicate Vote System Enabled
 </marquee>
 
 </div>
 
 <div class="container">
 
-<!-- LOGIN -->
-
 <div class="card">
 
-<h2>
-🔐 Gmail Login / Logout
-</h2>
+<h2>🔐 Gmail Login</h2>
 
-<button class="login-btn" onclick="loginUser()">
-Login with Gmail
-</button>
+<button class="login-btn" onclick="loginUser()">Login with Gmail</button>
+<button class="logout-btn" onclick="logoutUser()">Logout</button>
 
-<button class="logout-btn" onclick="logoutUser()">
-Logout
-</button>
-
-<p class="user-info" id="userInfo">
-Not Logged In
-</p>
+<p class="user-info" id="userInfo">Not Logged In</p>
 
 </div>
 
-<!-- VOTING -->
-
 <div class="card">
 
-<h2>
-🗳️ உங்கள் கருத்தை பதிவு செய்யுங்கள்
-</h2>
+<h2>🗳️ Vote Your Opinion</h2>
 
-<h3>
-🗳️ Record Your Opinion
-</h3>
-
-<button class="support" onclick="vote('support')">
-✅ ஆதரவு | Support
-</button>
-
-<button class="neutral" onclick="vote('neutral')">
-⚖️ நடுநிலை | Neutral
-</button>
-
-<button class="oppose" onclick="vote('oppose')">
-❌ எதிர்ப்பு | Oppose
-</button>
+<button class="support" onclick="vote('support')">✅ Support</button>
+<button class="neutral" onclick="vote('neutral')">⚖️ Neutral</button>
+<button class="oppose" onclick="vote('oppose')">❌ Oppose</button>
 
 <br><br>
 
-<button class="reset" onclick="resetResults()">
-🔄 Reset Results
-</button>
+<button class="reset" onclick="resetResults()">🔄 Reset</button>
 
 </div>
-
-<!-- RESULT -->
 
 <div class="card result-box">
-
-📊 LIVE RESULT :
-<span id="totalVotes">0</span>
-
+📊 Total Votes : <span id="totalVotes">0</span>
 </div>
 
-<!-- CHARTS -->
-
 <div class="chart-container">
-
 <canvas id="pieChart"></canvas>
-
 <canvas id="barChart"></canvas>
+</div>
+
+<!-- DISCLAIMER -->
+<div class="card">
+
+<h2>🔔 Disclaimer & Privacy Policy</h2>
+
+<p>
+This platform is an independent civic awareness and public opinion research initiative.
+</p>
+
+<p>
+⚠️ NOT an official Government or Election Commission platform.
+</p>
+
+<p>
+🔐 Gmail login is only for one-person-one-vote verification. No passwords are stored.
+</p>
+
+<p>
+📊 Data is used only for awareness and research purposes.
+</p>
 
 </div>
 
@@ -252,242 +201,126 @@ Not Logged In
 
 <footer>
 
-© 2026 Tamil + English Global Voting Platform
+© 2026 Global Indian Vote Platform<br><br>
+
+🇮🇳 Democracy • Patriotism • National Unity<br>
+🔬 Research Head: N RAMAN
 
 </footer>
 
 <script>
 
-// LOGIN USER
 let currentUser = localStorage.getItem("gmailUser");
 
-// DISPLAY USER
 if(currentUser){
-
-    document.getElementById("userInfo").innerText =
-    "✅ Logged in as : " + currentUser;
+document.getElementById("userInfo").innerText =
+"✅ Logged in as : " + currentUser;
 }
 
-// LOGIN FUNCTION
 function loginUser(){
+let email = prompt("Enter Gmail ID");
 
-    let email = prompt("Enter Gmail ID");
+if(email && email.includes("@gmail.com")){
+localStorage.setItem("gmailUser", email);
+currentUser = email;
 
-    if(email && email.includes("@gmail.com")){
+document.getElementById("userInfo").innerText =
+"✅ Logged in as : " + email;
 
-        localStorage.setItem("gmailUser", email);
-
-        currentUser = email;
-
-        document.getElementById("userInfo").innerText =
-        "✅ Logged in as : " + email;
-
-        alert("✅ Login Successful");
-
-    }else{
-
-        alert("❌ Please Enter Valid Gmail");
-    }
+alert("Login Successful");
+}else{
+alert("Invalid Gmail");
+}
 }
 
-// LOGOUT FUNCTION
 function logoutUser(){
-
-    localStorage.removeItem("gmailUser");
-
-    currentUser = null;
-
-    document.getElementById("userInfo").innerText =
-    "Not Logged In";
-
-    alert("✅ Logged Out");
+localStorage.removeItem("gmailUser");
+currentUser = null;
+document.getElementById("userInfo").innerText = "Not Logged In";
+alert("Logged Out");
 }
 
-// VOTE STORAGE
-let votes = {
-    support:0,
-    neutral:0,
-    oppose:0
-};
+let votes = {support:0,neutral:0,oppose:0};
 
-// LOAD SAVED VOTES
 if(localStorage.getItem("liveVotes")){
-
-    votes = JSON.parse(
-        localStorage.getItem("liveVotes")
-    );
+votes = JSON.parse(localStorage.getItem("liveVotes"));
 }
 
-// PIE CHART
-const pieCtx =
-document.getElementById("pieChart");
-
-const pieChart = new Chart(pieCtx, {
-
-    type:'pie',
-
-    data:{
-        labels:[
-            'Support',
-            'Neutral',
-            'Oppose'
-        ],
-
-        datasets:[{
-
-            data:[
-                votes.support,
-                votes.neutral,
-                votes.oppose
-            ],
-
-            backgroundColor:[
-                '#28a745',
-                '#ffc107',
-                '#dc3545'
-            ]
-        }]
-    }
-});
-
-// BAR CHART
-const barCtx =
-document.getElementById("barChart");
-
-const barChart = new Chart(barCtx, {
-
-    type:'bar',
-
-    data:{
-        labels:[
-            'Support',
-            'Neutral',
-            'Oppose'
-        ],
-
-        datasets:[{
-
-            label:'Votes',
-
-            data:[
-                votes.support,
-                votes.neutral,
-                votes.oppose
-            ],
-
-            backgroundColor:[
-                '#28a745',
-                '#ffc107',
-                '#dc3545'
-            ]
-        }]
-    },
-
-    options:{
-        responsive:true,
-
-        scales:{
-            y:{
-                beginAtZero:true
-            }
-        }
-    }
-});
-
-// SAVE VOTES
 function saveVotes(){
-
-    localStorage.setItem(
-        "liveVotes",
-        JSON.stringify(votes)
-    );
+localStorage.setItem("liveVotes", JSON.stringify(votes));
 }
 
-// UPDATE CHARTS
+const pieChart = new Chart(document.getElementById("pieChart"), {
+type:'pie',
+data:{
+labels:['Support','Neutral','Oppose'],
+datasets:[{
+data:[votes.support,votes.neutral,votes.oppose],
+backgroundColor:['#28a745','#ffc107','#dc3545']
+}]
+}
+});
+
+const barChart = new Chart(document.getElementById("barChart"), {
+type:'bar',
+data:{
+labels:['Support','Neutral','Oppose'],
+datasets:[{
+label:'Votes',
+data:[votes.support,votes.neutral,votes.oppose],
+backgroundColor:['#28a745','#ffc107','#dc3545']
+}]
+},
+options:{scales:{y:{beginAtZero:true}}}
+});
+
 function updateCharts(){
+pieChart.data.datasets[0].data =
+[votes.support,votes.neutral,votes.oppose];
 
-    pieChart.data.datasets[0].data = [
-        votes.support,
-        votes.neutral,
-        votes.oppose
-    ];
+barChart.data.datasets[0].data =
+[votes.support,votes.neutral,votes.oppose];
 
-    pieChart.update();
+pieChart.update();
+barChart.update();
 
-    barChart.data.datasets[0].data = [
-        votes.support,
-        votes.neutral,
-        votes.oppose
-    ];
-
-    barChart.update();
-
-    document.getElementById("totalVotes").innerText =
-
-        votes.support +
-        votes.neutral +
-        votes.oppose;
+document.getElementById("totalVotes").innerText =
+votes.support + votes.neutral + votes.oppose;
 }
 
-// VOTE FUNCTION
 function vote(type){
 
-    // LOGIN REQUIRED
-    if(!currentUser){
-
-        alert("❌ Please Login First");
-
-        return;
-    }
-
-    // DUPLICATE VOTE CHECK
-    let votedUsers = JSON.parse(
-        localStorage.getItem("votedUsers")
-    ) || {};
-
-    if(votedUsers[currentUser]){
-
-        alert("⚠️ Duplicate Vote Blocked");
-
-        return;
-    }
-
-    // RECORD VOTE
-    votes[type]++;
-
-    votedUsers[currentUser] = type;
-
-    localStorage.setItem(
-        "votedUsers",
-        JSON.stringify(votedUsers)
-    );
-
-    saveVotes();
-
-    updateCharts();
-
-    alert("✅ One Vote Accepted Successfully");
+if(!currentUser){
+alert("Login Required");
+return;
 }
 
-// RESET RESULTS
+let votedUsers = JSON.parse(localStorage.getItem("votedUsers")) || {};
+
+if(votedUsers[currentUser]){
+alert("Duplicate Vote Blocked");
+return;
+}
+
+votes[type]++;
+votedUsers[currentUser] = type;
+
+localStorage.setItem("votedUsers", JSON.stringify(votedUsers));
+
+saveVotes();
+updateCharts();
+
+alert("Vote Recorded Successfully");
+}
+
 function resetResults(){
-
-    votes = {
-        support:0,
-        neutral:0,
-        oppose:0
-    };
-
-    localStorage.removeItem("votedUsers");
-
-    saveVotes();
-
-    updateCharts();
-
-    alert("✅ Results Reset Successfully");
+votes = {support:0,neutral:0,oppose:0};
+localStorage.removeItem("votedUsers");
+saveVotes();
+updateCharts();
+alert("Reset Done");
 }
 
-// INITIAL LOAD
 updateCharts();
 
 </script>
