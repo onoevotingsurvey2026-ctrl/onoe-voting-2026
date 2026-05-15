@@ -2,198 +2,147 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Global Indian Vote - Firebase Live System</title>
+<title>Global Indian Vote</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- 🔥 Firebase -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
 
 <style>
-
 body{
-    margin:0;
-    padding:0;
-    font-family:Arial, sans-serif;
-    background:#f4f4f4;
-    text-align:center;
-}
-
-header{
-    background:#111;
-    color:white;
-    padding:20px;
-}
-
-header h1{margin:0;}
-header h2{color:#ffc107;}
-
-.container{
-    max-width:1200px;
-    margin:auto;
-    padding:20px;
+  font-family: Arial;
+  text-align:center;
+  background:#f4f4f4;
 }
 
 .card{
-    background:white;
-    padding:20px;
-    margin-bottom:20px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
+  background:white;
+  padding:20px;
+  margin:10px;
+  border-radius:10px;
+  display:inline-block;
 }
 
 button{
-    padding:12px 25px;
-    margin:10px;
-    border:none;
-    border-radius:8px;
-    font-size:16px;
-    cursor:pointer;
+  padding:10px 20px;
+  margin:5px;
+  border:none;
+  cursor:pointer;
+  border-radius:6px;
 }
 
-.support{background:#28a745;color:white;}
-.neutral{background:#ffc107;color:black;}
-.oppose{background:#dc3545;color:white;}
-
-.result-box{
-    font-size:24px;
-    font-weight:bold;
-}
-
-canvas{
-    background:white;
-    border-radius:10px;
-    padding:10px;
-    width:450px !important;
-    height:450px !important;
-}
-
+.support{background:green;color:white;}
+.neutral{background:orange;}
+.oppose{background:red;color:white;}
 </style>
+
 </head>
 
 <body>
 
-<header>
-<h1>🗳️ Global Indian Vote</h1>
-<h2>Firebase Real-Time Voting System</h2>
-</header>
-
-<div class="container">
+<h2>🗳️ Global Indian Vote</h2>
 
 <div class="card">
-
-<h2>👤 Login</h2>
 <p id="userInfo">Not Logged In</p>
-<button onclick="loginUser()">Login Gmail</button>
-
+<button onclick="login()">Login Gmail</button>
 </div>
 
 <div class="card">
-
-<h2>🗳️ Vote</h2>
-
+<h3>Vote</h3>
 <button class="support" onclick="vote('support')">Support</button>
 <button class="neutral" onclick="vote('neutral')">Neutral</button>
 <button class="oppose" onclick="vote('oppose')">Oppose</button>
-
-</div>
-
-<div class="card result-box">
-📊 Total Votes: <span id="totalVotes">0</span>
 </div>
 
 <div class="card">
-<canvas id="pieChart"></canvas>
+<h3>📊 Results</h3>
+<p>Support: <span id="s">0</span></p>
+<p>Neutral: <span id="n">0</span></p>
+<p>Oppose: <span id="o">0</span></p>
+<p>Total: <span id="t">0</span></p>
 </div>
 
-</div>
+<canvas id="chart" width="300"></canvas>
 
 <script>
 
-let currentUser = null;
-
-// 🔥 Firebase Config
+// 🔥 FIREBASE CONFIG (REPLACE THIS)
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "YOUR_PROJECT_ID"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+let currentUser = null;
+
 // 👤 LOGIN
-function loginUser(){
-let email = prompt("Enter Gmail ID");
+function login(){
+  let email = prompt("Enter Gmail ID");
 
-if(email && email.includes("@gmail.com")){
-currentUser = email;
-document.getElementById("userInfo").innerText =
-"Logged in as: " + email;
-}else{
-alert("Invalid Gmail");
-}
+  if(email && email.includes("@gmail.com")){
+    currentUser = email;
+    document.getElementById("userInfo").innerText = "Logged in: " + email;
+  }else{
+    alert("Invalid Gmail");
+  }
 }
 
-// 🗳️ VOTE (FIREBASE SAVE)
+// 🗳️ VOTE SAVE (FIXED)
 function vote(type){
 
-if(!currentUser){
-alert("Login required");
-return;
+  if(!currentUser){
+    alert("Login required");
+    return;
+  }
+
+  db.ref("user_votes/" + currentUser).set({
+    vote: type,
+    timestamp: firebase.database.ServerValue.TIMESTAMP
+  });
+
 }
 
-db.ref("user_votes/" + currentUser).set({
-vote: type,
-timestamp: firebase.database.ServerValue.TIMESTAMP
-});
-
-alert("Vote saved successfully!");
-}
-
-// 📊 LIVE DASHBOARD
-let votes = {support:0,neutral:0,oppose:0};
-
-const pieChart = new Chart(document.getElementById("pieChart"), {
-type:'pie',
-data:{
-labels:['Support','Neutral','Oppose'],
-datasets:[{
-data:[0,0,0],
-backgroundColor:['#28a745','#ffc107','#dc3545']
-}]
-}
-});
-
-// 🔥 REAL TIME LISTENER
+// 📊 LIVE LISTENER (FIXED)
 db.ref("user_votes").on("value", (snapshot)=>{
 
-let data = snapshot.val();
+  let data = snapshot.val() || {};
 
-let support=0, neutral=0, oppose=0;
+  let support=0, neutral=0, oppose=0;
 
-for(let user in data){
-let v = data[user].vote;
+  for(let user in data){
+    let v = data[user].vote;
 
-if(v==="support") support++;
-else if(v==="neutral") neutral++;
-else if(v==="oppose") oppose++;
+    if(v==="support") support++;
+    else if(v==="neutral") neutral++;
+    else if(v==="oppose") oppose++;
+  }
+
+  document.getElementById("s").innerText = support;
+  document.getElementById("n").innerText = neutral;
+  document.getElementById("o").innerText = oppose;
+  document.getElementById("t").innerText = support+neutral+oppose;
+
+  chart.data.datasets[0].data = [support,neutral,oppose];
+  chart.update();
+
+});
+
+// 📊 CHART
+const chart = new Chart(document.getElementById("chart"), {
+type:'pie',
+data:{
+  labels:['Support','Neutral','Oppose'],
+  datasets:[{
+    data:[0,0,0],
+    backgroundColor:['green','orange','red']
+  }]
 }
-
-votes = {support,neutral,oppose};
-
-pieChart.data.datasets[0].data = [support,neutral,oppose];
-pieChart.update();
-
-document.getElementById("totalVotes").innerText =
-support + neutral + oppose;
-
 });
 
 </script>
