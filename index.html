@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -9,6 +9,9 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<!-- PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 body{
@@ -38,6 +41,7 @@ button{
 .oppose{background:red;color:white;}
 .download{background:#007bff;color:white;}
 </style>
+
 </head>
 
 <body>
@@ -70,7 +74,7 @@ button{
 
 <script>
 
-// 🔥 FIREBASE CONFIG
+// 🔥 FIREBASE CONFIG (REPLACE THIS)
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -99,7 +103,12 @@ function login(){
   }
 }
 
-// 🗳️ VOTE (FIXED + DEBUG)
+// 🔐 SAFE KEY FUNCTION (IMPORTANT FIX)
+function safeKey(email){
+  return email.replace(/\./g, "_");
+}
+
+// 🗳️ VOTE (FIXED)
 function vote(type){
 
   if(!currentUser){
@@ -107,21 +116,23 @@ function vote(type){
     return;
   }
 
-  console.log("VOTE CLICKED:", type);
+  const userKey = safeKey(currentUser);
 
-  db.ref("user_votes/" + currentUser).set({
+  console.log("Vote clicked:", type);
+
+  db.ref("user_votes/" + userKey).set({
     vote: type,
     timestamp: Date.now()
   })
   .then(()=>{
     console.log("Vote saved successfully");
   })
-  .catch((err)=>{
+  .catch(err=>{
     console.log("Firebase error:", err);
   });
 }
 
-// 📊 REALTIME LISTENER (FIXED)
+// 📊 REALTIME LISTENER
 db.ref("user_votes").on("value", (snapshot)=>{
 
   let data = snapshot.val() || {};
@@ -157,23 +168,22 @@ data:{
 }
 });
 
-// 📄 PDF DOWNLOAD
+// 📄 PDF DOWNLOAD (FIXED)
 function downloadPDF(){
-
-  const support = document.getElementById("s").innerText;
-  const neutral = document.getElementById("n").innerText;
-  const oppose = document.getElementById("o").innerText;
-  const total = document.getElementById("t").innerText;
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
+  doc.setFontSize(16);
   doc.text("Global Indian Vote Report", 20, 20);
-  doc.text("Support: " + support, 20, 40);
-  doc.text("Neutral: " + neutral, 20, 50);
-  doc.text("Oppose: " + oppose, 20, 60);
-  doc.text("Total: " + total, 20, 70);
-  doc.text("Date: " + new Date().toLocaleString(), 20, 90);
+
+  doc.setFontSize(12);
+  doc.text("Support: " + document.getElementById("s").innerText, 20, 40);
+  doc.text("Neutral: " + document.getElementById("n").innerText, 20, 50);
+  doc.text("Oppose: " + document.getElementById("o").innerText, 20, 60);
+  doc.text("Total: " + document.getElementById("t").innerText, 20, 70);
+
+  doc.text("Generated: " + new Date().toLocaleString(), 20, 90);
 
   doc.save("vote-report.pdf");
 }
