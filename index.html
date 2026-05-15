@@ -1,13 +1,15 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html>
 <head>
   <title>Global Indian Vote 2026</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body { font-family: Arial; text-align:center; padding:20px; background:#f5f5f5; }
+    body { font-family: Arial; text-align:center; padding:20px; background:#f4f4f4; }
+    .card { background:white; padding:15px; margin:10px auto; width:90%; max-width:420px; border-radius:10px; }
     button { padding:10px 15px; margin:5px; cursor:pointer; }
-    .card { background:white; padding:15px; margin:10px auto; width:90%; max-width:400px; border-radius:10px; }
+    input { padding:8px; margin:5px; width:80%; }
   </style>
 </head>
 
@@ -15,19 +17,28 @@
 
 <h2>🌍 Global Indian Vote 2026</h2>
 
-<p id="status">Not logged in</p>
+<!-- 🔐 LOGIN SECTION -->
+<div class="card">
+<h3>🔐 Login System</h3>
 
-<button id="loginBtn">Login with Google</button>
+<input id="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Password"><br>
+
+<button onclick="signup()">Sign Up</button>
+<button onclick="login()">Login</button>
+
+<br><br>
+<button id="googleLogin">Login with Google</button>
+
 <button id="logoutBtn" style="display:none;">Logout</button>
 
-<div class="card">
-  <p><b>User:</b> <span id="userEmail"></span></p>
+<p id="status">Not logged in</p>
+<p><b>User:</b> <span id="userEmail"></span></p>
 </div>
 
-<hr>
-
+<!-- 🗳️ VOTING -->
 <div class="card">
-<h3>🗳️ Cast Your Vote</h3>
+<h3>🗳️ Vote Section</h3>
 
 <button onclick="vote('support')">👍 Support</button>
 <button onclick="vote('oppose')">👎 Oppose</button>
@@ -51,8 +62,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { 
   getAuth,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -86,16 +98,30 @@ const provider = new GoogleAuthProvider();
 const status = document.getElementById("status");
 const userEmail = document.getElementById("userEmail");
 const msg = document.getElementById("msg");
-
-const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 
-// 🔥 LOGIN (redirect safe)
-loginBtn.onclick = () => {
-  signInWithRedirect(auth, provider);
+// 🔐 EMAIL SIGNUP
+window.signup = function () {
+  createUserWithEmailAndPassword(
+    auth,
+    document.getElementById("email").value,
+    document.getElementById("password").value
+  ).then(() => alert("Account created"));
 };
 
-getRedirectResult(auth);
+// 🔐 EMAIL LOGIN
+window.login = function () {
+  signInWithEmailAndPassword(
+    auth,
+    document.getElementById("email").value,
+    document.getElementById("password").value
+  ).then(() => alert("Login success"));
+};
+
+// 🔵 GOOGLE LOGIN
+document.getElementById("googleLogin").onclick = function () {
+  signInWithPopup(auth, provider);
+};
 
 // LOGOUT
 logoutBtn.onclick = () => {
@@ -106,14 +132,12 @@ logoutBtn.onclick = () => {
 onAuthStateChanged(auth, (user) => {
   if (user) {
     status.innerText = "Logged in ✔️";
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "inline-block";
     userEmail.innerText = user.email;
+    logoutBtn.style.display = "inline-block";
   } else {
     status.innerText = "Not logged in";
-    loginBtn.style.display = "inline-block";
-    logoutBtn.style.display = "none";
     userEmail.innerText = "";
+    logoutBtn.style.display = "none";
   }
 });
 
@@ -143,7 +167,7 @@ window.vote = async function(choice) {
     time: Date.now()
   });
 
-  msg.innerText = "✅ Vote submitted successfully!";
+  msg.innerText = "✅ Vote submitted!";
 };
 
 // 📊 LIVE DASHBOARD
