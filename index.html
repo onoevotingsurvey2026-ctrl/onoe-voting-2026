@@ -101,6 +101,24 @@ footer{
     font-size:14px;
 }
 
+/* DISCLAIMER BOX */
+.disclaimer{
+    margin-top:15px;
+    padding:15px;
+    border:1px solid #444;
+    border-radius:10px;
+    background:#1a1a1a;
+    text-align:left;
+    max-width:900px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.disclaimer h3{
+    color:#ffc107;
+    text-align:center;
+}
+
 @media(max-width:768px){
     canvas{width:100% !important;height:auto !important;}
 }
@@ -190,6 +208,33 @@ Tamilnadu State, India<br><br>
 © 2026 Global Indian Vote Platform<br>
 🇮🇳 Democracy • National Unity • Patriotism
 
+<div class="disclaimer">
+
+<h3>⚠️ Disclaimer & Important Notice</h3>
+
+<p>
+This platform is developed for <b>educational, research, and public opinion analysis only</b>.
+It is not connected to any Government, Election Commission, or political organization.
+</p>
+
+<p>
+⚠️ All votes are simulated / opinion-based and used only for analytical purpose.
+</p>
+
+<p>
+🔐 User login is only for one-person-one-vote protection. No passwords are stored.
+</p>
+
+<p>
+📊 Data shown is for awareness, research, and civic study purposes only.
+</p>
+
+<p>
+⚠️ Users are advised not to consider this as official election result or political statement.
+</p>
+
+</div>
+
 </footer>
 
 <script>
@@ -276,7 +321,7 @@ document.getElementById("totalVotes").innerText =
 votes.support + votes.neutral + votes.oppose;
 }
 
-// VOTE LOGIC
+// VOTE
 function vote(type){
 
 if(!currentUser){
