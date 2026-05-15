@@ -1,12 +1,13 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <title>Global Indian Vote 2026</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    body { font-family: Arial; text-align:center; padding:20px; }
-    button { padding:10px 15px; margin:5px; }
+    body { font-family: Arial; text-align:center; padding:20px; background:#f5f5f5; }
+    button { padding:10px 15px; margin:5px; cursor:pointer; }
+    .card { background:white; padding:15px; margin:10px auto; width:90%; max-width:400px; border-radius:10px; }
   </style>
 </head>
 
@@ -19,23 +20,36 @@
 <button id="loginBtn">Login with Google</button>
 <button id="logoutBtn" style="display:none;">Logout</button>
 
-<p id="userEmail"></p>
+<div class="card">
+  <p><b>User:</b> <span id="userEmail"></span></p>
+</div>
 
 <hr>
 
-<h3>🗳️ Vote</h3>
+<div class="card">
+<h3>🗳️ Cast Your Vote</h3>
 
 <button onclick="vote('support')">👍 Support</button>
 <button onclick="vote('oppose')">👎 Oppose</button>
 <button onclick="vote('neutral')">⚖️ Neutral</button>
 
 <p id="msg"></p>
+</div>
+
+<!-- 📊 DASHBOARD -->
+<div class="card">
+<h3>📊 Live Dashboard</h3>
+
+<p>👍 Support: <span id="supportCount">0</span></p>
+<p>👎 Oppose: <span id="opposeCount">0</span></p>
+<p>⚖️ Neutral: <span id="neutralCount">0</span></p>
+</div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
-  getAuth, 
+  getAuth,
   GoogleAuthProvider,
   signInWithRedirect,
   getRedirectResult,
@@ -43,14 +57,15 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-import { 
+import {
   getDatabase,
   ref,
   get,
-  set
+  set,
+  onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Firebase config
+// 🔥 Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -61,36 +76,33 @@ const firebaseConfig = {
   appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
+// Init
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 const provider = new GoogleAuthProvider();
 
 // UI
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
 const status = document.getElementById("status");
 const userEmail = document.getElementById("userEmail");
 const msg = document.getElementById("msg");
 
-// 🔥 REDIRECT LOGIN
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+// 🔥 LOGIN (redirect safe)
 loginBtn.onclick = () => {
   signInWithRedirect(auth, provider);
 };
 
-// handle redirect result
-getRedirectResult(auth).then((result) => {
-  if (result && result.user) {
-    console.log("Login success");
-  }
-});
+getRedirectResult(auth);
 
-// logout
+// LOGOUT
 logoutBtn.onclick = () => {
   signOut(auth);
 };
 
-// auth state
+// AUTH STATE
 onAuthStateChanged(auth, (user) => {
   if (user) {
     status.innerText = "Logged in ✔️";
@@ -105,7 +117,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// 🗳️ VOTE SYSTEM (1 USER = 1 VOTE)
+// 🗳️ VOTE SYSTEM (ONE USER ONE VOTE)
 window.vote = async function(choice) {
 
   const user = auth.currentUser;
@@ -131,8 +143,29 @@ window.vote = async function(choice) {
     time: Date.now()
   });
 
-  msg.innerText = "✅ Vote submitted!";
+  msg.innerText = "✅ Vote submitted successfully!";
 };
+
+// 📊 LIVE DASHBOARD
+const votesRef = ref(db, "votes");
+
+onValue(votesRef, (snapshot) => {
+
+  let support = 0, oppose = 0, neutral = 0;
+
+  snapshot.forEach((child) => {
+    const data = child.val();
+
+    if (data.choice === "support") support++;
+    if (data.choice === "oppose") oppose++;
+    if (data.choice === "neutral") neutral++;
+  });
+
+  document.getElementById("supportCount").innerText = support;
+  document.getElementById("opposeCount").innerText = oppose;
+  document.getElementById("neutralCount").innerText = neutral;
+
+});
 
 </script>
 
