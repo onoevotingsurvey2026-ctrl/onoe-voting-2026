@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Entry Gate v6</title>
+<title>Entry Gate Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -11,36 +11,29 @@ body{
   font-family:Arial;
   background:#0b1220;
   color:white;
+  text-align:center;
 }
 
 .box{
   width:320px;
-  margin:80px auto;
+  margin:100px auto;
   background:#18243f;
   padding:20px;
   border-radius:12px;
-  text-align:center;
 }
 
-input{
+input,button{
   width:90%;
   padding:10px;
   margin:8px 0;
+  border:none;
+  border-radius:6px;
 }
 
 button{
-  width:95%;
-  padding:10px;
-  margin:6px 0;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
   background:#2563eb;
   color:white;
-}
-
-h2{
-  margin-bottom:10px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -51,26 +44,24 @@ h2{
 
 <h2>🔐 Entry Gate Login</h2>
 
-<!-- Mobile -->
-<input id="phone" placeholder="+Country Code Mobile">
+<!-- COUNTRY CODE + MOBILE -->
+<input id="phone" placeholder="+91 Mobile Number">
 
-<!-- CAPTCHA -->
-<div id="recaptcha-container"></div>
-
-<!-- OTP ACTION -->
+<!-- SEND OTP -->
 <button onclick="sendOTP()">Send OTP</button>
 
-<!-- OTP INPUT -->
+<!-- ENTER OTP -->
 <input id="otp" placeholder="Enter OTP">
 
+<!-- SUBMIT OTP -->
 <button onclick="verifyOTP()">Submit OTP</button>
 
 </div>
 
-<!-- DASHBOARD PLACEHOLDER -->
-<div id="dashboard" style="display:none;text-align:center;margin-top:100px;">
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;margin-top:120px;">
 <h2>🏛️ Login Success</h2>
-<p>Dashboard Loading...</p>
+<p>Welcome to Civic Dashboard</p>
 </div>
 
 <script type="module">
@@ -79,12 +70,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* 🔥 FIREBASE CONFIG (REPLACE THIS) */
+/* 🔥 FIREBASE CONFIG (ADD YOUR DETAILS) */
 const firebaseConfig = {
 apiKey: "YOUR_API_KEY",
-authDomain: "YOUR_DOMAIN",
-projectId: "YOUR_PROJECT",
-appId: "YOUR_APP"
+authDomain: "YOUR_AUTH_DOMAIN",
+projectId: "YOUR_PROJECT_ID"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -105,9 +95,9 @@ const phone = document.getElementById("phone").value;
 signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
 .then((result)=>{
 confirmationResult = result;
-alert("OTP Sent Successfully");
+alert("OTP Sent ✔");
 })
-.catch((err)=>{
+.catch(()=>{
 alert("Error sending OTP");
 });
 
