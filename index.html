@@ -2,139 +2,418 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Global Indian Vote - Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Global Indian Vote - Final Dashboard</title>
+
+<!-- Chart JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
 <style>
-body{
+
+*{
   margin:0;
-  font-family:Arial, sans-serif;
-  background:linear-gradient(135deg,#0f172a,#1e293b);
-  color:white;
+  padding:0;
+  box-sizing:border-box;
 }
+
+body{
+  font-family:Arial,sans-serif;
+  background:linear-gradient(135deg,#0f172a,#111827,#1e293b);
+  color:white;
+  min-height:100vh;
+}
+
+/* HEADER */
 
 header{
-  background:#0b1220;
-  padding:20px;
+  background:rgba(17,24,39,0.95);
+  padding:30px 20px;
   text-align:center;
-  border-bottom:2px solid #22c55e;
+  border-bottom:3px solid #22c55e;
+  box-shadow:0 0 20px rgba(0,255,120,0.15);
 }
 
+header h1{
+  font-size:32px;
+  margin-bottom:10px;
+  color:#22c55e;
+}
+
+header h3{
+  margin-bottom:15px;
+  font-weight:normal;
+}
+
+header p{
+  margin:6px 0;
+  line-height:1.6;
+}
+
+/* SLOGAN */
+
+.slogan{
+  margin-top:20px;
+  line-height:1.9;
+  font-weight:bold;
+  color:#facc15;
+}
+
+/* MAIN CONTAINER */
+
 .container{
-  max-width:1000px;
+  max-width:1200px;
   margin:auto;
-  padding:20px;
+  padding:25px;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
   gap:20px;
 }
 
+/* CARD */
+
 .card{
-  background:#111827;
-  padding:20px;
-  border-radius:12px;
-  text-align:center;
+  background:rgba(17,24,39,0.95);
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 0 20px rgba(0,255,120,0.08);
+  transition:0.3s;
 }
+
+.card:hover{
+  transform:translateY(-4px);
+}
+
+.card h3{
+  margin-bottom:15px;
+  color:#22c55e;
+}
+
+/* BUTTONS */
 
 button{
-  padding:10px 15px;
-  margin:5px;
+  padding:12px 18px;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
   font-weight:bold;
+  margin:6px;
+  transition:0.3s;
 }
 
-.support{background:#22c55e;color:black;}
-.neutral{background:#facc15;color:black;}
-.oppose{background:#ef4444;color:white;}
-.login{background:#3b82f6;color:white;}
+button:hover{
+  transform:scale(1.05);
+}
 
-.big{
-  font-size:32px;
+.login{
+  background:#3b82f6;
+  color:white;
+}
+
+.support{
+  background:#22c55e;
+  color:black;
+}
+
+.neutral{
+  background:#facc15;
+  color:black;
+}
+
+.oppose{
+  background:#ef4444;
+  color:white;
+}
+
+.pdf{
+  background:#8b5cf6;
+  color:white;
+}
+
+/* RESULTS */
+
+.result{
+  font-size:28px;
   font-weight:bold;
+  color:#22c55e;
 }
+
+/* WEBSITE STATUS */
+
+.live-status{
+  color:#22c55e;
+  font-weight:bold;
+  word-break:break-word;
+}
+
+/* DISCLAIMER */
+
+.notice{
+  line-height:1.8;
+  font-size:14px;
+}
+
+/* FOOTER */
+
+footer{
+  background:#111827;
+  text-align:center;
+  padding:25px;
+  margin-top:30px;
+  border-top:2px solid #22c55e;
+}
+
+footer p{
+  margin:8px 0;
+  line-height:1.6;
+}
+
+/* CHARTS */
 
 canvas{
   max-width:100%;
 }
 
-footer{
-  text-align:center;
-  padding:15px;
-  background:#0b1220;
-  font-size:12px;
-  opacity:0.8;
-}
-
-.pdf-btn{
-  background:#3b82f6;
-  color:white;
-  padding:10px 15px;
-  border-radius:8px;
-  cursor:pointer;
-  border:none;
-  margin-top:10px;
-}
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
+
 <header>
-<h1>🗳️ Global Indian Vote</h1>
-<p>Real-Time Voting Dashboard</p>
+
+<h1>🗳️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு</h1>
+
+<h3>One Nation One Election & Delimitation</h3>
+
+<p>
+🌍 உலகளாவிய இந்திய குடியுரிமை பெற்ற மக்கள் தேர்தல் கருத்து கணிப்பு & பகுப்பாய்வு இணையதளம்
+</p>
+
+<p>
+Globally Living Indian Citizens Participation Platform
+</p>
+
+<div class="slogan">
+🇮🇳 "நாம் இந்தியர்கள் - ஒன்றுபட்ட இந்திய தேசம் நமது பெருமை"<br>
+🧭 "பாரத மண்ணின் எதிர்காலம் இந்திய மக்கள் குரலில் ஒலிக்கட்டும்"<br>
+🗳️ "இந்திய ஜனநாயகத்தில் மக்கள் குரல் முக்கியத்துவம் வாய்ந்தது"<br>
+🌍 "உலகம் முழுவதும் உள்ள இந்திய வாக்குரிமை பெற்ற குடிமக்கள் பங்கேற்கலாம்"
+</div>
+
 </header>
+
+<!-- MAIN -->
 
 <div class="container">
 
-  <!-- LOGIN -->
-  <div class="card">
-    <h3>👤 Login</h3>
-    <p id="userInfo">Not Logged In</p>
-    <button class="login" onclick="login()">Login Gmail</button>
-  </div>
+<!-- LOGIN -->
 
-  <!-- VOTE -->
-  <div class="card">
-    <h3>🗳️ Vote</h3>
-    <button class="support" onclick="vote('support')">Support</button>
-    <button class="neutral" onclick="vote('neutral')">Neutral</button>
-    <button class="oppose" onclick="vote('oppose')">Oppose</button>
-  </div>
+<div class="card">
 
-  <!-- RESULTS -->
-  <div class="card">
-    <h3>📊 Live Results</h3>
-    <p>Support: <span class="big" id="s">0</span></p>
-    <p>Neutral: <span class="big" id="n">0</span></p>
-    <p>Oppose: <span class="big" id="o">0</span></p>
-    <p>Total: <span class="big" id="t">0</span></p>
+<h3>👤 Login</h3>
 
-    <!-- PDF BUTTON -->
-    <button class="pdf-btn" onclick="downloadPDF()">📥 Download Live Results PDF</button>
-  </div>
+<p id="userInfo">Not Logged In</p>
 
-  <!-- CHART -->
-  <div class="card">
-    <h3>📈 Analytics</h3>
-    <canvas id="chart"></canvas>
-  </div>
+<button class="login" onclick="login()">
+Login Gmail
+</button>
 
 </div>
 
+<!-- VOTE -->
+
+<div class="card">
+
+<h3>🗳️ Vote</h3>
+
+<button class="support" onclick="vote('support')">
+Support
+</button>
+
+<button class="neutral" onclick="vote('neutral')">
+Neutral
+</button>
+
+<button class="oppose" onclick="vote('oppose')">
+Oppose
+</button>
+
+</div>
+
+<!-- RESULTS -->
+
+<div class="card">
+
+<h3>📊 Live Results</h3>
+
+<p>
+Support:
+<span class="result" id="s">0</span>
+</p>
+
+<p>
+Neutral:
+<span class="result" id="n">0</span>
+</p>
+
+<p>
+Oppose:
+<span class="result" id="o">0</span>
+</p>
+
+<p>
+Total:
+<span class="result" id="t">0</span>
+</p>
+
+<br>
+
+<button class="pdf" onclick="downloadPDF()">
+📥 Download Full PDF Report
+</button>
+
+</div>
+
+<!-- PIE CHART -->
+
+<div class="card">
+
+<h3>🥧 Pie Chart Analytics</h3>
+
+<canvas id="pieChart"></canvas>
+
+</div>
+
+<!-- BAR CHART -->
+
+<div class="card">
+
+<h3>📊 Bar Chart Analytics</h3>
+
+<canvas id="barChart"></canvas>
+
+</div>
+
+<!-- WEBSITE STATUS -->
+
+<div class="card">
+
+<h3>🌐 Website Live Status</h3>
+
+<p>
+🟢 Your site is live at:
+</p>
+
+<p class="live-status">
+https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
+</p>
+
+<p>
+Last deployed by:
+@onoevotingsurvey2026-ctrl
+</p>
+
+</div>
+
+<!-- DISCLAIMER -->
+
+<div class="card notice">
+
+<h3>⚠️ Important Notice & Disclaimer</h3>
+
+<p>
+இது இந்திய அரசு தேர்தல் அல்ல.
+தேர்தல் ஆணையம் நடத்தும் அதிகாரப்பூர்வ தேர்தல் அல்ல.
+எந்த அரசியல் கட்சியும் இதை நடத்தவில்லை.
+</p>
+
+<br>
+
+<p>
+எந்த அரசு அமைப்பிற்கும் இதற்கும் நேரடி அல்லது மறைமுக
+ஆலோசனை, வழிகாட்டுதல் அல்லது கட்டுப்பாடு இல்லை.
+</p>
+
+<br>
+
+<p>
+இது முழுமையான மக்கள் நலன், மக்கள் கருத்து மற்றும்
+பகுப்பாய்வு நோக்கில் உருவாக்கப்பட்ட சுயாதீன டிஜிட்டல் தளம்.
+</p>
+
+</div>
+
+<!-- PROJECT DETAILS -->
+
+<div class="card notice">
+
+<h3>👨‍💼 Project Research Head</h3>
+
+<p><b>Name:</b> N RAMAN</p>
+
+<br>
+
+<p>
+<b>Address:</b><br>
+No. 9, 1st Floor, 2nd Cross Street,<br>
+Gomathipuram, Thiruninravur,<br>
+Pincode: 602024,<br>
+Thiruvallur District,<br>
+Tamil Nadu, India
+</p>
+
+<br>
+
+<p>
+<b>Mobile:</b><br>
++91 8939324309<br>
++91 9384695599
+</p>
+
+<br>
+
+<p>
+<b>Email:</b><br>
+onoe.voting.survey2026@gmail.com
+</p>
+
+</div>
+
+</div>
+
+<!-- FOOTER -->
+
 <footer>
-© 2026 Global Indian Vote | Live Analytics System
+
+<p>🇮🇳 Global Indian Vote Platform</p>
+
+<p>
+🔥 Powered by Firebase • Real-Time Analytics • Public Opinion System
+</p>
+
+<p>
+🌐 https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
+</p>
+
+<p>
+© 2026 All Rights Reserved
+</p>
+
 </footer>
 
 <script>
 
-// Firebase Config
+/* FIREBASE CONFIG */
+
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -146,96 +425,218 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.database();
 
 let currentUser = null;
+let latestData = {};
 
 /* LOGIN */
+
 function login(){
+
   let email = prompt("Enter Gmail ID");
 
   if(email && email.includes("@gmail.com")){
+
     currentUser = email;
-    document.getElementById("userInfo").innerText = "Logged in: " + email;
-  } else {
+
+    document.getElementById("userInfo").innerText =
+    "Logged in: " + email;
+
+  }else{
+
     alert("Invalid Gmail");
+
   }
 }
 
 /* VOTE */
+
 function vote(type){
 
   if(!currentUser){
+
     alert("Login required");
+
     return;
   }
 
   db.ref("user_votes/" + currentUser).set({
-    vote: type,
-    timestamp: firebase.database.ServerValue.TIMESTAMP
+
+    vote:type,
+    time:Date.now()
+
   });
+
 }
 
 /* LIVE DATA */
-db.ref("user_votes").on("value", (snapshot)=>{
 
-  let data = snapshot.val() || {};
+db.ref("user_votes").on("value",(snap)=>{
+
+  let data = snap.val() || {};
 
   let s=0,n=0,o=0;
 
   Object.values(data).forEach(v=>{
+
     if(v.vote==="support") s++;
+
     if(v.vote==="neutral") n++;
+
     if(v.vote==="oppose") o++;
+
   });
 
-  document.getElementById("s").innerText = s;
-  document.getElementById("n").innerText = n;
-  document.getElementById("o").innerText = o;
-  document.getElementById("t").innerText = s+n+o;
+  document.getElementById("s").innerText=s;
+  document.getElementById("n").innerText=n;
+  document.getElementById("o").innerText=o;
+  document.getElementById("t").innerText=s+n+o;
 
-  chart.data.datasets[0].data = [s,n,o];
-  chart.update();
+  pieChart.data.datasets[0].data=[s,n,o];
+  barChart.data.datasets[0].data=[s,n,o];
+
+  pieChart.update();
+  barChart.update();
+
+  latestData = {
+    s,n,o,
+    total:s+n+o,
+    raw:data
+  };
+
 });
 
-/* CHART */
-const chart = new Chart(document.getElementById("chart"), {
+/* PIE CHART */
+
+const pieChart = new Chart(
+document.getElementById("pieChart"),{
+
 type:'pie',
+
 data:{
-  labels:['Support','Neutral','Oppose'],
-  datasets:[{
-    data:[0,0,0],
-    backgroundColor:['#22c55e','#facc15','#ef4444']
-  }]
+labels:['Support','Neutral','Oppose'],
+
+datasets:[{
+data:[0,0,0],
+backgroundColor:[
+'#22c55e',
+'#facc15',
+'#ef4444'
+]
+}]
 }
+
 });
 
-/* 📥 PDF DOWNLOAD */
+/* BAR CHART */
+
+const barChart = new Chart(
+document.getElementById("barChart"),{
+
+type:'bar',
+
+data:{
+labels:['Support','Neutral','Oppose'],
+
+datasets:[{
+data:[0,0,0],
+backgroundColor:[
+'#22c55e',
+'#facc15',
+'#ef4444'
+]
+}]
+}
+
+});
+
+/* PDF DOWNLOAD */
+
 function downloadPDF(){
 
-  let s = document.getElementById("s").innerText;
-  let n = document.getElementById("n").innerText;
-  let o = document.getElementById("o").innerText;
-  let t = document.getElementById("t").innerText;
+  const { jsPDF } = window.jspdf;
 
-  let content = `
-  Global Indian Vote Report
+  const doc = new jsPDF();
 
-  Support: ${s}
-  Neutral: ${n}
-  Oppose: ${o}
-  Total: ${t}
+  doc.setFontSize(16);
 
-  Generated: ${new Date().toLocaleString()}
-  `;
+  doc.text(
+  "GLOBAL INDIAN VOTE REPORT",
+  10,
+  10
+  );
 
-  let blob = new Blob([content], {type:"text/plain"});
-  let a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "Live_Vote_Report.txt";
-  a.click();
+  doc.setFontSize(12);
 
-  URL.revokeObjectURL(a.href);
+  doc.text(
+  "Support: " + latestData.s,
+  10,
+  30
+  );
+
+  doc.text(
+  "Neutral: " + latestData.n,
+  10,
+  40
+  );
+
+  doc.text(
+  "Oppose: " + latestData.o,
+  10,
+  50
+  );
+
+  doc.text(
+  "Total: " + latestData.total,
+  10,
+  60
+  );
+
+  doc.text(
+  "Generated: " +
+  new Date().toLocaleString(),
+  10,
+  70
+  );
+
+  let y = 90;
+
+  doc.text(
+  "INDIVIDUAL VOTE RECORDS:",
+  10,
+  y
+  );
+
+  y += 10;
+
+  Object.keys(latestData.raw || {}).forEach((u,i)=>{
+
+    doc.text(
+    (i+1) + ". " +
+    u + " -> " +
+    latestData.raw[u].vote,
+    10,
+    y
+    );
+
+    y += 10;
+
+    if(y > 280){
+
+      doc.addPage();
+
+      y = 20;
+
+    }
+
+  });
+
+  doc.save(
+  "Global_Indian_Vote_Report.pdf"
+  );
+
 }
 
 </script>
