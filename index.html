@@ -2,45 +2,138 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Global Civic Platform v6</title>
+<title>Entry Gate v6</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-body{margin:0;font-family:Arial;background:#0a1220;color:#fff}
-header{background:#111c33;padding:15px;text-align:center}
-.grid{display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;padding:10px}
-.box{background:#18243f;padding:15px;border-radius:10px}
-button{width:100%;padding:10px;margin:5px 0;border:none;border-radius:5px;cursor:pointer}
-input{width:95%;padding:8px;margin:5px 0}
-.hidden{display:none}
-.green{background:#16a34a;color:#fff}
-.blue{background:#2563eb;color:#fff}
-.red{background:#dc2626;color:#fff}
-canvas{background:#fff;border-radius:8px}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b1220;
+  color:white;
+}
+
+.box{
+  width:320px;
+  margin:80px auto;
+  background:#18243f;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+}
+
+input{
+  width:90%;
+  padding:10px;
+  margin:8px 0;
+}
+
+button{
+  width:95%;
+  padding:10px;
+  margin:6px 0;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#2563eb;
+  color:white;
+}
+
+h2{
+  margin-bottom:10px;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-🏛️ Global Civic Voting Platform v6 (FINAL)
-</header>
-
-<div class="grid">
-
-<!-- LOGIN -->
 <div class="box" id="loginBox">
-<h3>🔐 Entry Gate</h3>
-<input id="phone" placeholder="+Country Mobile">
+
+<h2>🔐 Entry Gate Login</h2>
+
+<!-- Mobile -->
+<input id="phone" placeholder="+Country Code Mobile">
+
+<!-- CAPTCHA -->
 <div id="recaptcha-container"></div>
+
+<!-- OTP ACTION -->
 <button onclick="sendOTP()">Send OTP</button>
-<input id="otp" placeholder="OTP">
-<button onclick="verifyOTP()">Submit</button>
+
+<!-- OTP INPUT -->
+<input id="otp" placeholder="Enter OTP">
+
+<button onclick="verifyOTP()">Submit OTP</button>
+
 </div>
 
-<!-- VOTE -->
-<div class="box hidden" id="voteBox">
-<h
+<!-- DASHBOARD PLACEHOLDER -->
+<div id="dashboard" style="display:none;text-align:center;margin-top:100px;">
+<h2>🏛️ Login Success</h2>
+<p>Dashboard Loading...</p>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+/* 🔥 FIREBASE CONFIG (REPLACE THIS) */
+const firebaseConfig = {
+apiKey: "YOUR_API_KEY",
+authDomain: "YOUR_DOMAIN",
+projectId: "YOUR_PROJECT",
+appId: "YOUR_APP"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+let confirmationResult;
+
+/* CAPTCHA */
+window.recaptchaVerifier = new RecaptchaVerifier(auth,"recaptcha-container",{
+size:"normal"
+});
+
+/* SEND OTP */
+window.sendOTP = () => {
+
+const phone = document.getElementById("phone").value;
+
+signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
+.then((result)=>{
+confirmationResult = result;
+alert("OTP Sent Successfully");
+})
+.catch((err)=>{
+alert("Error sending OTP");
+});
+
+};
+
+/* VERIFY OTP */
+window.verifyOTP = () => {
+
+const code = document.getElementById("otp").value;
+
+confirmationResult.confirm(code)
+.then((user)=>{
+
+alert("Login Success ✔");
+
+document.getElementById("loginBox").style.display="none";
+document.getElementById("dashboard").style.display="block";
+
+})
+.catch(()=>{
+alert("Invalid OTP");
+});
+
+};
+
+</script>
+
+</body>
+</html>
