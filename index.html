@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Global Indian Vote - National Survey Platform</title>
+<title>Global Indian Vote - Final Dashboard</title>
 
 <!-- CHART -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,84 +20,93 @@
 
 <style>
 
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
 body{
-    margin:0;
-    font-family:Arial;
-    background:linear-gradient(135deg,#0f172a,#111827,#1e293b);
-    color:white;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(135deg,#0f172a,#111827,#1e293b);
+  color:white;
 }
 
 /* HEADER */
 
 header{
-    text-align:center;
-    padding:30px;
-    background:#111827;
-    border-bottom:3px solid #22c55e;
+  text-align:center;
+  padding:30px;
+  background:#111827;
+  border-bottom:3px solid #22c55e;
 }
 
 header h1{
-    color:#22c55e;
-    margin-bottom:10px;
+  color:#22c55e;
+  margin-bottom:10px;
 }
 
-header h2{
-    font-weight:normal;
-    color:#facc15;
+header h3{
+  font-weight:normal;
+  margin-bottom:10px;
 }
 
 header p{
-    line-height:1.6;
+  line-height:1.6;
 }
 
-/* TICKER */
+/* BREAKING NEWS FIX */
 
 .ticker-wrap{
-    width:100%;
-    overflow:hidden;
-    background:#dc2626;
-    padding:10px;
-    font-weight:bold;
+  width:100%;
+  overflow:hidden;
+  background:#dc2626;
+  padding:12px 0;
+  font-weight:bold;
+  border-top:2px solid white;
+  border-bottom:2px solid white;
+  white-space:nowrap;
 }
 
 .ticker{
-    display:inline-block;
-    padding-left:100%;
-    animation:move 25s linear infinite;
+  display:inline-block;
+  white-space:nowrap;
+  padding-left:100%;
+  animation:scrollNews 18s linear infinite;
 }
 
-@keyframes move{
-    0%{transform:translateX(0);}
-    100%{transform:translateX(-100%);}
+@keyframes scrollNews{
+  0%{transform:translateX(0);}
+  100%{transform:translateX(-100%);}
 }
 
-/* GRID */
+/* CONTAINER */
 
 .container{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-    gap:20px;
-    padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:20px;
+  padding:20px;
 }
 
 /* CARD */
 
 .card{
-    background:#111827;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 0 15px rgba(0,255,100,0.1);
+  background:#111827;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 0 15px rgba(0,255,100,0.1);
 }
 
 /* BUTTON */
 
 button{
-    padding:10px 15px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    margin:5px;
-    font-weight:bold;
+  padding:10px 15px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  margin:5px;
+  font-weight:bold;
 }
 
 .support{background:#22c55e;}
@@ -109,29 +118,29 @@ button{
 /* RESULT */
 
 .result{
-    font-size:22px;
-    color:#22c55e;
+  font-size:22px;
+  color:#22c55e;
 }
 
 /* FOOTER */
 
 footer{
-    text-align:center;
-    padding:25px;
-    background:#111827;
-    border-top:2px solid #22c55e;
-    margin-top:20px;
+  text-align:center;
+  padding:25px;
+  background:#111827;
+  border-top:2px solid #22c55e;
+  margin-top:20px;
 }
 
 .notice{
-    line-height:1.8;
-    font-size:14px;
+  font-size:14px;
+  line-height:1.8;
 }
 
 canvas{
-    background:white;
-    border-radius:10px;
-    padding:10px;
+  background:white;
+  border-radius:10px;
+  padding:10px;
 }
 
 </style>
@@ -141,70 +150,46 @@ canvas{
 <body>
 
 <!-- HEADER -->
-
 <header>
 
-<h1>
-🗳️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு
-</h1>
+<h1>🗳️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு</h1>
+<h3>One Nation One Election & Delimitation Policy</h3>
 
-<h2>
-One Nation One Election & Delimitation Policy
-</h2>
-
-<p>
-🌍 Global Indian Citizen Opinion & Research Platform
-</p>
+<p>🌍 Global Indian Citizen Opinion Platform</p>
 
 </header>
 
 <!-- BREAKING NEWS -->
-
 <div class="ticker-wrap">
 
 <div class="ticker">
 
-🚨 LIVE BREAKING NEWS | 🇮🇳 மக்கள் கருத்து பதிவு நடைபெற்று வருகிறது |
-🗳️ National Survey Active | 🌍 Global Participation Enabled |
-📊 Real-Time Voting Dashboard Running |
+🚨 LIVE BREAKING NEWS •
+🇮🇳 National Opinion Survey Active •
+🗳️ One Nation One Election Voting Running •
+🌍 Global Indian Participation Enabled •
+📊 Real-Time Results Dashboard Live •
 
 </div>
 
 </div>
 
-<!-- NATIONALISM -->
-
+<!-- MAIN -->
 <div class="container">
 
-<div class="card">
-
-<h2>🇮🇳 Nationalism & Patriotism Awareness</h2>
-
-<p>
-இந்திய தேசிய ஒருமைப்பாடு மற்றும் ஜனநாயக மதிப்புகளை பாதுகாக்கும் நோக்கில் இந்த தளம் உருவாக்கப்பட்டுள்ளது.
-</p>
-
-<p>
-People participation is the foundation of democracy and national development.
-</p>
-
-</div>
-
 <!-- LOGIN -->
-
 <div class="card">
 
-<h2>👤 Login</h2>
+<h3>👤 Login</h3>
 <p id="userInfo">Not Logged In</p>
 <button class="login" onclick="login()">Login Gmail</button>
 
 </div>
 
 <!-- VOTE -->
-
 <div class="card">
 
-<h2>🗳️ Cast Your Vote</h2>
+<h3>🗳️ Vote</h3>
 
 <button class="support" onclick="vote('support')">Support</button>
 <button class="neutral" onclick="vote('neutral')">Neutral</button>
@@ -212,16 +197,15 @@ People participation is the foundation of democracy and national development.
 
 </div>
 
-<!-- LIVE RESULT -->
-
+<!-- RESULTS -->
 <div class="card">
 
-<h2>📊 Live Result Dashboard</h2>
+<h3>📊 Live Result</h3>
 
-<p>🟢 Support: <span class="result" id="s">0</span></p>
-<p>⚪ Neutral: <span class="result" id="n">0</span></p>
-<p>🔴 Oppose: <span class="result" id="o">0</span></p>
-<p>📊 Total: <span class="result" id="t">0</span></p>
+<p>Support: <span class="result" id="s">0</span></p>
+<p>Neutral: <span class="result" id="n">0</span></p>
+<p>Oppose: <span class="result" id="o">0</span></p>
+<p>Total: <span class="result" id="t">0</span></p>
 
 <br>
 
@@ -231,14 +215,11 @@ People participation is the foundation of democracy and national development.
 
 </div>
 
-<!-- PIE -->
-
+<!-- CHARTS -->
 <div class="card">
 <h3>🥧 Pie Chart</h3>
 <canvas id="pieChart"></canvas>
 </div>
-
-<!-- BAR -->
 
 <div class="card">
 <h3>📊 Bar Chart</h3>
@@ -246,21 +227,20 @@ People participation is the foundation of democracy and national development.
 </div>
 
 <!-- DISCLAIMER -->
-
 <div class="card notice">
 
-<h2>⚠️ Important Notice & Disclaimer</h2>
+<h3>⚠️ Important Notice & Disclaimer</h3>
 
 <p>
-🚨 This is NOT an official government election system.
+This is NOT an official government election system.
 </p>
 
 <p>
-🧭 This platform is for public opinion research only.
+This platform is only for public opinion research and awareness.
 </p>
 
 <p>
-⚖️ Results are for analytical and awareness purposes only.
+Results are for informational and analytical purposes only.
 </p>
 
 </div>
@@ -268,29 +248,23 @@ People participation is the foundation of democracy and national development.
 </div>
 
 <!-- FOOTER -->
-
 <footer>
 
-<p><b>Project Head:</b> N RAMAN</p>
+<p><b>🇮🇳 Global Indian Vote Platform</b></p>
 
-<p>
-Address: Thiruninravur, Tamil Nadu, India
-</p>
+<p>Project Head: N RAMAN</p>
 
 <p>Email: onoe.voting.survey2026@gmail.com</p>
 
-<p>
-Website: https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
-</p>
+<p>Website: https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/</p>
 
-<p>© 2026 Global Indian Vote Platform</p>
+<p>© 2026 All Rights Reserved</p>
 
 </footer>
 
 <script>
 
 /* FIREBASE */
-
 const firebaseConfig = {
 apiKey:"AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
 authDomain:"onoevote2026.firebaseapp.com",
@@ -302,7 +276,6 @@ appId:"1:181065724520:web:f72a93869786373c1101dd"
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db=firebase.database();
 
 let currentUser=null;
@@ -310,7 +283,7 @@ let latestData={};
 
 /* LOGIN */
 function login(){
-let email=prompt("Enter Gmail");
+let email=prompt("Enter Gmail ID");
 if(email && email.includes("@gmail.com")){
 currentUser=email;
 document.getElementById("userInfo").innerText="Logged: "+email;
@@ -321,11 +294,7 @@ alert("Invalid Gmail");
 
 /* VOTE */
 function vote(type){
-
-if(!currentUser){
-alert("Login required");
-return;
-}
+if(!currentUser){alert("Login required");return;}
 
 const safe=currentUser.replace(/\./g,"_");
 
@@ -334,7 +303,6 @@ email:currentUser,
 vote:type,
 time:Date.now()
 });
-
 }
 
 /* LIVE */
@@ -362,8 +330,7 @@ barChart.update();
 latestData={s,n,o,total:s+n+o,raw:data};
 });
 
-/* CHARTS */
-
+/* CHART */
 const pieChart=new Chart(document.getElementById("pieChart"),{
 type:"pie",
 data:{labels:["Support","Neutral","Oppose"],
@@ -377,7 +344,6 @@ datasets:[{data:[0,0,0],backgroundColor:["#22c55e","#facc15","#ef4444"]}]}
 });
 
 /* PDF */
-
 function downloadPDF(){
 
 const {jsPDF}=window.jspdf;
@@ -393,10 +359,6 @@ doc.text((i+1)+". "+v.email+" → "+v.vote+" | "+new Date(v.time).toLocaleString
 y+=10;
 if(y>270){doc.addPage();y=20;}
 });
-
-doc.addPage();
-doc.text("Project Head: N RAMAN",20,20);
-doc.text("Email: onoe.voting.survey2026@gmail.com",20,30);
 
 doc.save("Live_Result_Report.pdf");
 }
