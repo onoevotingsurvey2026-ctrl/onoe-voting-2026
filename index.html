@@ -39,7 +39,6 @@ header{
   padding:20px;
   border-radius:12px;
   text-align:center;
-  box-shadow:0 0 15px rgba(0,255,150,0.1);
 }
 
 button{
@@ -57,16 +56,30 @@ button{
 .login{background:#3b82f6;color:white;}
 
 .big{
-  font-size:28px;
+  font-size:32px;
   font-weight:bold;
+}
+
+canvas{
+  max-width:100%;
 }
 
 footer{
   text-align:center;
   padding:15px;
   background:#0b1220;
-  margin-top:20px;
   font-size:12px;
+  opacity:0.8;
+}
+
+.pdf-btn{
+  background:#3b82f6;
+  color:white;
+  padding:10px 15px;
+  border-radius:8px;
+  cursor:pointer;
+  border:none;
+  margin-top:10px;
 }
 </style>
 </head>
@@ -75,7 +88,7 @@ footer{
 
 <header>
 <h1>🗳️ Global Indian Vote</h1>
-<p>Real-Time Civic Opinion Dashboard</p>
+<p>Real-Time Voting Dashboard</p>
 </header>
 
 <div class="container">
@@ -102,6 +115,9 @@ footer{
     <p>Neutral: <span class="big" id="n">0</span></p>
     <p>Oppose: <span class="big" id="o">0</span></p>
     <p>Total: <span class="big" id="t">0</span></p>
+
+    <!-- PDF BUTTON -->
+    <button class="pdf-btn" onclick="downloadPDF()">📥 Download Live Results PDF</button>
   </div>
 
   <!-- CHART -->
@@ -113,12 +129,12 @@ footer{
 </div>
 
 <footer>
-© 2026 Global Indian Vote | Live Analytics Platform
+© 2026 Global Indian Vote | Live Analytics System
 </footer>
 
 <script>
 
-// 🔥 Firebase Config
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -129,7 +145,6 @@ const firebaseConfig = {
   appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
 
-// INIT
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -147,7 +162,7 @@ function login(){
   }
 }
 
-/* VOTE (FIXED + SAFE KEY) */
+/* VOTE */
 function vote(type){
 
   if(!currentUser){
@@ -155,23 +170,13 @@ function vote(type){
     return;
   }
 
-  // 🔥 FIX: Firebase safe key
-  let userKey = currentUser.replace(/\./g, "_");
-
-  db.ref("user_votes/" + userKey).set({
+  db.ref("user_votes/" + currentUser).set({
     vote: type,
     timestamp: firebase.database.ServerValue.TIMESTAMP
-  })
-  .then(()=>{
-    console.log("Vote saved");
-  })
-  .catch((err)=>{
-    console.log("Error:", err);
-    alert("Vote failed. Check Firebase rules.");
   });
 }
 
-/* LIVE RESULTS */
+/* LIVE DATA */
 db.ref("user_votes").on("value", (snapshot)=>{
 
   let data = snapshot.val() || {};
@@ -202,11 +207,36 @@ data:{
     data:[0,0,0],
     backgroundColor:['#22c55e','#facc15','#ef4444']
   }]
-},
-options:{
-  responsive:true
 }
 });
+
+/* 📥 PDF DOWNLOAD */
+function downloadPDF(){
+
+  let s = document.getElementById("s").innerText;
+  let n = document.getElementById("n").innerText;
+  let o = document.getElementById("o").innerText;
+  let t = document.getElementById("t").innerText;
+
+  let content = `
+  Global Indian Vote Report
+
+  Support: ${s}
+  Neutral: ${n}
+  Oppose: ${o}
+  Total: ${t}
+
+  Generated: ${new Date().toLocaleString()}
+  `;
+
+  let blob = new Blob([content], {type:"text/plain"});
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "Live_Vote_Report.txt";
+  a.click();
+
+  URL.revokeObjectURL(a.href);
+}
 
 </script>
 
