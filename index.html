@@ -1,118 +1,160 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>International Entry Gate</title>
+<title>Government Civic Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+
 body{
+  margin:0;
   font-family:Arial;
   background:#0b1220;
-  color:white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
+  color:#fff;
 }
 
-.box{
-  width:320px;
-  background:#18243f;
-  padding:20px;
-  border-radius:12px;
+/* HEADER */
+header{
+  background:#111c33;
+  padding:15px;
   text-align:center;
+  font-size:20px;
+  font-weight:bold;
 }
 
-select,input,button{
-  width:100%;
+/* STATUS BAR */
+.status{
+  display:flex;
+  justify-content:space-around;
   padding:10px;
-  margin:6px 0;
+  background:#0f1a30;
+  font-size:14px;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+  padding:15px;
+}
+
+/* CARD */
+.card{
+  background:#18243f;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 0 10px rgba(0,0,0,0.3);
+}
+
+/* BUTTON */
+button{
+  padding:10px;
+  margin:5px;
   border:none;
   border-radius:6px;
-}
-
-button{
+  cursor:pointer;
   background:#2563eb;
   color:white;
 }
+
+/* FOOTER */
+footer{
+  text-align:center;
+  padding:15px;
+  background:#111c33;
+  font-size:12px;
+  margin-top:20px;
+}
+
+@media(max-width:768px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="box">
+<header>
+🏛️ Government Civic Voting & Analytics Platform
+</header>
 
-<h2>🔐 Entry Gate Login</h2>
+<div class="status">
+  <div>🗳️ Total Votes: 120</div>
+  <div>📍 Districts: 12</div>
+  <div>🔴 LIVE</div>
+</div>
 
-<!-- 🌍 COUNTRY SELECT -->
-<select id="country">
-  <option value="+91">🇮🇳 India (+91)</option>
-  <option value="+1">🇺🇸 USA (+1)</option>
-  <option value="+44">🇬🇧 UK (+44)</option>
-  <option value="+971">🇦🇪 UAE (+971)</option>
-  <option value="+81">🇯🇵 Japan (+81)</option>
-</select>
+<div class="grid">
 
-<!-- 📱 MOBILE -->
-<input id="phone" placeholder="Mobile Number">
+  <!-- VOTING -->
+  <div class="card">
+    <h3>🗳️ Voting Panel</h3>
+    <button>Vote A</button>
+    <button>Vote B</button>
+    <button>Vote C</button>
+  </div>
 
-<!-- OTP -->
-<button onclick="sendOTP()">Send OTP</button>
+  <!-- RESULTS -->
+  <div class="card">
+    <h3>📊 Live Results</h3>
+    <canvas id="pie"></canvas>
+  </div>
 
-<input id="otp" placeholder="Enter OTP">
+  <!-- GIS -->
+  <div class="card">
+    <h3>🗺️ GIS Map</h3>
+    <p>Satellite + District View Placeholder</p>
+  </div>
 
-<button onclick="verifyOTP()">SUBMIT</button>
+  <!-- ANALYTICS -->
+  <div class="card">
+    <h3>📈 Analytics</h3>
+    <canvas id="bar"></canvas>
+  </div>
 
 </div>
 
-<script type="module">
+<!-- ADMIN -->
+<div class="card" style="margin:15px;">
+  <h3>🔐 Admin Panel</h3>
+  <button style="background:red;">Reset Data</button>
+  <button>Download Report</button>
+</div>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+<footer>
+AI-powered Civic Data & Public Opinion Analytics Platform
+</footer>
 
-/* FIREBASE */
-const firebaseConfig = {
-apiKey:"YOUR_API_KEY",
-authDomain:"YOUR_AUTH_DOMAIN",
-projectId:"YOUR_PROJECT_ID"
-};
+<script>
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-let confirmationResult;
-
-/* OTP SEND */
-window.sendOTP = () => {
-
-const code = document.getElementById("country").value;
-const phone = document.getElementById("phone").value;
-
-const fullNumber = code + phone;
-
-signInWithPhoneNumber(auth, fullNumber, window.recaptchaVerifier)
-.then(res=>{
-confirmationResult = res;
-alert("OTP Sent ✔");
+// PIE CHART
+new Chart(document.getElementById("pie"),{
+  type:"pie",
+  data:{
+    labels:["A","B","C"],
+    datasets:[{
+      data:[40,35,25]
+    }]
+  }
 });
 
-};
-
-/* VERIFY */
-window.verifyOTP = () => {
-
-const otp = document.getElementById("otp").value;
-
-confirmationResult.confirm(otp)
-.then(()=>{
-alert("Login Success ✔");
-})
-.catch(()=>{
-alert("Invalid OTP");
+// BAR CHART
+new Chart(document.getElementById("bar"),{
+  type:"bar",
+  data:{
+    labels:["Chennai","Madurai","Coimbatore"],
+    datasets:[{
+      data:[120,90,60]
+    }]
+  }
 });
-
-};
 
 </script>
 
