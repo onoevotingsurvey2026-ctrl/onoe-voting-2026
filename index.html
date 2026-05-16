@@ -2,280 +2,178 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Global Indian Vote - Final Dashboard</title>
+<title>Global Vote Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-
 <style>
-
-*{margin:0;padding:0;box-sizing:border-box;}
-
 body{
-font-family:Arial;
-background:linear-gradient(135deg,#0f172a,#111827,#1e293b);
-color:white;
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
 }
 
-/* HEADER */
 header{
-background:#111827;
-padding:30px;
-text-align:center;
-border-bottom:3px solid #22c55e;
+  padding:20px;
+  text-align:center;
+  background:#1e293b;
 }
 
-header h1{color:#22c55e;font-size:32px;}
-header p{margin-top:8px;}
-
-/* TICKER */
-.ticker-wrap{
-width:100%;
-overflow:hidden;
-background:#dc2626;
-color:white;
-padding:10px 0;
-font-weight:bold;
-white-space:nowrap;
-}
-
-.ticker{
-display:inline-block;
-padding-left:100%;
-animation:move 30s linear infinite;
-}
-
-@keyframes move{
-0%{transform:translateX(0);}
-100%{transform:translateX(-100%);}
-}
-
-/* LAYOUT */
 .container{
-max-width:1100px;
-margin:auto;
-padding:20px;
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-gap:20px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  padding:20px;
 }
 
 .card{
-background:#111827;
-padding:20px;
-border-radius:15px;
+  background:#1e293b;
+  padding:20px;
+  border-radius:12px;
 }
 
 button{
-padding:10px 15px;
-margin:5px;
-border:none;
-border-radius:8px;
-cursor:pointer;
+  padding:10px 15px;
+  margin:5px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
 }
 
-.login{background:#3b82f6;color:white;}
-.support{background:#22c55e;}
-.neutral{background:#facc15;}
-.oppose{background:#ef4444;color:white;}
-.pdf{background:#8b5cf6;color:white;}
+.voteA{background:#22c55e;color:white;}
+.voteB{background:#3b82f6;color:white;}
+.voteC{background:#f59e0b;color:white;}
 
-.result{font-size:26px;color:#22c55e;font-weight:bold;}
+.admin{background:#ef4444;color:white;}
 
-footer{
-background:#111827;
-text-align:center;
-padding:20px;
-margin-top:30px;
-border-top:2px solid #22c55e;
-}
-
-canvas{max-width:100%;}
-
+canvas{background:white;border-radius:10px;padding:10px;}
 </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
 <header>
-
-<h1>🗳️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு</h1>
-<p>One Nation One Election & Delimitation</p>
-
-<p>Global Indian Public Opinion Platform</p>
-
+  <h2>🌍 Global Civic Voting Dashboard</h2>
 </header>
 
-<!-- LIVE BREAKING NEWS -->
-<div class="ticker-wrap">
-<div class="ticker">
-
-🟢 LIVE: உலகம் முழுவதும் வாழும் இந்திய குடிமக்கள் கருத்து பதிவு செய்து வருகின்றனர் 🇮🇳 |
-🗳️ One Nation One Election |
-📊 Live Analytics Running |
-🌍 Global Participation Active |
-🔥 PDF + Charts Enabled
-
-</div>
-</div>
-
-<!-- MAIN -->
 <div class="container">
 
-<!-- LOGIN -->
+<!-- VOTING -->
 <div class="card">
-<h3>👤 Login</h3>
-<p id="userInfo">Not Logged In</p>
-<button class="login" onclick="login()">Login Gmail</button>
+  <h3>🗳️ Vote Panel</h3>
+
+  <input id="name" placeholder="Enter Name" style="padding:10px;width:90%;margin-bottom:10px;"><br>
+
+  <button class="voteA" onclick="vote('A')">Vote A</button>
+  <button class="voteB" onclick="vote('B')">Vote B</button>
+  <button class="voteC" onclick="vote('C')">Vote C</button>
+
+  <p id="status"></p>
 </div>
 
-<!-- VOTE -->
+<!-- PIE CHART -->
 <div class="card">
-<h3>🗳️ Vote</h3>
-<button class="support" onclick="vote('support')">Support</button>
-<button class="neutral" onclick="vote('neutral')">Neutral</button>
-<button class="oppose" onclick="vote('oppose')">Oppose</button>
+  <h3>📊 Live Result (Pie)</h3>
+  <canvas id="pie"></canvas>
 </div>
 
-<!-- RESULTS -->
+<!-- BAR CHART -->
 <div class="card">
-<h3>📊 Live Results</h3>
-
-<p>Support <span class="result" id="s">0</span></p>
-<p>Neutral <span class="result" id="n">0</span></p>
-<p>Oppose <span class="result" id="o">0</span></p>
-<p>Total <span class="result" id="t">0</span></p>
-
-<button class="pdf" onclick="downloadPDF()">Download PDF</button>
-
-<p style="margin-top:10px;font-size:13px;">
-https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
-</p>
-
+  <h3>📊 District Stats</h3>
+  <canvas id="bar"></canvas>
 </div>
 
-<!-- CHARTS -->
+<!-- ADMIN -->
 <div class="card">
-<h3>🥧 Pie Chart</h3>
-<canvas id="pieChart"></canvas>
-</div>
-
-<div class="card">
-<h3>📊 Bar Chart</h3>
-<canvas id="barChart"></canvas>
-</div>
-
-<!-- DISCLAIMER -->
-<div class="card">
-
-<p>
-🇮🇳 "நாம் இந்தியர்கள் - ஒன்றுபட்ட இந்திய தேசம் நமது பெருமை"<br>
-🧭 "பாரத மண்ணின் எதிர்காலம் இந்திய மக்கள் குரலில் ஒலிக்கட்டும்"<br>
-🗳️ "இந்திய ஜனநாயகத்தில் மக்கள் குரல் முக்கியம்"<br>
-🌍 "உலகம் முழுவதும் இந்தியர்கள் பங்கேற்கலாம்"
-</p>
-
-<br>
-
-<p>இது அரசு தேர்தல் அல்ல. தனியார் மக்கள் கருத்து platform.</p>
-
+  <h3>🔐 Admin Panel</h3>
+  <button class="admin" onclick="downloadPDF()">Download PDF</button>
 </div>
 
 </div>
 
-<!-- FOOTER -->
-<footer>
+<script type="module">
 
-<p>Global Indian Vote Platform</p>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-<p>https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/</p>
-
-<p>© 2026 All Rights Reserved</p>
-
-</footer>
-
-<script>
-
+/* 🔥 Firebase Config */
 const firebaseConfig = {
-apiKey:"AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-authDomain:"onoevote2026.firebaseapp.com",
-databaseURL:"https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-projectId:"onoevote2026"
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  databaseURL: "YOUR_DB_URL",
+  projectId: "YOUR_ID"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db=firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-let currentUser=null;
-let latest={};
+/* DATA REFERENCES */
+const voteRef = ref(db,"votes");
+const userRef = ref(db,"users");
 
-function login(){
-let e=prompt("Gmail ID");
-if(e&&e.includes("@gmail.com")){
-currentUser=e;
-document.getElementById("userInfo").innerText=e;
-}
-}
-
-function vote(type){
-if(!currentUser)return alert("Login first");
-
-db.ref("user_votes/"+currentUser).set({
-vote:type,time:Date.now()
-});
-}
-
-db.ref("user_votes").on("value",snap=>{
-let d=snap.val()||{};
-let s=0,n=0,o=0;
-
-Object.values(d).forEach(v=>{
-if(v.vote==="support")s++;
-if(v.vote==="neutral")n++;
-if(v.vote==="oppose")o++;
+/* CHARTS */
+let pieChart = new Chart(document.getElementById("pie"), {
+  type:"pie",
+  data:{
+    labels:["A","B","C"],
+    datasets:[{data:[0,0,0]}]
+  }
 });
 
-document.getElementById("s").innerText=s;
-document.getElementById("n").innerText=n;
-document.getElementById("o").innerText=o;
-document.getElementById("t").innerText=s+n+o;
-
-pie.data.datasets[0].data=[s,n,o];
-bar.data.datasets[0].data=[s,n,o];
-
-pie.update();bar.update();
-
-latest={s,n,o,total:s+n+o,raw:d};
+let barChart = new Chart(document.getElementById("bar"), {
+  type:"bar",
+  data:{
+    labels:["Chennai","Madurai","Coimbatore"],
+    datasets:[{label:"Votes",[data:[0,0,0]]}]
+  }
 });
 
-const pie=new Chart(document.getElementById("pieChart"),{
-type:"pie",
-data:{labels:["S","N","O"],datasets:[{data:[0,0,0]}]}
+/* LIVE UPDATE */
+onValue(voteRef,(snap)=>{
+  let d = snap.val() || {A:0,B:0,C:0};
+
+  pieChart.data.datasets[0].data = [d.A,d.B,d.C];
+  pieChart.update();
 });
 
-const bar=new Chart(document.getElementById("barChart"),{
-type:"bar",
-data:{labels:["S","N","O"],datasets:[{data:[0,0,0]}]}
-});
+/* VOTE FUNCTION */
+window.vote = async (opt)=>{
 
-function downloadPDF(){
-const {jsPDF}=window.jspdf;
-const doc=new jsPDF();
+  let name = document.getElementById("name").value;
+  if(!name){
+    alert("Enter Name");
+    return;
+  }
 
-doc.text("Global Vote Report",10,10);
-doc.text("Support:"+latest.s,10,30);
-doc.text("Neutral:"+latest.n,10,40);
-doc.text("Oppose:"+latest.o,10,50);
-doc.text("Total:"+latest.total,10,60);
+  const snap = await get(voteRef);
+  let data = snap.val() || {A:0,B:0,C:0};
 
-doc.save("vote.pdf");
-}
+  data[opt] += 1;
+
+  await set(voteRef,data);
+
+  document.getElementById("status").innerText="Vote Submitted ✔";
+};
+
+/* ADMIN PDF */
+window.downloadPDF = async ()=>{
+
+  const snap = await get(voteRef);
+  let d = snap.val();
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.text("GLOBAL VOTE REPORT",10,10);
+  doc.text("A: "+d.A,10,30);
+  doc.text("B: "+d.B,10,40);
+  doc.text("C: "+d.C,10,50);
+
+  doc.save("report.pdf");
+};
 
 </script>
 
