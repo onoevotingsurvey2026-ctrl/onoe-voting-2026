@@ -181,6 +181,14 @@ canvas{
   max-width:100%;
 }
 
+/* BREAKING NEWS */
+
+marquee{
+  color:#facc15;
+  font-weight:bold;
+  font-size:15px;
+}
+
 </style>
 </head>
 
@@ -214,6 +222,25 @@ Globally Living Indian Citizens Participation Platform
 <!-- MAIN -->
 
 <div class="container">
+
+<!-- LIVE BREAKING NEWS -->
+
+<div class="card">
+
+<h3>📢 LIVE BREAKING NEWS</h3>
+
+<marquee behavior="scroll" direction="left" scrollamount="7">
+
+🔴 LIVE • Global Indian Citizens Participation Open • 
+🗳️ Real-Time Public Opinion Voting Running • 
+📊 Live Analytics Active • 
+🌍 Worldwide Indian Citizens Can Participate • 
+🇮🇳 One Nation One Election & Delimitation Public Opinion Platform • 
+🔥 Firebase Real-Time Dashboard Running Successfully
+
+</marquee>
+
+</div>
 
 <!-- LOGIN -->
 
@@ -303,14 +330,14 @@ Total:
 
 </div>
 
-<!-- WEBSITE STATUS -->
+<!-- OFFICIAL WEBSITE -->
 
 <div class="card">
 
-<h3>🌐 Website Live Status</h3>
+<h3>🌐 Official Website</h3>
 
 <p>
-🟢 Your site is live at:
+Official Global Indian Vote Website
 </p>
 
 <p class="live-status">
@@ -318,8 +345,7 @@ https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
 </p>
 
 <p>
-Last deployed by:
-@onoevotingsurvey2026-ctrl
+Real-Time Public Opinion & Analytics Platform
 </p>
 
 </div>
@@ -401,7 +427,11 @@ onoe.voting.survey2026@gmail.com
 </p>
 
 <p>
-🌐 https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
+🌐 Official Global Indian Vote Website
+</p>
+
+<p>
+https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
 </p>
 
 <p>
@@ -601,7 +631,13 @@ function downloadPDF(){
   70
   );
 
-  let y = 90;
+  doc.text(
+  "https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/",
+  10,
+  80
+  );
+
+  let y = 100;
 
   doc.text(
   "INDIVIDUAL VOTE RECORDS:",
