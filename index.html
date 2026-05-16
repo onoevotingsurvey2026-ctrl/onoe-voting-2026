@@ -18,7 +18,6 @@ body{
   color:white;
 }
 
-/* HEADER */
 header{
   background:#0b1220;
   padding:20px;
@@ -26,17 +25,6 @@ header{
   border-bottom:2px solid #22c55e;
 }
 
-header h1{
-  margin:0;
-  font-size:26px;
-}
-
-header p{
-  margin:5px 0 0;
-  opacity:0.8;
-}
-
-/* CARD */
 .container{
   max-width:1000px;
   margin:auto;
@@ -50,11 +38,10 @@ header p{
   background:#111827;
   padding:20px;
   border-radius:12px;
-  box-shadow:0 0 15px rgba(0,255,150,0.1);
   text-align:center;
+  box-shadow:0 0 15px rgba(0,255,150,0.1);
 }
 
-/* BUTTONS */
 button{
   padding:10px 15px;
   margin:5px;
@@ -69,25 +56,17 @@ button{
 .oppose{background:#ef4444;color:white;}
 .login{background:#3b82f6;color:white;}
 
-/* NUMBERS */
 .big{
-  font-size:32px;
+  font-size:28px;
   font-weight:bold;
 }
 
-/* CHART */
-canvas{
-  max-width:100%;
-}
-
-/* FOOTER */
 footer{
   text-align:center;
   padding:15px;
   background:#0b1220;
   margin-top:20px;
   font-size:12px;
-  opacity:0.8;
 }
 </style>
 </head>
@@ -103,14 +82,14 @@ footer{
 
   <!-- LOGIN -->
   <div class="card">
-    <h3>👤 User Login</h3>
+    <h3>👤 Login</h3>
     <p id="userInfo">Not Logged In</p>
     <button class="login" onclick="login()">Login Gmail</button>
   </div>
 
   <!-- VOTE -->
   <div class="card">
-    <h3>🗳️ Cast Your Vote</h3>
+    <h3>🗳️ Vote</h3>
     <button class="support" onclick="vote('support')">Support</button>
     <button class="neutral" onclick="vote('neutral')">Neutral</button>
     <button class="oppose" onclick="vote('oppose')">Oppose</button>
@@ -149,6 +128,8 @@ const firebaseConfig = {
   messagingSenderId: "181065724520",
   appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
+
+// INIT
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -166,7 +147,7 @@ function login(){
   }
 }
 
-/* VOTE */
+/* VOTE (FIXED + SAFE KEY) */
 function vote(type){
 
   if(!currentUser){
@@ -174,13 +155,23 @@ function vote(type){
     return;
   }
 
-  db.ref("user_votes/" + currentUser).set({
+  // 🔥 FIX: Firebase safe key
+  let userKey = currentUser.replace(/\./g, "_");
+
+  db.ref("user_votes/" + userKey).set({
     vote: type,
     timestamp: firebase.database.ServerValue.TIMESTAMP
+  })
+  .then(()=>{
+    console.log("Vote saved");
+  })
+  .catch((err)=>{
+    console.log("Error:", err);
+    alert("Vote failed. Check Firebase rules.");
   });
 }
 
-/* LIVE DATA */
+/* LIVE RESULTS */
 db.ref("user_votes").on("value", (snapshot)=>{
 
   let data = snapshot.val() || {};
