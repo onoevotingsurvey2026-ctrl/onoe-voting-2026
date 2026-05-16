@@ -1,181 +1,170 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Global Vote Dashboard</title>
+<title>Government Civic Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 body{
   margin:0;
-  font-family:Arial;
+  font-family: Arial, sans-serif;
+  background:#f4f6f9;
+  color:#1e293b;
+}
+
+/* HEADER */
+header{
   background:#0f172a;
   color:white;
-}
-
-header{
-  padding:20px;
+  padding:18px;
   text-align:center;
-  background:#1e293b;
+  font-size:20px;
+  font-weight:bold;
 }
 
-.container{
+/* TOP STATS */
+.stats{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
-  padding:20px;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  padding:15px;
 }
 
 .card{
-  background:#1e293b;
-  padding:20px;
-  border-radius:12px;
+  background:white;
+  border-radius:10px;
+  padding:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  text-align:center;
 }
 
+.card h2{
+  margin:0;
+  font-size:22px;
+}
+
+/* MAIN LAYOUT */
+.container{
+  display:grid;
+  grid-template-columns:1fr 2fr 1fr;
+  gap:15px;
+  padding:15px;
+}
+
+/* PANELS */
+.panel{
+  background:white;
+  border-radius:10px;
+  padding:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+
+h3{
+  border-bottom:1px solid #e5e7eb;
+  padding-bottom:8px;
+}
+
+/* BUTTONS */
 button{
-  padding:10px 15px;
-  margin:5px;
+  padding:10px 12px;
+  margin:5px 0;
+  width:100%;
   border:none;
-  border-radius:8px;
+  border-radius:6px;
   cursor:pointer;
+  font-weight:bold;
 }
 
-.voteA{background:#22c55e;color:white;}
-.voteB{background:#3b82f6;color:white;}
+.voteA{background:#16a34a;color:white;}
+.voteB{background:#2563eb;color:white;}
 .voteC{background:#f59e0b;color:white;}
 
-.admin{background:#ef4444;color:white;}
+/* NEWS */
+.news{
+  font-size:14px;
+  line-height:1.6;
+  color:#334155;
+}
 
-canvas{background:white;border-radius:10px;padding:10px;}
+/* FOOTER */
+footer{
+  text-align:center;
+  padding:15px;
+  background:#0f172a;
+  color:white;
+  margin-top:10px;
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
-  <h2>🌍 Global Civic Voting Dashboard</h2>
+🏛️ Government Civic Voting & Analytics Dashboard
 </header>
 
+<!-- TOP STATS -->
+<div class="stats">
+  <div class="card">
+    <h2>120</h2>
+    <p>Total Votes</p>
+  </div>
+  <div class="card">
+    <h2>A</h2>
+    <p>Leading Option</p>
+  </div>
+  <div class="card">
+    <h2>12</h2>
+    <p>Districts Covered</p>
+  </div>
+  <div class="card">
+    <h2>LIVE</h2>
+    <p>Status</p>
+  </div>
+</div>
+
+<!-- MAIN SECTION -->
 <div class="container">
 
-<!-- VOTING -->
-<div class="card">
-  <h3>🗳️ Vote Panel</h3>
+<!-- LEFT PANEL -->
+<div class="panel">
+  <h3>🗳️ Voting Panel</h3>
 
-  <input id="name" placeholder="Enter Name" style="padding:10px;width:90%;margin-bottom:10px;"><br>
+  <button class="voteA">Support A</button>
+  <button class="voteB">Neutral B</button>
+  <button class="voteC">Against C</button>
 
-  <button class="voteA" onclick="vote('A')">Vote A</button>
-  <button class="voteB" onclick="vote('B')">Vote B</button>
-  <button class="voteC" onclick="vote('C')">Vote C</button>
-
-  <p id="status"></p>
+  <p>Status: Waiting for vote...</p>
 </div>
 
-<!-- PIE CHART -->
-<div class="card">
-  <h3>📊 Live Result (Pie)</h3>
-  <canvas id="pie"></canvas>
+<!-- CENTER PANEL -->
+<div class="panel">
+  <h3>📊 Live Analytics</h3>
+  <p>Pie Chart Area (connect Chart.js here)</p>
+  <p>Bar Chart Area (district-wise comparison)</p>
+  <p>Real-time Firebase updates will reflect here</p>
 </div>
 
-<!-- BAR CHART -->
-<div class="card">
-  <h3>📊 District Stats</h3>
-  <canvas id="bar"></canvas>
+<!-- RIGHT PANEL -->
+<div class="panel">
+  <h3>📰 Policy News</h3>
+
+  <div class="news">
+    🔴 Breaking: Civic awareness update released<br><br>
+    🟡 Policy discussion: public feedback open<br><br>
+    🟢 Government-style dashboard redesign completed<br><br>
+    🔵 Real-time voting transparency initiative
+  </div>
 </div>
 
-<!-- ADMIN -->
-<div class="card">
-  <h3>🔐 Admin Panel</h3>
-  <button class="admin" onclick="downloadPDF()">Download PDF</button>
 </div>
 
-</div>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-/* 🔥 Firebase Config */
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  databaseURL: "YOUR_DB_URL",
-  projectId: "YOUR_ID"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-/* DATA REFERENCES */
-const voteRef = ref(db,"votes");
-const userRef = ref(db,"users");
-
-/* CHARTS */
-let pieChart = new Chart(document.getElementById("pie"), {
-  type:"pie",
-  data:{
-    labels:["A","B","C"],
-    datasets:[{data:[0,0,0]}]
-  }
-});
-
-let barChart = new Chart(document.getElementById("bar"), {
-  type:"bar",
-  data:{
-    labels:["Chennai","Madurai","Coimbatore"],
-    datasets:[{label:"Votes",[data:[0,0,0]]}]
-  }
-});
-
-/* LIVE UPDATE */
-onValue(voteRef,(snap)=>{
-  let d = snap.val() || {A:0,B:0,C:0};
-
-  pieChart.data.datasets[0].data = [d.A,d.B,d.C];
-  pieChart.update();
-});
-
-/* VOTE FUNCTION */
-window.vote = async (opt)=>{
-
-  let name = document.getElementById("name").value;
-  if(!name){
-    alert("Enter Name");
-    return;
-  }
-
-  const snap = await get(voteRef);
-  let data = snap.val() || {A:0,B:0,C:0};
-
-  data[opt] += 1;
-
-  await set(voteRef,data);
-
-  document.getElementById("status").innerText="Vote Submitted ✔";
-};
-
-/* ADMIN PDF */
-window.downloadPDF = async ()=>{
-
-  const snap = await get(voteRef);
-  let d = snap.val();
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.text("GLOBAL VOTE REPORT",10,10);
-  doc.text("A: "+d.A,10,30);
-  doc.text("B: "+d.B,10,40);
-  doc.text("C: "+d.C,10,50);
-
-  doc.save("report.pdf");
-};
-
-</script>
+<footer>
+© 2026 Civic Analytics Platform | Transparent • Secure • Public Data System
+</footer>
 
 </body>
 </html>
