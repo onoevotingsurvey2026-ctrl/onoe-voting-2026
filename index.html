@@ -6,7 +6,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Global Indian Vote</title>
+<title>Global Indian Vote - Final Dashboard</title>
+
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- JSPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -25,7 +31,6 @@ body{
     background:linear-gradient(135deg,#0f172a,#111827,#1e293b);
     color:white;
     min-height:100vh;
-    text-align:center;
 }
 
 /* HEADER */
@@ -33,6 +38,7 @@ body{
 header{
     background:#111827;
     padding:30px 20px;
+    text-align:center;
     border-bottom:3px solid #22c55e;
 }
 
@@ -51,7 +57,7 @@ header p{
     line-height:1.7;
 }
 
-/* BREAKING NEWS */
+/* TICKER */
 
 .ticker-wrap{
     width:100%;
@@ -85,7 +91,7 @@ header p{
 
 .container{
     width:90%;
-    max-width:1100px;
+    max-width:1200px;
     margin:auto;
     padding:25px;
     display:grid;
@@ -150,12 +156,33 @@ button:hover{
     color:white;
 }
 
+.pdf{
+    background:#8b5cf6;
+    color:white;
+}
+
 /* RESULT */
 
 .result{
     font-size:28px;
     font-weight:bold;
     color:#22c55e;
+}
+
+/* CHART */
+
+canvas{
+    max-width:100%;
+    background:white;
+    border-radius:12px;
+    padding:10px;
+}
+
+/* NOTICE */
+
+.notice{
+    line-height:1.8;
+    font-size:14px;
 }
 
 /* FOOTER */
@@ -165,15 +192,11 @@ footer{
     background:#111827;
     padding:25px;
     border-top:2px solid #22c55e;
+    text-align:center;
 }
 
 footer p{
     margin:8px 0;
-}
-
-.notice{
-    line-height:1.8;
-    font-size:14px;
 }
 
 </style>
@@ -269,7 +292,7 @@ onclick="vote('oppose')">
 
 </div>
 
-<!-- DASHBOARD -->
+<!-- LIVE DASHBOARD -->
 
 <div class="card">
 
@@ -305,9 +328,42 @@ id="opposeCount">0</span>
 id="totalVotes">0</span>
 </p>
 
+<br>
+
+<button class="pdf"
+onclick="downloadPDF()">
+
+📥 Download Report
+
+</button>
+
 </div>
 
-<!-- DISCLAIMER -->
+<!-- PIE CHART -->
+
+<div class="card">
+
+<h2>
+🥧 Pie Chart Analysis
+</h2>
+
+<canvas id="pieChart"></canvas>
+
+</div>
+
+<!-- BAR CHART -->
+
+<div class="card">
+
+<h2>
+📊 Bar Chart Analysis
+</h2>
+
+<canvas id="barChart"></canvas>
+
+</div>
+
+<!-- NOTICE -->
 
 <div class="card notice">
 
@@ -345,7 +401,7 @@ opinion and awareness platform.
 </p>
 
 <p>
-Powered by Firebase Realtime Database
+🔥 Powered by Firebase Realtime Database
 </p>
 
 <p>
@@ -359,14 +415,30 @@ Powered by Firebase Realtime Database
 /* FIREBASE CONFIG */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+
+    apiKey:
+    "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+
+    authDomain:
+    "onoevote2026.firebaseapp.com",
+
+    databaseURL:
+    "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+    projectId:
+    "onoevote2026",
+
+    storageBucket:
+    "onoevote2026.firebasestorage.app",
+
+    messagingSenderId:
+    "181065724520",
+
+    appId:
+    "1:181065724520:web:f72a93869786373c1101dd"
+
 };
+
 /* INITIALIZE */
 
 firebase.initializeApp(firebaseConfig);
@@ -374,6 +446,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let currentUser = null;
+let latestData = {};
 
 /* LOGIN */
 
@@ -414,12 +487,8 @@ function vote(type){
 
     }
 
-    /* SAFE EMAIL */
-
     const safeEmail =
     currentUser.replace(/\./g,"_");
-
-    /* SAVE */
 
     db.ref(
     "votes/" + safeEmail
@@ -436,7 +505,7 @@ function vote(type){
     .then(()=>{
 
         alert(
-        "✅ Vote Recorded Successfully"
+        "✅ Vote Updated Successfully"
         );
 
     })
@@ -451,7 +520,7 @@ function vote(type){
 
 }
 
-/* LIVE DASHBOARD */
+/* LIVE DATA */
 
 db.ref("votes")
 .on("value",(snap)=>{
@@ -494,7 +563,177 @@ db.ref("votes")
     ).innerText =
     support + neutral + oppose;
 
+    /* UPDATE CHARTS */
+
+    pieChart.data.datasets[0].data = [
+
+        support,
+        neutral,
+        oppose
+
+    ];
+
+    barChart.data.datasets[0].data = [
+
+        support,
+        neutral,
+        oppose
+
+    ];
+
+    pieChart.update();
+    barChart.update();
+
+    latestData = {
+
+        support,
+        neutral,
+        oppose,
+        total:
+        support+neutral+oppose
+
+    };
+
 });
+
+/* PIE CHART */
+
+const pieChart =
+new Chart(
+
+document.getElementById(
+"pieChart"
+),
+
+{
+
+type:"pie",
+
+data:{
+
+labels:[
+"Support",
+"Neutral",
+"Oppose"
+],
+
+datasets:[{
+
+data:[0,0,0],
+
+backgroundColor:[
+
+"#22c55e",
+"#facc15",
+"#ef4444"
+
+]
+
+}]
+
+}
+
+});
+
+/* BAR CHART */
+
+const barChart =
+new Chart(
+
+document.getElementById(
+"barChart"
+),
+
+{
+
+type:"bar",
+
+data:{
+
+labels:[
+"Support",
+"Neutral",
+"Oppose"
+],
+
+datasets:[{
+
+data:[0,0,0],
+
+backgroundColor:[
+
+"#22c55e",
+"#facc15",
+"#ef4444"
+
+]
+
+}]
+
+}
+
+});
+
+/* PDF DOWNLOAD */
+
+function downloadPDF(){
+
+    const { jsPDF } =
+    window.jspdf;
+
+    const doc =
+    new jsPDF();
+
+    doc.setFontSize(18);
+
+    doc.text(
+    "GLOBAL INDIAN VOTE REPORT",
+    20,
+    20
+    );
+
+    doc.setFontSize(14);
+
+    doc.text(
+    "Support: " +
+    latestData.support,
+    20,
+    50
+    );
+
+    doc.text(
+    "Neutral: " +
+    latestData.neutral,
+    20,
+    65
+    );
+
+    doc.text(
+    "Oppose: " +
+    latestData.oppose,
+    20,
+    80
+    );
+
+    doc.text(
+    "Total Votes: " +
+    latestData.total,
+    20,
+    95
+    );
+
+    doc.text(
+    "Generated: " +
+    new Date().toLocaleString(),
+    20,
+    120
+    );
+
+    doc.save(
+    "Global_Indian_Vote_Report.pdf"
+    );
+
+}
 
 </script>
 
