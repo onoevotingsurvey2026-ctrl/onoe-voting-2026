@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Entry Gate Login</title>
+<title>Entry Gate Login +91</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -35,6 +35,22 @@ button{
   color:white;
   cursor:pointer;
 }
+
+.phone-wrap{
+  display:flex;
+  justify-content:center;
+}
+
+.prefix{
+  padding:10px;
+  background:#111c33;
+  border-radius:6px 0 0 6px;
+}
+
+.phone{
+  width:70%;
+  border-radius:0 6px 6px 0;
+}
 </style>
 </head>
 
@@ -44,17 +60,18 @@ button{
 
 <h2>🔐 Entry Gate Login</h2>
 
-<!-- COUNTRY CODE + MOBILE -->
-<input id="phone" placeholder="+91 Mobile Number">
+<!-- +91 FIXED -->
+<div class="phone-wrap">
+  <div class="prefix">+91</div>
+  <input class="phone" id="phone" placeholder="Mobile Number">
+</div>
 
-<!-- SEND OTP -->
 <button onclick="sendOTP()">Send OTP</button>
 
-<!-- ENTER OTP -->
 <input id="otp" placeholder="Enter OTP">
 
-<!-- SUBMIT OTP -->
-<button onclick="verifyOTP()">Submit OTP</button>
+<!-- ONLY SUBMIT -->
+<button onclick="verifyOTP()">SUBMIT</button>
 
 </div>
 
@@ -70,11 +87,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* 🔥 FIREBASE CONFIG (ADD YOUR DETAILS) */
+/* FIREBASE CONFIG */
 const firebaseConfig = {
-apiKey: "YOUR_API_KEY",
-authDomain: "YOUR_AUTH_DOMAIN",
-projectId: "YOUR_PROJECT_ID"
+apiKey:"YOUR_API_KEY",
+authDomain:"YOUR_AUTH_DOMAIN",
+projectId:"YOUR_PROJECT_ID"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -90,15 +107,15 @@ size:"normal"
 /* SEND OTP */
 window.sendOTP = () => {
 
-const phone = document.getElementById("phone").value;
+const phoneNumber = "+91" + document.getElementById("phone").value;
 
-signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
+signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier)
 .then((result)=>{
 confirmationResult = result;
 alert("OTP Sent ✔");
 })
 .catch(()=>{
-alert("Error sending OTP");
+alert("OTP Error");
 });
 
 };
