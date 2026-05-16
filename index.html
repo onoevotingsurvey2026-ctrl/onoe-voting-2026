@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Global Indian Vote</title>
+<title>Global Indian Vote - Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -10,71 +10,136 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
-<!-- PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
 body{
-  font-family: Arial;
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#0f172a,#1e293b);
+  color:white;
+}
+
+/* HEADER */
+header{
+  background:#0b1220;
+  padding:20px;
   text-align:center;
-  background:#f4f4f4;
+  border-bottom:2px solid #22c55e;
+}
+
+header h1{
+  margin:0;
+  font-size:26px;
+}
+
+header p{
+  margin:5px 0 0;
+  opacity:0.8;
+}
+
+/* CARD */
+.container{
+  max-width:1000px;
+  margin:auto;
+  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:20px;
 }
 
 .card{
-  background:white;
+  background:#111827;
   padding:20px;
-  margin:10px;
-  border-radius:10px;
-  display:inline-block;
+  border-radius:12px;
+  box-shadow:0 0 15px rgba(0,255,150,0.1);
+  text-align:center;
 }
 
+/* BUTTONS */
 button{
-  padding:10px 20px;
+  padding:10px 15px;
   margin:5px;
   border:none;
+  border-radius:8px;
   cursor:pointer;
-  border-radius:6px;
+  font-weight:bold;
 }
 
-.support{background:green;color:white;}
-.neutral{background:orange;}
-.oppose{background:red;color:white;}
-.download{background:#007bff;color:white;}
-</style>
+.support{background:#22c55e;color:black;}
+.neutral{background:#facc15;color:black;}
+.oppose{background:#ef4444;color:white;}
+.login{background:#3b82f6;color:white;}
 
+/* NUMBERS */
+.big{
+  font-size:32px;
+  font-weight:bold;
+}
+
+/* CHART */
+canvas{
+  max-width:100%;
+}
+
+/* FOOTER */
+footer{
+  text-align:center;
+  padding:15px;
+  background:#0b1220;
+  margin-top:20px;
+  font-size:12px;
+  opacity:0.8;
+}
+</style>
 </head>
 
 <body>
 
-<h2>🗳️ Global Indian Vote</h2>
+<header>
+<h1>🗳️ Global Indian Vote</h1>
+<p>Real-Time Civic Opinion Dashboard</p>
+</header>
 
-<div class="card">
-<p id="userInfo">Not Logged In</p>
-<button onclick="login()">Login Gmail</button>
+<div class="container">
+
+  <!-- LOGIN -->
+  <div class="card">
+    <h3>👤 User Login</h3>
+    <p id="userInfo">Not Logged In</p>
+    <button class="login" onclick="login()">Login Gmail</button>
+  </div>
+
+  <!-- VOTE -->
+  <div class="card">
+    <h3>🗳️ Cast Your Vote</h3>
+    <button class="support" onclick="vote('support')">Support</button>
+    <button class="neutral" onclick="vote('neutral')">Neutral</button>
+    <button class="oppose" onclick="vote('oppose')">Oppose</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="card">
+    <h3>📊 Live Results</h3>
+    <p>Support: <span class="big" id="s">0</span></p>
+    <p>Neutral: <span class="big" id="n">0</span></p>
+    <p>Oppose: <span class="big" id="o">0</span></p>
+    <p>Total: <span class="big" id="t">0</span></p>
+  </div>
+
+  <!-- CHART -->
+  <div class="card">
+    <h3>📈 Analytics</h3>
+    <canvas id="chart"></canvas>
+  </div>
+
 </div>
 
-<div class="card">
-<h3>Vote</h3>
-<button class="support" onclick="vote('support')">Support</button>
-<button class="neutral" onclick="vote('neutral')">Neutral</button>
-<button class="oppose" onclick="vote('oppose')">Oppose</button>
-</div>
-
-<div class="card">
-<h3>📊 Results</h3>
-<p>Support: <span id="s">0</span></p>
-<p>Neutral: <span id="n">0</span></p>
-<p>Oppose: <span id="o">0</span></p>
-<p>Total: <span id="t">0</span></p>
-
-<button class="download" onclick="downloadPDF()">📄 Download PDF</button>
-</div>
-
-<canvas id="chart"></canvas>
+<footer>
+© 2026 Global Indian Vote | Live Analytics Platform
+</footer>
 
 <script>
 
-// 🔥 FIREBASE CONFIG (REPLACE THIS)
+// 🔥 Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -90,25 +155,19 @@ const db = firebase.database();
 
 let currentUser = null;
 
-// 👤 LOGIN
+/* LOGIN */
 function login(){
   let email = prompt("Enter Gmail ID");
 
   if(email && email.includes("@gmail.com")){
     currentUser = email;
-    document.getElementById("userInfo").innerText =
-      "Logged in: " + email;
-  }else{
+    document.getElementById("userInfo").innerText = "Logged in: " + email;
+  } else {
     alert("Invalid Gmail");
   }
 }
 
-// 🔐 SAFE KEY FUNCTION (IMPORTANT FIX)
-function safeKey(email){
-  return email.replace(/\./g, "_");
-}
-
-// 🗳️ VOTE (FIXED)
+/* VOTE */
 function vote(type){
 
   if(!currentUser){
@@ -116,77 +175,48 @@ function vote(type){
     return;
   }
 
-  const userKey = safeKey(currentUser);
-
-  console.log("Vote clicked:", type);
-
-  db.ref("user_votes/" + userKey).set({
+  db.ref("user_votes/" + currentUser).set({
     vote: type,
-    timestamp: Date.now()
-  })
-  .then(()=>{
-    console.log("Vote saved successfully");
-  })
-  .catch(err=>{
-    console.log("Firebase error:", err);
+    timestamp: firebase.database.ServerValue.TIMESTAMP
   });
 }
 
-// 📊 REALTIME LISTENER
+/* LIVE DATA */
 db.ref("user_votes").on("value", (snapshot)=>{
 
   let data = snapshot.val() || {};
 
-  let support = 0;
-  let neutral = 0;
-  let oppose = 0;
+  let s=0,n=0,o=0;
 
   Object.values(data).forEach(v=>{
-    if(v.vote === "support") support++;
-    if(v.vote === "neutral") neutral++;
-    if(v.vote === "oppose") oppose++;
+    if(v.vote==="support") s++;
+    if(v.vote==="neutral") n++;
+    if(v.vote==="oppose") o++;
   });
 
-  document.getElementById("s").innerText = support;
-  document.getElementById("n").innerText = neutral;
-  document.getElementById("o").innerText = oppose;
-  document.getElementById("t").innerText = support + neutral + oppose;
+  document.getElementById("s").innerText = s;
+  document.getElementById("n").innerText = n;
+  document.getElementById("o").innerText = o;
+  document.getElementById("t").innerText = s+n+o;
 
-  chart.data.datasets[0].data = [support, neutral, oppose];
+  chart.data.datasets[0].data = [s,n,o];
   chart.update();
 });
 
-// 📊 CHART
+/* CHART */
 const chart = new Chart(document.getElementById("chart"), {
 type:'pie',
 data:{
   labels:['Support','Neutral','Oppose'],
   datasets:[{
     data:[0,0,0],
-    backgroundColor:['green','orange','red']
+    backgroundColor:['#22c55e','#facc15','#ef4444']
   }]
+},
+options:{
+  responsive:true
 }
 });
-
-// 📄 PDF DOWNLOAD (FIXED)
-function downloadPDF(){
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(16);
-  doc.text("Global Indian Vote Report", 20, 20);
-
-  doc.setFontSize(12);
-  doc.text("Support: " + document.getElementById("s").innerText, 20, 40);
-  doc.text("Neutral: " + document.getElementById("n").innerText, 20, 50);
-  doc.text("Oppose: " + document.getElementById("o").innerText, 20, 60);
-  doc.text("Total: " + document.getElementById("t").innerText, 20, 70);
-
-  doc.text("Generated: " + new Date().toLocaleString(), 20, 90);
-
-  doc.save("vote-report.pdf");
-}
 
 </script>
 
