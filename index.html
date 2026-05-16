@@ -1,285 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Global Indian Vote</title>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#0f172a,#111827,#1e293b);
+    color:white;
+    min-height:100vh;
+    text-align:center;
+}
+
+/* HEADER */
+
+header{
+    background:#111827;
+    padding:30px 20px;
+    border-bottom:3px solid #22c55e;
+}
+
+header h1{
+    color:#22c55e;
+    margin-bottom:10px;
+    font-size:32px;
+}
+
+header h3{
+    margin-bottom:15px;
+    font-weight:normal;
+}
+
+header p{
+    line-height:1.7;
+}
+
+/* BREAKING NEWS */
+
+.ticker-wrap{
+    width:100%;
+    overflow:hidden;
+    background:#dc2626;
+    color:white;
+    padding:12px 0;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.ticker{
+    display:inline-block;
+    padding-left:100%;
+    animation:tickerMove 30s linear infinite;
+}
+
+@keyframes tickerMove{
+
+    0%{
+        transform:translateX(0);
+    }
+
+    100%{
+        transform:translateX(-100%);
+    }
+
+}
+
+/* CONTAINER */
+
+.container{
+    width:90%;
+    max-width:1100px;
+    margin:auto;
+    padding:25px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:20px;
+}
+
+/* CARD */
+
+.card{
+    background:#111827;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 0 20px rgba(0,255,100,0.08);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-4px);
+}
+
+.card h2,
+.card h3{
+    margin-bottom:15px;
+    color:#22c55e;
+}
+
+/* BUTTON */
+
+button{
+    padding:12px 20px;
+    margin:10px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+.support{
+    background:#22c55e;
+    color:black;
+}
+
+.neutral{
+    background:#facc15;
+    color:black;
+}
+
+.oppose{
+    background:#ef4444;
+    color:white;
+}
+
+.login{
+    background:#3b82f6;
+    color:white;
+}
+
+/* RESULT */
+
+.result{
+    font-size:28px;
+    font-weight:bold;
+    color:#22c55e;
+}
+
+/* FOOTER */
+
+footer{
+    margin-top:30px;
+    background:#111827;
+    padding:25px;
+    border-top:2px solid #22c55e;
+}
+
+footer p{
+    margin:8px 0;
+}
+
+.notice{
+    line-height:1.8;
+    font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<header>
+
+<h1>
+🗳️ ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு
+</h1>
+
+<h3>
+One Nation One Election & Delimitation
+</h3>
+
+<p>
+🌍 உலகளாவிய இந்திய குடிமக்கள் கருத்து பதிவு தளம்
+</p>
+
+<p>
+Global Indian Public Opinion Platform
+</p>
+
+</header>
+
+<!-- BREAKING NEWS -->
+
+<div class="ticker-wrap">
+
+<div class="ticker">
+
+🇮🇳 "நாம் இந்தியர்கள் - ஒன்றுபட்ட இந்திய தேசம் நமது பெருமை" |
+🧭 "இந்திய ஜனநாயகத்தில் மக்கள் குரல் முக்கியம்" |
+🌍 "உலகம் முழுவதும் உள்ள இந்தியர்கள் பங்கேற்கலாம்"
+
+</div>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="container">
+
+<!-- LOGIN -->
+
+<div class="card">
+
+<h2>👤 User Login</h2>
+
+<p id="userInfo">
+Not Logged In
+</p>
+
+<br>
+
+<button class="login" onclick="login()">
+Login Gmail
+</button>
+
+</div>
+
+<!-- VOTE -->
+
+<div class="card">
+
+<h2>🗳️ Cast Your Vote</h2>
+
+<button class="support"
+onclick="vote('support')">
+
+🟢 Support
+
+</button>
+
+<button class="neutral"
+onclick="vote('neutral')">
+
+⚪ Neutral
+
+</button>
+
+<button class="oppose"
+onclick="vote('oppose')">
+
+🔴 Oppose
+
+</button>
+
+</div>
+
+<!-- DASHBOARD -->
+
+<div class="card">
+
+<h2>📊 Live Dashboard</h2>
+
+<p>
+🟢 Support:
+<span class="result"
+id="supportCount">0</span>
+</p>
+
+<br>
+
+<p>
+⚪ Neutral:
+<span class="result"
+id="neutralCount">0</span>
+</p>
+
+<br>
+
+<p>
+🔴 Oppose:
+<span class="result"
+id="opposeCount">0</span>
+</p>
+
+<br>
+
+<p>
+📊 Total:
+<span class="result"
+id="totalVotes">0</span>
+</p>
+
+</div>
+
+<!-- DISCLAIMER -->
+
+<div class="card notice">
+
+<h3>
+⚠️ Important Notice
+</h3>
+
+<p>
+
+இது இந்திய அரசு தேர்தல் அல்ல.
+இது சுயாதீன மக்கள் கருத்து
+பதிவு மற்றும் பகுப்பாய்வு தளம்.
+
+</p>
+
+<br>
+
+<p>
+
+This is an independent public
+opinion and awareness platform.
+
+</p>
+
+</div>
+
+</div>
+
+<!-- FOOTER -->
+
+<footer>
+
+<p>
+🇮🇳 Global Indian Vote Platform
+</p>
+
+<p>
+Powered by Firebase Realtime Database
+</p>
+
+<p>
+© 2026 All Rights Reserved
+</p>
+
+</footer>
+
 <script>
 
 /* FIREBASE CONFIG */
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "onoevote2026.firebaseapp.com",
-  databaseURL: "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "onoevote2026",
-  storageBucket: "onoevote2026.firebasestorage.app",
-  messagingSenderId: "181065724520",
-  appId: "1:181065724520:web:f72a93869786373c1101dd"
+
+    apiKey: "YOUR_API_KEY",
+
+    authDomain:
+    "onoevote2026.firebaseapp.com",
+
+    databaseURL:
+    "https://onoevote2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+    projectId:
+    "onoevote2026",
+
+    storageBucket:
+    "onoevote2026.firebasestorage.app",
+
+    messagingSenderId:
+    "181065724520",
+
+    appId:
+    "1:181065724520:web:f72a93869786373c1101dd"
+
 };
+
+/* INITIALIZE */
 
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 
 let currentUser = null;
-let latestData = {};
 
 /* LOGIN */
 
 function login(){
 
-  let email = prompt("Enter Gmail ID");
+    let email =
+    prompt("Enter Gmail ID");
 
-  if(email && email.includes("@gmail.com")){
+    if(
+        email &&
+        email.includes("@gmail.com")
+    ){
 
-    currentUser = email;
+        currentUser = email;
 
-    document.getElementById("userInfo").innerText =
-    "Logged in: " + email;
+        document.getElementById(
+        "userInfo"
+        ).innerText =
+        "Logged in: " + email;
 
-  }else{
+    }else{
 
-    alert("Invalid Gmail");
-
-  }
-
-}
-
-/* FINAL FIXED VOTE FUNCTION */
-
-function vote(type){
-
-  if(!currentUser){
-
-    alert("Login required");
-    return;
-
-  }
-
-  /* SAFE EMAIL */
-
-  const safeEmail =
-  currentUser.replace(/\./g,"_");
-
-  /* SAVE VOTE */
-
-  db.ref("user_votes/" + safeEmail).set({
-
-    email: currentUser,
-    vote: type,
-    time: Date.now()
-
-  })
-
-  .then(()=>{
-
-    alert("✅ Vote Recorded Successfully");
-
-  })
-
-  .catch((err)=>{
-
-    alert("❌ Error: " + err.message);
-
-  });
-
-}
-
-/* LIVE DATA */
-
-db.ref("user_votes").on("value",(snap)=>{
-
-  let data = snap.val() || {};
-
-  let s = 0;
-  let n = 0;
-  let o = 0;
-
-  Object.values(data).forEach(v=>{
-
-    if(v.vote === "support") s++;
-
-    if(v.vote === "neutral") n++;
-
-    if(v.vote === "oppose") o++;
-
-  });
-
-  document.getElementById("s").innerText = s;
-  document.getElementById("n").innerText = n;
-  document.getElementById("o").innerText = o;
-  document.getElementById("t").innerText = s+n+o;
-
-  /* UPDATE CHARTS */
-
-  pieChart.data.datasets[0].data = [s,n,o];
-  barChart.data.datasets[0].data = [s,n,o];
-
-  pieChart.update();
-  barChart.update();
-
-  latestData = {
-
-    s,n,o,
-    total:s+n+o,
-    raw:data
-
-  };
-
-});
-
-/* PIE CHART */
-
-const pieChart = new Chart(
-document.getElementById("pieChart"),{
-
-type:'pie',
-
-data:{
-
-labels:[
-'Support',
-'Neutral',
-'Oppose'
-],
-
-datasets:[{
-
-data:[0,0,0],
-
-backgroundColor:[
-
-'#22c55e',
-'#facc15',
-'#ef4444'
-
-]
-
-}]
-
-}
-
-});
-
-/* BAR CHART */
-
-const barChart = new Chart(
-document.getElementById("barChart"),{
-
-type:'bar',
-
-data:{
-
-labels:[
-'Support',
-'Neutral',
-'Oppose'
-],
-
-datasets:[{
-
-data:[0,0,0],
-
-backgroundColor:[
-
-'#22c55e',
-'#facc15',
-'#ef4444'
-
-]
-
-}]
-
-}
-
-});
-
-/* PDF REPORT */
-
-function downloadPDF(){
-
-  const { jsPDF } = window.jspdf;
-
-  const doc = new jsPDF();
-
-  doc.setFontSize(16);
-
-  doc.text(
-  "GLOBAL INDIAN VOTE REPORT",
-  10,
-  10
-  );
-
-  doc.setFontSize(12);
-
-  doc.text(
-  "Support: " + latestData.s,
-  10,
-  30
-  );
-
-  doc.text(
-  "Neutral: " + latestData.n,
-  10,
-  40
-  );
-
-  doc.text(
-  "Oppose: " + latestData.o,
-  10,
-  50
-  );
-
-  doc.text(
-  "Total: " + latestData.total,
-  10,
-  60
-  );
-
-  doc.text(
-  "Generated: " +
-  new Date().toLocaleString(),
-  10,
-  70
-  );
-
-  let y = 90;
-
-  doc.text(
-  "INDIVIDUAL VOTE RECORDS:",
-  10,
-  y
-  );
-
-  y += 10;
-
-  Object.keys(latestData.raw || {}).forEach((u,i)=>{
-
-    const masked =
-    u.replace(/(.{3}).+(@gmail.com)/,"$1***$2");
-
-    doc.text(
-
-    (i+1) + ". " +
-    masked + " -> " +
-    latestData.raw[u].vote,
-
-    10,
-    y
-
-    );
-
-    y += 10;
-
-    if(y > 280){
-
-      doc.addPage();
-
-      y = 20;
+        alert("Invalid Gmail");
 
     }
 
-  });
+}
 
-  doc.save(
-  "Global_Indian_Vote_Report.pdf"
-  );
+/* VOTE */
+
+function vote(type){
+
+    if(!currentUser){
+
+        alert("Login required");
+
+        return;
+
+    }
+
+    /* SAFE EMAIL */
+
+    const safeEmail =
+    currentUser.replace(/\./g,"_");
+
+    /* SAVE */
+
+    db.ref(
+    "votes/" + safeEmail
+    ).set({
+
+        email: currentUser,
+
+        vote: type,
+
+        time: Date.now()
+
+    })
+
+    .then(()=>{
+
+        alert(
+        "✅ Vote Recorded Successfully"
+        );
+
+    })
+
+    .catch((err)=>{
+
+        alert(
+        "❌ " + err.message
+        );
+
+    });
 
 }
 
+/* LIVE DASHBOARD */
+
+db.ref("votes")
+.on("value",(snap)=>{
+
+    const data =
+    snap.val() || {};
+
+    let support = 0;
+    let neutral = 0;
+    let oppose = 0;
+
+    Object.values(data)
+    .forEach(v=>{
+
+        if(v.vote==="support")
+        support++;
+
+        if(v.vote==="neutral")
+        neutral++;
+
+        if(v.vote==="oppose")
+        oppose++;
+
+    });
+
+    document.getElementById(
+    "supportCount"
+    ).innerText = support;
+
+    document.getElementById(
+    "neutralCount"
+    ).innerText = neutral;
+
+    document.getElementById(
+    "opposeCount"
+    ).innerText = oppose;
+
+    document.getElementById(
+    "totalVotes"
+    ).innerText =
+    support + neutral + oppose;
+
+});
+
 </script>
+
+</body>
+</html>
