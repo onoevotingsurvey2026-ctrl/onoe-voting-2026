@@ -6,13 +6,13 @@
 
 <title>Global Indian Vote - Final Dashboard</title>
 
-<!-- Chart JS -->
+<!-- CHART -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- jsPDF -->
+<!-- PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- Firebase -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
@@ -34,11 +34,10 @@ body{
 /* HEADER */
 
 header{
-  background:rgba(17,24,39,0.95);
+  background:#111827;
   padding:30px 20px;
   text-align:center;
   border-bottom:3px solid #22c55e;
-  box-shadow:0 0 20px rgba(0,255,120,0.15);
 }
 
 header h1{
@@ -53,8 +52,8 @@ header h3{
 }
 
 header p{
+  line-height:1.7;
   margin:6px 0;
-  line-height:1.6;
 }
 
 /* SLOGAN */
@@ -62,11 +61,11 @@ header p{
 .slogan{
   margin-top:20px;
   line-height:1.9;
-  font-weight:bold;
   color:#facc15;
+  font-weight:bold;
 }
 
-/* MAIN CONTAINER */
+/* CONTAINER */
 
 .container{
   max-width:1200px;
@@ -80,10 +79,10 @@ header p{
 /* CARD */
 
 .card{
-  background:rgba(17,24,39,0.95);
+  background:#111827;
   border-radius:16px;
   padding:25px;
-  box-shadow:0 0 20px rgba(0,255,120,0.08);
+  box-shadow:0 0 20px rgba(0,255,100,0.08);
   transition:0.3s;
 }
 
@@ -96,15 +95,15 @@ header p{
   color:#22c55e;
 }
 
-/* BUTTONS */
+/* BUTTON */
 
 button{
   padding:12px 18px;
   border:none;
   border-radius:10px;
   cursor:pointer;
+  margin:5px;
   font-weight:bold;
-  margin:6px;
   transition:0.3s;
 }
 
@@ -137,7 +136,7 @@ button:hover{
   color:white;
 }
 
-/* RESULTS */
+/* RESULT */
 
 .result{
   font-size:28px;
@@ -145,15 +144,7 @@ button:hover{
   color:#22c55e;
 }
 
-/* WEBSITE STATUS */
-
-.live-status{
-  color:#22c55e;
-  font-weight:bold;
-  word-break:break-word;
-}
-
-/* DISCLAIMER */
+/* NOTICE */
 
 .notice{
   line-height:1.8;
@@ -175,18 +166,10 @@ footer p{
   line-height:1.6;
 }
 
-/* CHARTS */
+/* CHART */
 
 canvas{
   max-width:100%;
-}
-
-/* BREAKING NEWS */
-
-marquee{
-  color:#facc15;
-  font-weight:bold;
-  font-size:15px;
 }
 
 </style>
@@ -211,10 +194,15 @@ Globally Living Indian Citizens Participation Platform
 </p>
 
 <div class="slogan">
+
 🇮🇳 "நாம் இந்தியர்கள் - ஒன்றுபட்ட இந்திய தேசம் நமது பெருமை"<br>
+
 🧭 "பாரத மண்ணின் எதிர்காலம் இந்திய மக்கள் குரலில் ஒலிக்கட்டும்"<br>
+
 🗳️ "இந்திய ஜனநாயகத்தில் மக்கள் குரல் முக்கியத்துவம் வாய்ந்தது"<br>
+
 🌍 "உலகம் முழுவதும் உள்ள இந்திய வாக்குரிமை பெற்ற குடிமக்கள் பங்கேற்கலாம்"
+
 </div>
 
 </header>
@@ -223,30 +211,11 @@ Globally Living Indian Citizens Participation Platform
 
 <div class="container">
 
-<!-- LIVE BREAKING NEWS -->
-
-<div class="card">
-
-<h3>📢 LIVE BREAKING NEWS</h3>
-
-<marquee behavior="scroll" direction="left" scrollamount="7">
-
-🔴 LIVE • Global Indian Citizens Participation Open • 
-🗳️ Real-Time Public Opinion Voting Running • 
-📊 Live Analytics Active • 
-🌍 Worldwide Indian Citizens Can Participate • 
-🇮🇳 One Nation One Election & Delimitation Public Opinion Platform • 
-🔥 Firebase Real-Time Dashboard Running Successfully
-
-</marquee>
-
-</div>
-
 <!-- LOGIN -->
 
 <div class="card">
 
-<h3>👤 Login</h3>
+<h3>👤 User Login</h3>
 
 <p id="userInfo">Not Logged In</p>
 
@@ -260,7 +229,7 @@ Login Gmail
 
 <div class="card">
 
-<h3>🗳️ Vote</h3>
+<h3>🗳️ Cast Your Vote</h3>
 
 <button class="support" onclick="vote('support')">
 Support
@@ -276,7 +245,7 @@ Oppose
 
 </div>
 
-<!-- RESULTS -->
+<!-- LIVE RESULTS -->
 
 <div class="card">
 
@@ -305,7 +274,7 @@ Total:
 <br>
 
 <button class="pdf" onclick="downloadPDF()">
-📥 Download Full PDF Report
+📥 Download PDF Report
 </button>
 
 </div>
@@ -327,26 +296,6 @@ Total:
 <h3>📊 Bar Chart Analytics</h3>
 
 <canvas id="barChart"></canvas>
-
-</div>
-
-<!-- OFFICIAL WEBSITE -->
-
-<div class="card">
-
-<h3>🌐 Official Website</h3>
-
-<p>
-Official Global Indian Vote Website
-</p>
-
-<p class="live-status">
-https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/
-</p>
-
-<p>
-Real-Time Public Opinion & Analytics Platform
-</p>
 
 </div>
 
@@ -423,11 +372,7 @@ onoe.voting.survey2026@gmail.com
 <p>🇮🇳 Global Indian Vote Platform</p>
 
 <p>
-🔥 Powered by Firebase • Real-Time Analytics • Public Opinion System
-</p>
-
-<p>
-🌐 Official Global Indian Vote Website
+🔥 Powered by Real-Time Public Opinion Analytics
 </p>
 
 <p>
@@ -479,6 +424,7 @@ function login(){
     alert("Invalid Gmail");
 
   }
+
 }
 
 /* VOTE */
@@ -490,6 +436,7 @@ function vote(type){
     alert("Login required");
 
     return;
+
   }
 
   db.ref("user_votes/" + currentUser).set({
@@ -582,7 +529,7 @@ backgroundColor:[
 
 });
 
-/* PDF DOWNLOAD */
+/* PDF REPORT */
 
 function downloadPDF(){
 
@@ -631,13 +578,7 @@ function downloadPDF(){
   70
   );
 
-  doc.text(
-  "https://onoevotingsurvey2026-ctrl.github.io/global-indian-vote/",
-  10,
-  80
-  );
-
-  let y = 100;
+  let y = 90;
 
   doc.text(
   "INDIVIDUAL VOTE RECORDS:",
