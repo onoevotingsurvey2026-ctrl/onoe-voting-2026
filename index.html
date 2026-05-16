@@ -1,170 +1,46 @@
-﻿
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Government Civic Dashboard</title>
+<title>Global Civic Platform v6</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-body{
-  margin:0;
-  font-family: Arial, sans-serif;
-  background:#f4f6f9;
-  color:#1e293b;
-}
-
-/* HEADER */
-header{
-  background:#0f172a;
-  color:white;
-  padding:18px;
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
-}
-
-/* TOP STATS */
-.stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:15px;
-  padding:15px;
-}
-
-.card{
-  background:white;
-  border-radius:10px;
-  padding:15px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
-  text-align:center;
-}
-
-.card h2{
-  margin:0;
-  font-size:22px;
-}
-
-/* MAIN LAYOUT */
-.container{
-  display:grid;
-  grid-template-columns:1fr 2fr 1fr;
-  gap:15px;
-  padding:15px;
-}
-
-/* PANELS */
-.panel{
-  background:white;
-  border-radius:10px;
-  padding:15px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.08);
-}
-
-h3{
-  border-bottom:1px solid #e5e7eb;
-  padding-bottom:8px;
-}
-
-/* BUTTONS */
-button{
-  padding:10px 12px;
-  margin:5px 0;
-  width:100%;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.voteA{background:#16a34a;color:white;}
-.voteB{background:#2563eb;color:white;}
-.voteC{background:#f59e0b;color:white;}
-
-/* NEWS */
-.news{
-  font-size:14px;
-  line-height:1.6;
-  color:#334155;
-}
-
-/* FOOTER */
-footer{
-  text-align:center;
-  padding:15px;
-  background:#0f172a;
-  color:white;
-  margin-top:10px;
-}
-
+body{margin:0;font-family:Arial;background:#0a1220;color:#fff}
+header{background:#111c33;padding:15px;text-align:center}
+.grid{display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;padding:10px}
+.box{background:#18243f;padding:15px;border-radius:10px}
+button{width:100%;padding:10px;margin:5px 0;border:none;border-radius:5px;cursor:pointer}
+input{width:95%;padding:8px;margin:5px 0}
+.hidden{display:none}
+.green{background:#16a34a;color:#fff}
+.blue{background:#2563eb;color:#fff}
+.red{background:#dc2626;color:#fff}
+canvas{background:#fff;border-radius:8px}
 </style>
 </head>
 
 <body>
 
 <header>
-🏛️ Government Civic Voting & Analytics Dashboard
+🏛️ Global Civic Voting Platform v6 (FINAL)
 </header>
 
-<!-- TOP STATS -->
-<div class="stats">
-  <div class="card">
-    <h2>120</h2>
-    <p>Total Votes</p>
-  </div>
-  <div class="card">
-    <h2>A</h2>
-    <p>Leading Option</p>
-  </div>
-  <div class="card">
-    <h2>12</h2>
-    <p>Districts Covered</p>
-  </div>
-  <div class="card">
-    <h2>LIVE</h2>
-    <p>Status</p>
-  </div>
+<div class="grid">
+
+<!-- LOGIN -->
+<div class="box" id="loginBox">
+<h3>🔐 Entry Gate</h3>
+<input id="phone" placeholder="+Country Mobile">
+<div id="recaptcha-container"></div>
+<button onclick="sendOTP()">Send OTP</button>
+<input id="otp" placeholder="OTP">
+<button onclick="verifyOTP()">Submit</button>
 </div>
 
-<!-- MAIN SECTION -->
-<div class="container">
-
-<!-- LEFT PANEL -->
-<div class="panel">
-  <h3>🗳️ Voting Panel</h3>
-
-  <button class="voteA">Support A</button>
-  <button class="voteB">Neutral B</button>
-  <button class="voteC">Against C</button>
-
-  <p>Status: Waiting for vote...</p>
-</div>
-
-<!-- CENTER PANEL -->
-<div class="panel">
-  <h3>📊 Live Analytics</h3>
-  <p>Pie Chart Area (connect Chart.js here)</p>
-  <p>Bar Chart Area (district-wise comparison)</p>
-  <p>Real-time Firebase updates will reflect here</p>
-</div>
-
-<!-- RIGHT PANEL -->
-<div class="panel">
-  <h3>📰 Policy News</h3>
-
-  <div class="news">
-    🔴 Breaking: Civic awareness update released<br><br>
-    🟡 Policy discussion: public feedback open<br><br>
-    🟢 Government-style dashboard redesign completed<br><br>
-    🔵 Real-time voting transparency initiative
-  </div>
-</div>
-
-</div>
-
-<footer>
-© 2026 Civic Analytics Platform | Transparent • Secure • Public Data System
-</footer>
-
-</body>
-</html>
+<!-- VOTE -->
+<div class="box hidden" id="voteBox">
+<h
