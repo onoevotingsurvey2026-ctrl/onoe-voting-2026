@@ -2,30 +2,31 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Entry Gate Login +91</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>International Entry Gate</title>
 
 <style>
 body{
-  margin:0;
   font-family:Arial;
   background:#0b1220;
   color:white;
-  text-align:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 
 .box{
   width:320px;
-  margin:100px auto;
   background:#18243f;
   padding:20px;
   border-radius:12px;
+  text-align:center;
 }
 
-input,button{
-  width:90%;
+select,input,button{
+  width:100%;
   padding:10px;
-  margin:8px 0;
+  margin:6px 0;
   border:none;
   border-radius:6px;
 }
@@ -33,52 +34,35 @@ input,button{
 button{
   background:#2563eb;
   color:white;
-  cursor:pointer;
-}
-
-.phone-wrap{
-  display:flex;
-  justify-content:center;
-}
-
-.prefix{
-  padding:10px;
-  background:#111c33;
-  border-radius:6px 0 0 6px;
-}
-
-.phone{
-  width:70%;
-  border-radius:0 6px 6px 0;
 }
 </style>
 </head>
 
 <body>
 
-<div class="box" id="loginBox">
+<div class="box">
 
 <h2>🔐 Entry Gate Login</h2>
 
-<!-- +91 FIXED -->
-<div class="phone-wrap">
-  <div class="prefix">+91</div>
-  <input class="phone" id="phone" placeholder="Mobile Number">
-</div>
+<!-- 🌍 COUNTRY SELECT -->
+<select id="country">
+  <option value="+91">🇮🇳 India (+91)</option>
+  <option value="+1">🇺🇸 USA (+1)</option>
+  <option value="+44">🇬🇧 UK (+44)</option>
+  <option value="+971">🇦🇪 UAE (+971)</option>
+  <option value="+81">🇯🇵 Japan (+81)</option>
+</select>
 
+<!-- 📱 MOBILE -->
+<input id="phone" placeholder="Mobile Number">
+
+<!-- OTP -->
 <button onclick="sendOTP()">Send OTP</button>
 
 <input id="otp" placeholder="Enter OTP">
 
-<!-- ONLY SUBMIT -->
 <button onclick="verifyOTP()">SUBMIT</button>
 
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashboard" style="display:none;margin-top:120px;">
-<h2>🏛️ Login Success</h2>
-<p>Welcome to Civic Dashboard</p>
 </div>
 
 <script type="module">
@@ -87,7 +71,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* FIREBASE CONFIG */
+/* FIREBASE */
 const firebaseConfig = {
 apiKey:"YOUR_API_KEY",
 authDomain:"YOUR_AUTH_DOMAIN",
@@ -99,40 +83,30 @@ const auth = getAuth(app);
 
 let confirmationResult;
 
-/* CAPTCHA */
-window.recaptchaVerifier = new RecaptchaVerifier(auth,"recaptcha-container",{
-size:"normal"
-});
-
-/* SEND OTP */
+/* OTP SEND */
 window.sendOTP = () => {
 
-const phoneNumber = "+91" + document.getElementById("phone").value;
+const code = document.getElementById("country").value;
+const phone = document.getElementById("phone").value;
 
-signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier)
-.then((result)=>{
-confirmationResult = result;
+const fullNumber = code + phone;
+
+signInWithPhoneNumber(auth, fullNumber, window.recaptchaVerifier)
+.then(res=>{
+confirmationResult = res;
 alert("OTP Sent ✔");
-})
-.catch(()=>{
-alert("OTP Error");
 });
 
 };
 
-/* VERIFY OTP */
+/* VERIFY */
 window.verifyOTP = () => {
 
-const code = document.getElementById("otp").value;
+const otp = document.getElementById("otp").value;
 
-confirmationResult.confirm(code)
-.then((user)=>{
-
+confirmationResult.confirm(otp)
+.then(()=>{
 alert("Login Success ✔");
-
-document.getElementById("loginBox").style.display="none";
-document.getElementById("dashboard").style.display="block";
-
 })
 .catch(()=>{
 alert("Invalid OTP");
