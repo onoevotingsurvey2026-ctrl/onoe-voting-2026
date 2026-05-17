@@ -4,160 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Global Indian Vote 2026 | Civic Voting & Analytics Platform</title>
+<title>Global Indian Vote 2026</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+<!-- Firebase -->
+<script type="module">
 
-<style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-body{
-font-family:Arial,sans-serif;
-background:#081229;
-color:white;
-padding:20px;
-}
-
-.main-title{
-text-align:center;
-margin-bottom:30px;
-}
-
-.login-wrapper{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-gap:20px;
-margin-bottom:30px;
-}
-
-.panel{
-background:#132046;
-padding:25px;
-border-radius:20px;
-box-shadow:0 0 15px rgba(0,0,0,0.4);
-}
-
-.panel h2{
-margin-bottom:20px;
-text-align:center;
-}
-
-input,
-select{
-width:100%;
-padding:14px;
-margin-top:12px;
-border:none;
-border-radius:10px;
-font-size:15px;
-outline:none;
-}
-
-button{
-width:100%;
-padding:14px;
-margin-top:15px;
-border:none;
-border-radius:10px;
-font-size:16px;
-cursor:pointer;
-color:white;
-}
-
-button:hover{opacity:0.9;}
-
-.voter-btn{background:#2f6df6;}
-.admin-btn{background:#8e44ad;}
-.support-btn{background:#00a651;}
-.neutral-btn{background:#777;}
-.oppose-btn{background:#d62828;}
-.reset-btn{background:red;}
-.download-btn{background:#2f6df6;}
-.logout-btn{background:#444;}
-
-.section{
-background:#132046;
-padding:25px;
-border-radius:20px;
-margin-top:25px;
-}
-
-.status-panel{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-margin-top:20px;
-}
-
-.status-box{
-background:#1f2f63;
-padding:20px;
-border-radius:15px;
-text-align:center;
-}
-
-.vote-buttons{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:15px;
-margin-top:20px;
-}
-
-.admin-buttons{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:15px;
-margin-top:20px;
-}
-
-canvas{
-background:white;
-border-radius:15px;
-padding:10px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-}
-
-table th, table td{
-border:1px solid #555;
-padding:10px;
-text-align:center;
-}
-
-#dashboard{display:none;}
-#adminControls{display:none;}
-
-.footer{
-text-align:center;
-margin-top:30px;
-color:#bbb;
-padding-bottom:30px;
-}
-
-</style>
-</head>
-
-<body>
-
-<h1 class="main-title">
-🏛 Global Indian Vote 2026<br>
-Civic Voting & Analytics Platform
-</h1>
-
-<!-- FIREBASE CONFIG -->
-<script>
+/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
   authDomain: "onoevote2026.firebaseapp.com",
@@ -167,12 +24,190 @@ const firebaseConfig = {
   messagingSenderId: "181065724520",
   appId: "1:181065724520:web:f72a93869786373c1101dd"
 };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* GLOBALS */
+let votes = { support:40, neutral:35, oppose:25 };
+let votedUsers = [];
+let adminMode = false;
+let generatedOTP = "1830";
+
+/* SAVE TO FIREBASE */
+async function saveVoteToFirebase(name, gmail, mobile, region, voteType){
+  try {
+    await addDoc(collection(db, "votes"), {
+      name,
+      gmail,
+      mobile,
+      region,
+      vote: voteType,
+      time: new Date().toISOString()
+    });
+  } catch (e) {
+    console.error("Firebase error:", e);
+  }
+}
+
+/* OTP */
+window.sendOTP = function(){
+  const mobile = document.getElementById("mobile").value;
+  const captcha = document.getElementById("captcha").value;
+
+  if(mobile.length !== 10){
+    alert("Enter valid mobile number");
+    return;
+  }
+
+  if(captcha != "11"){
+    alert("Captcha incorrect");
+    return;
+  }
+
+  alert("Demo OTP Sent: 1830");
+  document.getElementById("otpSection").style.display = "block";
+}
+
+window.verifyOTP = function(){
+  const otp = document.getElementById("otp").value;
+
+  if(otp === generatedOTP){
+    document.getElementById("dashboard").style.display = "block";
+  } else {
+    alert("Invalid OTP");
+  }
+}
+
+/* ADMIN */
+window.adminLogin = function(){
+  const mobile = document.getElementById("adminMobile").value;
+  const password = document.getElementById("adminPassword").value;
+
+  if(mobile==="9384695599" && password==="globalindianvote2026"){
+    adminMode = true;
+    document.getElementById("dashboard").style.display="block";
+    document.getElementById("adminControls").style.display="block";
+  } else {
+    alert("Invalid Admin");
+  }
+}
+
+/* VOTE FUNCTION */
+window.vote = async function(type){
+
+  const gmail = document.getElementById("gmail").value;
+  const mobile = document.getElementById("mobile").value;
+  const voter = document.getElementById("voterName").value;
+  const region = document.getElementById("region").value;
+
+  if(voter.trim()===""){
+    alert("Enter name");
+    return;
+  }
+
+  /* duplicate check */
+  for(let u of votedUsers){
+    if(u.gmail===gmail || u.mobile===mobile){
+      alert("Already voted");
+      return;
+    }
+  }
+
+  votedUsers.push({gmail,mobile});
+
+  /* update local count */
+  if(type==="Support") votes.support++;
+  if(type==="Neutral") votes.neutral++;
+  if(type==="Oppose") votes.oppose++;
+
+  updateCharts();
+
+  /* FIREBASE SAVE */
+  saveVoteToFirebase(voter,gmail,mobile,region,type);
+
+  alert("Vote Submitted Successfully");
+}
+
+/* CHARTS */
+const pieChart = new Chart(document.getElementById("pieChart"),{
+  type:"pie",
+  data:{
+    labels:["Support","Neutral","Oppose"],
+    datasets:[{data:[40,35,25],
+    backgroundColor:["#00a651","#777","#d62828"]}]
+  }
+});
+
+const barChart = new Chart(document.getElementById("barChart"),{
+  type:"bar",
+  data:{
+    labels:["Support","Neutral","Oppose"],
+    datasets:[{data:[40,35,25],
+    backgroundColor:["#00a651","#777","#d62828"]}]
+  }
+});
+
+window.updateCharts = function(){
+  pieChart.data.datasets[0].data=[votes.support,votes.neutral,votes.oppose];
+  barChart.data.datasets[0].data=[votes.support,votes.neutral,votes.oppose];
+
+  pieChart.update();
+  barChart.update();
+
+  document.getElementById("totalVotes").innerText =
+  votes.support+votes.neutral+votes.oppose;
+}
+
 </script>
 
-<!-- (YOUR FULL UI + JS REMAINS SAME BELOW) -->
+<style>
+body{font-family:Arial;background:#081229;color:white;padding:20px}
+.panel{background:#132046;padding:20px;border-radius:15px;margin:10px}
+button{padding:10px;border:none;border-radius:8px;cursor:pointer}
+</style>
 
-<div class="footer">
-AI-powered Civic Data & Public Opinion Analytics Platform
+</head>
+
+<body>
+
+<h1>🏛 Global Indian Vote 2026</h1>
+
+<div class="panel">
+<input id="gmail" placeholder="Gmail">
+<input id="mobile" placeholder="Mobile">
+<input id="captcha" placeholder="Captcha 7+4=11">
+<button onclick="sendOTP()">Send OTP</button>
+
+<div id="otpSection" style="display:none">
+<input id="otp" placeholder="OTP">
+<button onclick="verifyOTP()">Verify</button>
+</div>
+</div>
+
+<div id="dashboard" style="display:none">
+
+<div class="panel">
+<input id="voterName" placeholder="Name">
+
+<select id="region">
+<option>Chennai</option>
+<option>India</option>
+<option>USA</option>
+</select>
+
+<button onclick="vote('Support')">Support</button>
+<button onclick="vote('Neutral')">Neutral</button>
+<button onclick="vote('Oppose')">Oppose</button>
+</div>
+
+<div class="panel">
+<h2>Total Votes: <span id="totalVotes">120</span></h2>
+</div>
+
+<canvas id="pieChart"></canvas>
+<canvas id="barChart"></canvas>
+
 </div>
 
 </body>
