@@ -1,36 +1,73 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-  <title>OTP Login</title>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+  <title>Mobile OTP Login</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
   <style>
-    body { font-family: Arial; background:#f4f4f4; text-align:center; }
-    .box { margin-top:100px; padding:20px; background:white; width:300px; margin-left:auto; margin-right:auto; border-radius:10px; }
-    input { width:90%; padding:10px; margin:10px 0; }
-    button { padding:10px 20px; background:green; color:white; border:none; cursor:pointer; }
+    body{
+      font-family: Arial;
+      background:#f2f2f2;
+      text-align:center;
+    }
+
+    .box{
+      width:340px;
+      margin:80px auto;
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,0,0,0.1);
+    }
+
+    select,input{
+      width:90%;
+      padding:10px;
+      margin:10px 0;
+    }
+
+    button{
+      padding:10px 20px;
+      background:green;
+      color:white;
+      border:none;
+      cursor:pointer;
+      border-radius:5px;
+    }
   </style>
 </head>
 
 <body>
 
 <div class="box">
+
   <h2>Mobile OTP Login</h2>
 
-  <input type="text" id="mobile" placeholder="+91XXXXXXXXXX">
+  <!-- Country Code -->
+  <select id="countryCode">
+    <option value="+91">India (+91)</option>
+    <option value="+1">USA (+1)</option>
+    <option value="+44">UK (+44)</option>
+  </select>
+
+  <!-- Mobile -->
+  <input type="text" id="mobile" placeholder="Enter Mobile Number">
+
   <button onclick="sendOTP()">Send OTP</button>
 
+  <!-- OTP -->
   <div id="otpBox" style="display:none;">
     <input type="text" id="otp" placeholder="Enter OTP">
-    <button onclick="verifyOTP()">Verify</button>
+    <button onclick="verifyOTP()">Submit OTP</button>
   </div>
 
   <div id="recaptcha-container"></div>
+
 </div>
 
 <script>
-  // Firebase config (replace your config)
   const firebaseConfig = {
     apiKey: "YOUR_KEY",
     authDomain: "YOUR_DOMAIN",
@@ -42,35 +79,45 @@
 
   let confirmationResult;
 
-  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-    size: 'invisible'
-  });
+  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+    'recaptcha-container',
+    { size: 'invisible' }
+  );
 
-  function sendOTP() {
-    const phoneNumber = document.getElementById("mobile").value;
+  recaptchaVerifier.render();
+
+  function sendOTP(){
+
+    const code = document.getElementById("countryCode").value;
+    const mobile = document.getElementById("mobile").value;
+
+    const phoneNumber = code + mobile;
 
     firebase.auth().signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
-      .then((result) => {
-        confirmationResult = result;
-        document.getElementById("otpBox").style.display = "block";
-        alert("OTP Sent!");
-      }).catch((error) => {
-        alert(error.message);
-      });
+    .then((result)=>{
+      confirmationResult = result;
+      document.getElementById("otpBox").style.display = "block";
+      alert("OTP Sent Successfully");
+    })
+    .catch((error)=>{
+      alert(error.message);
+    });
   }
 
-  function verifyOTP() {
-    const code = document.getElementById("otp").value;
+  function verifyOTP(){
+    const otp = document.getElementById("otp").value;
 
-    confirmationResult.confirm(code)
-      .then((result) => {
-        alert("Login Success");
+    confirmationResult.confirm(otp)
+    .then(()=>{
+      alert("Login Success");
 
-        // 👉 redirect dashboard
-        window.location.href = "dashboard.html";
-      }).catch((error) => {
-        alert("Wrong OTP");
-      });
+      localStorage.setItem("login","true");
+
+      window.location.href="dashboard.html";
+    })
+    .catch(()=>{
+      alert("Invalid OTP");
+    });
   }
 </script>
 
