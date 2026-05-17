@@ -3,194 +3,535 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Global Vote Platform</title>
+
+<title>Global Indian Vote Platform</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{
+
+*{
     margin:0;
-    font-family:Arial;
-    background:#eef2f7;
+    padding:0;
+    box-sizing:border-box;
 }
 
-/* LOGIN CARD */
-.container{
+body{
+    font-family:Arial,sans-serif;
+    background:#081229;
+    color:white;
+}
+
+/* LOGIN PAGE */
+
+#loginPage{
     width:100%;
-    max-width:420px;
-    margin:50px auto;
-    background:#fff;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     padding:20px;
-    border-radius:12px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.1);
 }
 
-h2{text-align:center;margin-bottom:20px}
-
-input,select{
+.otp-container{
     width:100%;
+    max-width:400px;
+    background:#132046;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+.otp-container h2{
+    text-align:center;
+    margin-bottom:25px;
+    font-size:28px;
+}
+
+.country-box{
+    background:#1f2f63;
     padding:12px;
-    margin:8px 0;
-    border:1px solid #ccc;
-    border-radius:6px;
+    border-radius:10px;
+    margin-bottom:20px;
+    text-align:center;
+    font-size:18px;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    margin-top:12px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    outline:none;
 }
 
 button{
     width:100%;
-    padding:12px;
-    background:#007bff;
-    color:#fff;
+    padding:14px;
+    margin-top:18px;
+    background:#2f6df6;
     border:none;
-    border-radius:6px;
+    border-radius:10px;
+    color:white;
+    font-size:17px;
     cursor:pointer;
+}
+
+button:hover{
+    background:#1c54d1;
+}
+
+.captcha-box{
+    margin-top:15px;
+}
+
+#successMessage{
+    margin-top:18px;
+    text-align:center;
     font-weight:bold;
+    color:#00ff95;
 }
-
-button:hover{background:#0056b3}
-
-.small{
-    font-size:13px;
-    color:#444;
-}
-
-/* OTP BOX */
-#otpBox{display:none}
 
 /* DASHBOARD */
+
 #dashboard{
     display:none;
     padding:20px;
 }
 
 .header{
-    background:#007bff;
-    color:white;
-    padding:15px;
+    background:#10204a;
+    padding:25px;
+    border-radius:20px;
     text-align:center;
-    border-radius:10px;
+    margin-bottom:20px;
+    box-shadow:0 0 15px rgba(0,0,0,0.4);
 }
 
-.cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+.header h1{
+    font-size:34px;
+}
+
+.live-bar{
+    display:flex;
+    justify-content:space-around;
+    flex-wrap:wrap;
     gap:15px;
     margin-top:20px;
 }
 
-.card{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 3px 10px rgba(0,0,0,0.1);
+.live-box{
+    background:#18295a;
+    padding:18px;
+    border-radius:15px;
+    width:220px;
     text-align:center;
+    box-shadow:0 0 10px rgba(0,0,0,0.3);
 }
-</style>
 
+.section{
+    background:#132046;
+    margin-top:25px;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 0 15px rgba(0,0,0,0.4);
+}
+
+.section h2{
+    margin-bottom:20px;
+}
+
+.vote-buttons{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.vote-buttons button{
+    flex:1;
+}
+
+canvas{
+    margin-top:20px;
+    background:white;
+    border-radius:15px;
+    padding:10px;
+}
+
+.map-box{
+    background:#1f2f63;
+    padding:40px;
+    border-radius:15px;
+    text-align:center;
+    font-size:20px;
+}
+
+.admin-buttons{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.reset-btn{
+    background:red;
+}
+
+.download-btn{
+    background:#2f6df6;
+}
+
+.footer{
+    text-align:center;
+    padding:25px;
+    margin-top:30px;
+    color:#bbb;
+}
+
+@media(max-width:768px){
+
+    .header h1{
+        font-size:28px;
+    }
+
+    .live-box{
+        width:100%;
+    }
+
+}
+
+</style>
 </head>
+
 <body>
 
-<!-- LOGIN -->
-<div class="container" id="loginBox">
+<!-- LOGIN PAGE -->
 
-<h2>Mobile OTP Login</h2>
+<div id="loginPage">
 
-<select id="country">
-    <option value="+91">🇮🇳 India +91</option>
-</select>
+    <div class="otp-container">
 
-<input type="text" id="mobile" placeholder="Enter Mobile Number">
+        <h2>📱 Mobile OTP Login</h2>
 
-<div class="small" id="captchaText"></div>
-<input type="text" id="captchaInput" placeholder="Enter Captcha">
+        <div class="country-box">
+            🇮🇳 India (+91)
+        </div>
 
-<button onclick="sendOTP()">Send OTP</button>
+        <input type="tel" id="mobileNumber"
+        placeholder="Enter Mobile Number" maxlength="10">
 
-<div id="otpBox">
-    <input type="text" id="otp" placeholder="Enter OTP">
-    <button onclick="verifyOTP()">Verify OTP</button>
-</div>
+        <div class="captcha-box">
+            <label>7 + 4 = ?</label>
+            <input type="number" id="captchaInput"
+            placeholder="Enter 11">
+        </div>
+
+        <button onclick="sendOTP()">Send OTP</button>
+
+        <div id="otpSection" style="display:none;">
+
+            <input type="number" id="otpInput"
+            placeholder="Enter OTP">
+
+            <button onclick="verifyOTP()">Verify OTP</button>
+
+        </div>
+
+        <div id="successMessage"></div>
+
+    </div>
 
 </div>
 
 <!-- DASHBOARD -->
+
 <div id="dashboard">
 
-<div class="header">
-    🗳️ Global Vote Dashboard
-</div>
+    <div class="header">
 
-<div class="cards">
-    <div class="card">
-        <h3>Total Votes</h3>
-        <p>1,245</p>
+        <h1>🏛 Government Civic Voting & Analytics Platform</h1>
+
+        <div class="live-bar">
+
+            <div class="live-box">
+                🗳 Total Votes
+                <h2 id="totalVotes">120</h2>
+            </div>
+
+            <div class="live-box">
+                📍 Districts
+                <h2>12</h2>
+            </div>
+
+            <div class="live-box">
+                🔴 LIVE
+                <h2>Active</h2>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="card">
-        <h3>Live Users</h3>
-        <p>320</p>
+    <!-- VOTING -->
+
+    <div class="section">
+
+        <h2>🗳 Voting Panel</h2>
+
+        <div class="vote-buttons">
+
+            <button onclick="vote('A')">Vote A</button>
+            <button onclick="vote('B')">Vote B</button>
+            <button onclick="vote('C')">Vote C</button>
+
+        </div>
+
     </div>
 
-    <div class="card">
-        <h3>India Votes</h3>
-        <p>980</p>
+    <!-- PIE CHART -->
+
+    <div class="section">
+
+        <h2>📊 Live Results</h2>
+
+        <canvas id="pieChart"></canvas>
+
     </div>
 
-    <div class="card">
-        <h3>Global Votes</h3>
-        <p>265</p>
+    <!-- GIS -->
+
+    <div class="section">
+
+        <h2>🗺 GIS Map</h2>
+
+        <div class="map-box">
+            Satellite + District View Placeholder
+        </div>
+
     </div>
-</div>
+
+    <!-- BAR CHART -->
+
+    <div class="section">
+
+        <h2>📈 Analytics</h2>
+
+        <canvas id="barChart"></canvas>
+
+    </div>
+
+    <!-- ADMIN -->
+
+    <div class="section">
+
+        <h2>🔐 Admin Panel</h2>
+
+        <div class="admin-buttons">
+
+            <button class="reset-btn"
+            onclick="resetData()">
+            Reset Data
+            </button>
+
+            <button class="download-btn"
+            onclick="downloadReport()">
+            Download Report
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        AI-powered Civic Data & Public Opinion Analytics Platform
+    </div>
 
 </div>
 
 <script>
 
-let otpCode;
-let captchaAns;
+let generatedOTP = "";
 
-/* CAPTCHA */
-function generateCaptcha(){
-    let a = Math.floor(Math.random()*10);
-    let b = Math.floor(Math.random()*10);
-    captchaAns = a + b;
-    document.getElementById("captchaText").innerText =
-    "Captcha: " + a + " + " + b + " = ?";
-}
-generateCaptcha();
-
-/* SEND OTP (DEMO) */
 function sendOTP(){
 
-    let mobile = document.getElementById("mobile").value;
-    let cap = document.getElementById("captchaInput").value;
+    const mobile =
+    document.getElementById("mobileNumber").value;
 
-    if(cap != captchaAns){
-        alert("Captcha Wrong!");
-        generateCaptcha();
-        return;
-    }
+    const captcha =
+    document.getElementById("captchaInput").value;
 
-    if(mobile.length < 8){
+    if(mobile.length !== 10){
         alert("Enter valid mobile number");
         return;
     }
 
-    otpCode = Math.floor(1000 + Math.random()*9000);
+    if(captcha != "11"){
+        alert("Captcha incorrect");
+        return;
+    }
 
-    alert("OTP Sent (Demo): " + otpCode);
+    generatedOTP = "1830";
 
-    document.getElementById("otpBox").style.display = "block";
+    alert("Demo OTP Sent : " + generatedOTP);
+
+    document.getElementById("otpSection")
+    .style.display = "block";
 }
 
-/* VERIFY OTP */
 function verifyOTP(){
 
-    let otp = document.getElementById("otp").value;
+    const enteredOTP =
+    document.getElementById("otpInput").value;
 
-    if(otp == otpCode){
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
+    if(enteredOTP === generatedOTP){
+
+        document.getElementById("successMessage")
+        .innerHTML = "✅ Mobile Login Success";
+
+        setTimeout(()=>{
+
+            document.getElementById("loginPage")
+            .style.display = "none";
+
+            document.getElementById("dashboard")
+            .style.display = "block";
+
+        },1000);
+
     }else{
+
         alert("Invalid OTP");
+
     }
+}
+
+/* VOTING DATA */
+
+let votes = {
+    A:40,
+    B:35,
+    C:25
+};
+
+function updateCharts(){
+
+    pieChart.data.datasets[0].data =
+    [votes.A,votes.B,votes.C];
+
+    pieChart.update();
+
+    barChart.data.datasets[0].data =
+    [120,90,60];
+
+    barChart.update();
+
+    document.getElementById("totalVotes")
+    .innerHTML =
+    votes.A + votes.B + votes.C;
+}
+
+function vote(option){
+
+    votes[option]++;
+
+    updateCharts();
+
+}
+
+/* PIE CHART */
+
+const pieCtx =
+document.getElementById('pieChart');
+
+const pieChart = new Chart(pieCtx,{
+
+    type:'pie',
+
+    data:{
+        labels:['A','B','C'],
+        datasets:[{
+            data:[40,35,25],
+            backgroundColor:[
+                '#36A2EB',
+                '#FF6384',
+                '#FF9F40'
+            ]
+        }]
+    }
+
+});
+
+/* BAR CHART */
+
+const barCtx =
+document.getElementById('barChart');
+
+const barChart = new Chart(barCtx,{
+
+    type:'bar',
+
+    data:{
+        labels:[
+            'Chennai',
+            'Madurai',
+            'Coimbatore'
+        ],
+
+        datasets:[{
+            label:'Votes',
+            data:[120,90,60],
+            backgroundColor:'#36A2EB'
+        }]
+    }
+
+});
+
+/* RESET */
+
+function resetData(){
+
+    votes = {
+        A:0,
+        B:0,
+        C:0
+    };
+
+    updateCharts();
+
+    alert("Data Reset Successful");
+
+}
+
+/* DOWNLOAD */
+
+function downloadReport(){
+
+    let report =
+`Global Vote Report
+
+Vote A : ${votes.A}
+Vote B : ${votes.B}
+Vote C : ${votes.C}
+
+Total Votes :
+${votes.A + votes.B + votes.C}`;
+
+    let blob =
+    new Blob([report],
+    {type:"text/plain"});
+
+    let a =
+    document.createElement("a");
+
+    a.href =
+    URL.createObjectURL(blob);
+
+    a.download =
+    "vote-report.txt";
+
+    a.click();
+
 }
 
 </script>
