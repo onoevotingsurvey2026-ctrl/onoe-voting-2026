@@ -1,198 +1,77 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Civic Voting Platform v2</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Login</title>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0b1220;
-  color:white;
-}
-
-/* LOGIN */
-.login{
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  background:#0b1220;
-}
-
-input{
-  padding:10px;
-  margin:5px;
-  width:250px;
-  border-radius:6px;
-  border:none;
-}
-
-/* HEADER */
-header{
-  background:#111c33;
-  padding:15px;
-  text-align:center;
-  font-weight:bold;
-}
-
-/* STATUS */
-.status{
-  display:flex;
-  justify-content:space-around;
-  padding:10px;
-  background:#0f1a30;
-}
-
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:15px;
-  padding:15px;
-}
-
-/* CARD */
-.card{
-  background:#18243f;
-  padding:15px;
-  border-radius:12px;
-}
-
-/* BUTTON */
-button{
-  padding:10px;
-  margin:5px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  background:#2563eb;
-  color:white;
-}
-
-/* ADMIN */
-.admin{
-  margin:15px;
-  padding:15px;
-  background:#111c33;
-}
-
-footer{
-  text-align:center;
-  padding:10px;
-  background:#111c33;
-}
-
-</style>
+  <style>
+    body { font-family: Arial; background:#f4f4f4; text-align:center; }
+    .box { margin-top:100px; padding:20px; background:white; width:300px; margin-left:auto; margin-right:auto; border-radius:10px; }
+    input { width:90%; padding:10px; margin:10px 0; }
+    button { padding:10px 20px; background:green; color:white; border:none; cursor:pointer; }
+  </style>
 </head>
 
 <body>
 
-<!-- 🔐 LOGIN SCREEN -->
-<div class="login" id="loginBox">
-  <h2>🔐 Entry Gate Login</h2>
+<div class="box">
+  <h2>Mobile OTP Login</h2>
 
-  <input placeholder="Country Code (+91)">
-  <input placeholder="Mobile Number">
-  <input placeholder="Enter OTP (UI Only)">
+  <input type="text" id="mobile" placeholder="+91XXXXXXXXXX">
+  <button onclick="sendOTP()">Send OTP</button>
 
-  <button onclick="enter()">SUBMIT</button>
-</div>
-
-<!-- 🏛️ DASHBOARD -->
-<div id="dashboard" style="display:none;">
-
-<header>🏛️ Civic Voting & Analytics Platform</header>
-
-<div class="status">
-  <div>🗳️ Votes Live</div>
-  <div>📍 District System</div>
-  <div>🔴 ACTIVE</div>
-</div>
-
-<!-- VOTER INFO -->
-<div class="card" style="margin:15px;">
-  <h3>👤 Voter Profile</h3>
-  <input placeholder="Name">
-  <input placeholder="District">
-  <input placeholder="State">
-  <input placeholder="Country">
-</div>
-
-<div class="grid">
-
-  <!-- VOTING -->
-  <div class="card">
-    <h3>🗳️ Voting Panel</h3>
-    <button>Support</button>
-    <button>Neutral</button>
-    <button>Oppose</button>
+  <div id="otpBox" style="display:none;">
+    <input type="text" id="otp" placeholder="Enter OTP">
+    <button onclick="verifyOTP()">Verify</button>
   </div>
 
-  <!-- PIE -->
-  <div class="card">
-    <h3>📊 Live Result</h3>
-    <canvas id="pie"></canvas>
-  </div>
-
-  <!-- GIS -->
-  <div class="card">
-    <h3>🗺️ GIS Map</h3>
-    <p>Satellite + District View Placeholder</p>
-  </div>
-
-  <!-- BAR -->
-  <div class="card">
-    <h3>📈 District Analytics</h3>
-    <canvas id="bar"></canvas>
-  </div>
-
-</div>
-
-<!-- ADMIN -->
-<div class="admin">
-  <h3>🔐 Admin Panel (Project Head Only)</h3>
-  <button style="background:red;">Reset Data</button>
-  <button>Download Report</button>
-</div>
-
-<footer>
-AI-powered Civic Data & Public Opinion Analytics Platform
-</footer>
-
+  <div id="recaptcha-container"></div>
 </div>
 
 <script>
+  // Firebase config (replace your config)
+  const firebaseConfig = {
+    apiKey: "YOUR_KEY",
+    authDomain: "YOUR_DOMAIN",
+    projectId: "YOUR_PROJECT",
+    appId: "YOUR_APP_ID"
+  };
 
-function enter(){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("dashboard").style.display="block";
-}
+  firebase.initializeApp(firebaseConfig);
 
-// PIE
-new Chart(document.getElementById("pie"),{
-  type:"pie",
-  data:{
-    labels:["Support","Neutral","Oppose"],
-    datasets:[{data:[50,30,20]}]
+  let confirmationResult;
+
+  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+    size: 'invisible'
+  });
+
+  function sendOTP() {
+    const phoneNumber = document.getElementById("mobile").value;
+
+    firebase.auth().signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
+      .then((result) => {
+        confirmationResult = result;
+        document.getElementById("otpBox").style.display = "block";
+        alert("OTP Sent!");
+      }).catch((error) => {
+        alert(error.message);
+      });
   }
-});
 
-// BAR
-new Chart(document.getElementById("bar"),{
-  type:"bar",
-  data:{
-    labels:["Chennai","Madurai","Coimbatore"],
-    datasets:[{data:[120,90,60]}]
+  function verifyOTP() {
+    const code = document.getElementById("otp").value;
+
+    confirmationResult.confirm(code)
+      .then((result) => {
+        alert("Login Success");
+
+        // 👉 redirect dashboard
+        window.location.href = "dashboard.html";
+      }).catch((error) => {
+        alert("Wrong OTP");
+      });
   }
-});
-
 </script>
 
 </body>
