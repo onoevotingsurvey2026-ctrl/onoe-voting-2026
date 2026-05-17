@@ -6,9 +6,6 @@
 
 <title>Global Indian Vote 2026</title>
 
-<!-- Chart.js (if already used in your project) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
 
 body{
@@ -18,24 +15,14 @@ body{
     background:#f4f4f4;
 }
 
-.section{
-    background:#ffffff;
-    margin:20px;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.1);
-}
-
-/* HEADER */
 .header{
     background:#0d47a1;
-    color:white;
+    color:#fff;
     text-align:center;
     padding:20px;
 }
 
-/* LOGIN BOX */
-.login-box{
+.section{
     background:#fff;
     margin:20px;
     padding:20px;
@@ -43,20 +30,55 @@ body{
     box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
-/* BUTTON */
+.title{
+    font-size:26px;
+    font-weight:bold;
+}
+
+.subtitle{
+    font-size:18px;
+    margin-top:10px;
+    line-height:1.6;
+}
+
+.news{
+    background:#fff8c4;
+    padding:10px;
+    font-weight:bold;
+    color:#d32f2f;
+}
+
+.login-box{
+    background:#e3f2fd;
+    padding:15px;
+    border-radius:10px;
+}
+
+input{
+    width:90%;
+    padding:10px;
+    margin:8px 0;
+}
+
 button{
-    padding:10px 20px;
+    padding:10px 15px;
     background:#0d47a1;
     color:white;
     border:none;
     border-radius:5px;
-    cursor:pointer;
 }
 
-input{
-    padding:10px;
-    width:90%;
-    margin:10px 0;
+.notice{
+    color:#d32f2f;
+    font-weight:bold;
+}
+
+.footer{
+    text-align:center;
+    padding:20px;
+    background:#263238;
+    color:white;
+    margin-top:20px;
 }
 
 </style>
@@ -66,77 +88,65 @@ input{
 
 <!-- HEADER -->
 <div class="header">
-    <h1>🗳 Global Indian Vote 2026</h1>
+    <div class="title">🏛 Global Indian Vote 2026</div>
+    <div class="subtitle">
+        ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு<br>
+        One Nation One Election & Delimitation
+    </div>
 </div>
 
-<!-- FRONT PAGE INFORMATION PANELS -->
+<!-- INTRO -->
 <div class="section">
-
-<h2>🏛 Global Indian Vote 2026</h2>
-
-<h3 style="margin-top:15px; line-height:1.8;">
-ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு<br>
-One Nation One Election & Delimitation
-</h3>
-
-<p style="margin-top:20px; line-height:2;">
-உலகளாவிய இந்திய குடியுரிமை பெற்ற மக்கள் தேர்தல் கருத்து கணிப்பு & பகுப்பாய்வு இணையதளம்
-</p>
-
-<p style="line-height:2;">
-Globally Living Indian Citizen Participation Platform
-</p>
-
+    <p>
+        உலகளாவிய இந்திய குடியுரிமை பெற்ற மக்கள் தேர்தல் கருத்து கணிப்பு & பகுப்பாய்வு இணையதளம்
+    </p>
+    <p>
+        Globally Living Indian Citizen Participation Platform
+    </p>
 </div>
 
-<!-- LIVE BREAKING NEWS -->
-<div class="section">
-
-<h2>🔴 LIVE BREAKING NEWS</h2>
-
-<marquee behavior="scroll" direction="left" scrollamount="6"
-style="margin-top:20px;font-size:18px;font-weight:bold;color:#ff9800;">
-
-“நாம் இந்தியர்கள் – ஒன்றுபட்ட இந்திய தேசம் நமது பெருமை”
-&nbsp;&nbsp; | &nbsp;&nbsp;
-“பாரத மண்ணின் எதிர்காலம் இந்திய மக்கள் குரலில் ஒலிக்கட்டும்”
-&nbsp;&nbsp; | &nbsp;&nbsp;
-“இந்திய ஜனநாயகத்தில் மக்கள் குரல் முக்கியத்துவம் வாய்ந்தது”
-&nbsp;&nbsp; | &nbsp;&nbsp;
+<!-- BREAKING NEWS -->
+<div class="section news">
+🔴 LIVE BREAKING NEWS :  
+“நாம் இந்தியர்கள் – ஒன்றுபட்ட இந்திய தேசம் நமது பெருமை” |
+“பாரத மண்ணின் எதிர்காலம் இந்திய மக்கள் குரலில் ஒலிக்கட்டும்” |
+“இந்திய ஜனநாயகத்தில் மக்கள் குரல் முக்கியத்துவம் வாய்ந்தது” |
 “உலகம் முழுவதும் உள்ள இந்திய குடியுரிமை பெற்ற குடிமக்கள் மட்டும் பங்கேற்கலாம்”
-
-</marquee>
-
 </div>
 
-<!-- PLATFORM REPRESENTATION -->
+<!-- PLATFORM -->
 <div class="section">
-
-<h2>📜 Platform Representation</h2>
-
-<p>இந்த தளம் பொதுமக்கள் கருத்து, ஜனநாயக பங்கேற்பு, சமூக விழிப்புணர்வு மற்றும் பகுப்பாய்வுக்காக உருவாக்கப்பட்டுள்ளது.</p>
-<p>This platform is created for public opinion, democratic participation, civic awareness and analytics.</p>
-
+<h3>📜 Platform Representation</h3>
+<p>
+இந்த தளம் பொதுமக்கள் கருத்து, ஜனநாயக பங்கேற்பு, சமூக விழிப்புணர்வு மற்றும் பகுப்பாய்வுக்காக உருவாக்கப்பட்டுள்ளது.
+</p>
+<p>
+This platform is created for public opinion, democratic participation, civic awareness and analytics.
+</p>
 </div>
 
-<!-- IMPORTANT NOTICE -->
+<!-- NOTICE -->
 <div class="section">
-
-<h2>⚠ Important Notice</h2>
+<h3>⚠ Important Notice</h3>
 
 <p>✅ One Gmail ID – One Mobile Number – One Vote Accepted</p>
-<p>❌ Same Gmail + Different Mobile = Not Allowed</p>
+<p class="notice">❌ Same Gmail + Different Mobile = Not Allowed</p>
 <p>✅ Different Gmail + Different Mobile = Allowed</p>
 
+<p class="notice">
+⚠ Login System Updated - Currently NOT ACTIVE (UI Only)
+</p>
 </div>
 
-<!-- LOGIN (PLACEHOLDER SAFE FOR FIREBASE INTEGRATION) -->
-<div class="login-box">
+<!-- LOGIN -->
+<div class="section login-box">
 
-<h2>📱 Login Panel (OTP System Placeholder)</h2>
+<h3>📱 Login Panel (UI Design Only)</h3>
 
-<input type="text" placeholder="Enter Gmail ID">
-<input type="text" placeholder="Enter Mobile Number +91">
+<input type="text" value="nraman2019@gmail.com" placeholder="Gmail ID">
+<input type="text" value="8939324309" placeholder="Mobile Number">
+
+<br>
 
 <button>Send OTP</button>
 
@@ -144,16 +154,21 @@ style="margin-top:20px;font-size:18px;font-weight:bold;color:#ff9800;">
 
 <input type="text" placeholder="Enter OTP">
 
+<br>
+
 <button>Verify & Login</button>
+
+<p class="notice">
+Login System Not Active - Dashboard Design Only
+</p>
 
 </div>
 
-<!-- HOW TO LOGIN -->
+<!-- STEPS -->
 <div class="section">
+<h3>📱 How To Login & Submit Vote</h3>
 
-<h2>📱 How To Login & Submit Vote</h2>
-
-<ol style="line-height:2.2;">
+<ol>
 <li>Gmail ID உள்ளிடவும்</li>
 <li>Mobile Number உள்ளிடவும்</li>
 <li>OTP அனுப்பவும்</li>
@@ -161,31 +176,30 @@ style="margin-top:20px;font-size:18px;font-weight:bold;color:#ff9800;">
 <li>Login ஆகவும்</li>
 <li>Vote பதிவு செய்யவும்</li>
 </ol>
-
 </div>
 
 <!-- DISCLAIMER -->
 <div class="section">
-
-<h2>📢 Disclaimer</h2>
-
+<h3>📢 Disclaimer</h3>
 <p>
 இந்த தளம் அதிகாரப்பூர்வ தேர்தல் அல்ல. இது மக்கள் கருத்து & பகுப்பாய்வு platform மட்டுமே.
 </p>
-
 </div>
 
 <!-- PROJECT HEAD -->
 <div class="section">
-
-<h2>👤 Project Research Head</h2>
+<h3>👤 Project Research Head</h3>
 
 <p>N RAMAN</p>
 <p>Thiruninravur, Tamil Nadu</p>
 <p>📱 +91 8939324309</p>
 <p>📧 onoe.voting.survey2026@gmail.com</p>
 <p>🌐 Global Indian Vote Project</p>
+</div>
 
+<!-- FOOTER -->
+<div class="footer">
+© 2026 Global Indian Vote | All Rights Reserved
 </div>
 
 </body>
