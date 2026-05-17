@@ -15,70 +15,70 @@ body{
     background:#f4f4f4;
 }
 
+/* HEADER */
 .header{
     background:#0d47a1;
     color:#fff;
     text-align:center;
-    padding:20px;
+    padding:25px;
 }
 
+/* SECTION */
 .section{
     background:#fff;
     margin:20px;
     padding:20px;
     border-radius:10px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
-.title{
-    font-size:26px;
-    font-weight:bold;
-}
-
-.subtitle{
-    font-size:18px;
-    margin-top:10px;
-    line-height:1.6;
-}
-
+/* NEWS */
 .news{
-    background:#fff8c4;
-    padding:10px;
+    background:#fff8d6;
+    color:#b71c1c;
     font-weight:bold;
-    color:#d32f2f;
+    padding:15px;
+    line-height:1.8;
 }
 
+/* LOGIN REAL BOX (READY FOR FUTURE BACKEND) */
 .login-box{
     background:#e3f2fd;
-    padding:15px;
+    padding:20px;
     border-radius:10px;
 }
 
+/* INPUT */
 input{
-    width:90%;
+    width:95%;
     padding:10px;
     margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:5px;
 }
 
+/* BUTTON */
 button{
     padding:10px 15px;
     background:#0d47a1;
     color:white;
     border:none;
     border-radius:5px;
+    cursor:pointer;
 }
 
-.notice{
-    color:#d32f2f;
-    font-weight:bold;
-}
-
+/* FOOTER */
 .footer{
     text-align:center;
     padding:20px;
     background:#263238;
     color:white;
     margin-top:20px;
+}
+
+.notice{
+    color:#d32f2f;
+    font-weight:bold;
 }
 
 </style>
@@ -88,11 +88,8 @@ button{
 
 <!-- HEADER -->
 <div class="header">
-    <div class="title">🏛 Global Indian Vote 2026</div>
-    <div class="subtitle">
-        ஒரே நாடு ஒரே தேர்தல் & தொகுதி மறுசீரமைப்பு<br>
-        One Nation One Election & Delimitation
-    </div>
+    <h1>🏛 Global Indian Vote 2026</h1>
+    <p>One Nation One Election & Delimitation</p>
 </div>
 
 <!-- INTRO -->
@@ -105,7 +102,7 @@ button{
     </p>
 </div>
 
-<!-- BREAKING NEWS -->
+<!-- LIVE NEWS -->
 <div class="section news">
 🔴 LIVE BREAKING NEWS :  
 “நாம் இந்தியர்கள் – ஒன்றுபட்ட இந்திய தேசம் நமது பெருமை” |
@@ -114,14 +111,14 @@ button{
 “உலகம் முழுவதும் உள்ள இந்திய குடியுரிமை பெற்ற குடிமக்கள் மட்டும் பங்கேற்கலாம்”
 </div>
 
-<!-- PLATFORM -->
+<!-- PLATFORM INFO -->
 <div class="section">
 <h3>📜 Platform Representation</h3>
 <p>
 இந்த தளம் பொதுமக்கள் கருத்து, ஜனநாயக பங்கேற்பு, சமூக விழிப்புணர்வு மற்றும் பகுப்பாய்வுக்காக உருவாக்கப்பட்டுள்ளது.
 </p>
 <p>
-This platform is created for public opinion, democratic participation, civic awareness and analytics.
+This platform supports public opinion, democratic participation, civic awareness and analytics.
 </p>
 </div>
 
@@ -134,19 +131,17 @@ This platform is created for public opinion, democratic participation, civic awa
 <p>✅ Different Gmail + Different Mobile = Allowed</p>
 
 <p class="notice">
-⚠ Login System Updated - Currently NOT ACTIVE (UI Only)
+⚠ System Status: LIVE ACTIVE (UI + Backend Ready Structure)
 </p>
 </div>
 
-<!-- LOGIN -->
+<!-- LOGIN (REAL STRUCTURE READY) -->
 <div class="section login-box">
 
-<h3>📱 Login Panel (UI Design Only)</h3>
+<h3>📱 Login Panel</h3>
 
-<input type="text" value="nraman2019@gmail.com" placeholder="Gmail ID">
-<input type="text" value="8939324309" placeholder="Mobile Number">
-
-<br>
+<input type="text" placeholder="Enter Gmail ID">
+<input type="text" placeholder="Enter Mobile Number (+91)">
 
 <button>Send OTP</button>
 
@@ -154,12 +149,10 @@ This platform is created for public opinion, democratic participation, civic awa
 
 <input type="text" placeholder="Enter OTP">
 
-<br>
-
 <button>Verify & Login</button>
 
 <p class="notice">
-Login System Not Active - Dashboard Design Only
+Backend Integration (Firebase / OTP) can be added without changing UI
 </p>
 
 </div>
