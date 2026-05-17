@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Government Civic Dashboard</title>
+<title>Civic Voting Platform v2</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,7 +13,25 @@ body{
   margin:0;
   font-family:Arial;
   background:#0b1220;
-  color:#fff;
+  color:white;
+}
+
+/* LOGIN */
+.login{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background:#0b1220;
+}
+
+input{
+  padding:10px;
+  margin:5px;
+  width:250px;
+  border-radius:6px;
+  border:none;
 }
 
 /* HEADER */
@@ -21,17 +39,15 @@ header{
   background:#111c33;
   padding:15px;
   text-align:center;
-  font-size:20px;
   font-weight:bold;
 }
 
-/* STATUS BAR */
+/* STATUS */
 .status{
   display:flex;
   justify-content:space-around;
   padding:10px;
   background:#0f1a30;
-  font-size:14px;
 }
 
 /* GRID */
@@ -47,7 +63,6 @@ header{
   background:#18243f;
   padding:15px;
   border-radius:12px;
-  box-shadow:0 0 10px rgba(0,0,0,0.3);
 }
 
 /* BUTTON */
@@ -61,19 +76,17 @@ button{
   color:white;
 }
 
-/* FOOTER */
-footer{
-  text-align:center;
+/* ADMIN */
+.admin{
+  margin:15px;
   padding:15px;
   background:#111c33;
-  font-size:12px;
-  margin-top:20px;
 }
 
-@media(max-width:768px){
-  .grid{
-    grid-template-columns:1fr;
-  }
+footer{
+  text-align:center;
+  padding:10px;
+  background:#111c33;
 }
 
 </style>
@@ -81,14 +94,35 @@ footer{
 
 <body>
 
-<header>
-🏛️ Government Civic Voting & Analytics Platform
-</header>
+<!-- 🔐 LOGIN SCREEN -->
+<div class="login" id="loginBox">
+  <h2>🔐 Entry Gate Login</h2>
+
+  <input placeholder="Country Code (+91)">
+  <input placeholder="Mobile Number">
+  <input placeholder="Enter OTP (UI Only)">
+
+  <button onclick="enter()">SUBMIT</button>
+</div>
+
+<!-- 🏛️ DASHBOARD -->
+<div id="dashboard" style="display:none;">
+
+<header>🏛️ Civic Voting & Analytics Platform</header>
 
 <div class="status">
-  <div>🗳️ Total Votes: 120</div>
-  <div>📍 Districts: 12</div>
-  <div>🔴 LIVE</div>
+  <div>🗳️ Votes Live</div>
+  <div>📍 District System</div>
+  <div>🔴 ACTIVE</div>
+</div>
+
+<!-- VOTER INFO -->
+<div class="card" style="margin:15px;">
+  <h3>👤 Voter Profile</h3>
+  <input placeholder="Name">
+  <input placeholder="District">
+  <input placeholder="State">
+  <input placeholder="Country">
 </div>
 
 <div class="grid">
@@ -96,14 +130,14 @@ footer{
   <!-- VOTING -->
   <div class="card">
     <h3>🗳️ Voting Panel</h3>
-    <button>Vote A</button>
-    <button>Vote B</button>
-    <button>Vote C</button>
+    <button>Support</button>
+    <button>Neutral</button>
+    <button>Oppose</button>
   </div>
 
-  <!-- RESULTS -->
+  <!-- PIE -->
   <div class="card">
-    <h3>📊 Live Results</h3>
+    <h3>📊 Live Result</h3>
     <canvas id="pie"></canvas>
   </div>
 
@@ -113,17 +147,17 @@ footer{
     <p>Satellite + District View Placeholder</p>
   </div>
 
-  <!-- ANALYTICS -->
+  <!-- BAR -->
   <div class="card">
-    <h3>📈 Analytics</h3>
+    <h3>📈 District Analytics</h3>
     <canvas id="bar"></canvas>
   </div>
 
 </div>
 
 <!-- ADMIN -->
-<div class="card" style="margin:15px;">
-  <h3>🔐 Admin Panel</h3>
+<div class="admin">
+  <h3>🔐 Admin Panel (Project Head Only)</h3>
   <button style="background:red;">Reset Data</button>
   <button>Download Report</button>
 </div>
@@ -132,27 +166,30 @@ footer{
 AI-powered Civic Data & Public Opinion Analytics Platform
 </footer>
 
+</div>
+
 <script>
 
-// PIE CHART
+function enter(){
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("dashboard").style.display="block";
+}
+
+// PIE
 new Chart(document.getElementById("pie"),{
   type:"pie",
   data:{
-    labels:["A","B","C"],
-    datasets:[{
-      data:[40,35,25]
-    }]
+    labels:["Support","Neutral","Oppose"],
+    datasets:[{data:[50,30,20]}]
   }
 });
 
-// BAR CHART
+// BAR
 new Chart(document.getElementById("bar"),{
   type:"bar",
   data:{
     labels:["Chennai","Madurai","Coimbatore"],
-    datasets:[{
-      data:[120,90,60]
-    }]
+    datasets:[{data:[120,90,60]}]
   }
 });
 
