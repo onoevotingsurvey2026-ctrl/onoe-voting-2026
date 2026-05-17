@@ -81,6 +81,10 @@ button:hover{
     background:#1c54d1;
 }
 
+button:disabled{
+    cursor:not-allowed;
+}
+
 #successMessage{
     margin-top:18px;
     text-align:center;
@@ -332,17 +336,20 @@ canvas{
 
         <div class="vote-buttons">
 
-            <button class="support-btn"
+            <button id="supportBtn"
+            class="support-btn"
             onclick="vote('support')">
             ✅ Support
             </button>
 
-            <button class="neutral-btn"
+            <button id="neutralBtn"
+            class="neutral-btn"
             onclick="vote('neutral')">
             ⚪ Neutral
             </button>
 
-            <button class="oppose-btn"
+            <button id="opposeBtn"
+            class="oppose-btn"
             onclick="vote('oppose')">
             ❌ Oppose
             </button>
@@ -385,7 +392,7 @@ canvas{
 
     <!-- ADMIN PANEL -->
 
-    <div class="section">
+    <div class="section" id="adminPanel">
 
         <h2>🔐 Admin Panel</h2>
 
@@ -487,49 +494,117 @@ let votes = {
     oppose:25
 };
 
+let alreadyVoted = false;
+
 function vote(type){
+
+    if(alreadyVoted){
+
+        alert(
+        "You have already submitted your final vote"
+        );
+
+        return;
+
+    }
 
     const voter =
     document.getElementById("voterName").value;
 
-    if(voter === ""){
+    if(voter.trim() === ""){
 
         alert("Enter voter name");
         return;
 
     }
 
+    alreadyVoted = true;
+
     votes[type]++;
 
     updateCharts();
 
-    alert("Vote Submitted Successfully");
+    document.getElementById("supportBtn")
+    .disabled = true;
+
+    document.getElementById("neutralBtn")
+    .disabled = true;
+
+    document.getElementById("opposeBtn")
+    .disabled = true;
+
+    document.getElementById("supportBtn")
+    .style.opacity = "0.5";
+
+    document.getElementById("neutralBtn")
+    .style.opacity = "0.5";
+
+    document.getElementById("opposeBtn")
+    .style.opacity = "0.5";
+
+    alert(
+`Vote Submitted Successfully
+
+Your final vote has been locked.
+
+You have been securely logged out.
+
+Thank you for participating.`
+    );
+
+    setTimeout(()=>{
+
+        logoutUser();
+
+    },2000);
 
 }
 
-function updateCharts(){
+function logoutUser(){
 
-    pieChart.data.datasets[0].data = [
-        votes.support,
-        votes.neutral,
-        votes.oppose
-    ];
+    document.getElementById("mobileNumber")
+    .value = "";
 
-    pieChart.update();
+    document.getElementById("captchaInput")
+    .value = "";
 
-    barChart.data.datasets[0].data = [
-        votes.support,
-        votes.neutral,
-        votes.oppose
-    ];
+    document.getElementById("otpInput")
+    .value = "";
 
-    barChart.update();
+    document.getElementById("voterName")
+    .value = "";
 
-    document.getElementById("totalVotes")
-    .innerHTML =
-    votes.support +
-    votes.neutral +
-    votes.oppose;
+    document.getElementById("otpSection")
+    .style.display = "none";
+
+    document.getElementById("successMessage")
+    .innerHTML = "";
+
+    document.getElementById("dashboard")
+    .style.display = "none";
+
+    document.getElementById("loginPage")
+    .style.display = "flex";
+
+    alreadyVoted = false;
+
+    document.getElementById("supportBtn")
+    .disabled = false;
+
+    document.getElementById("neutralBtn")
+    .disabled = false;
+
+    document.getElementById("opposeBtn")
+    .disabled = false;
+
+    document.getElementById("supportBtn")
+    .style.opacity = "1";
+
+    document.getElementById("neutralBtn")
+    .style.opacity = "1";
+
+    document.getElementById("opposeBtn")
+    .style.opacity = "1";
 
 }
 
@@ -597,9 +672,53 @@ const barChart = new Chart(barCtx,{
 
 });
 
+function updateCharts(){
+
+    pieChart.data.datasets[0].data = [
+        votes.support,
+        votes.neutral,
+        votes.oppose
+    ];
+
+    pieChart.update();
+
+    barChart.data.datasets[0].data = [
+        votes.support,
+        votes.neutral,
+        votes.oppose
+    ];
+
+    barChart.update();
+
+    document.getElementById("totalVotes")
+    .innerHTML =
+    votes.support +
+    votes.neutral +
+    votes.oppose;
+
+}
+
+/* ADMIN PROTECTION */
+
+const isAdmin = false;
+
+if(!isAdmin){
+
+    document.getElementById("adminPanel")
+    .style.display = "none";
+
+}
+
 /* RESET */
 
 function resetData(){
+
+    if(!isAdmin){
+
+        alert("Access Denied");
+        return;
+
+    }
 
     votes = {
         support:0,
@@ -616,6 +735,13 @@ function resetData(){
 /* DOWNLOAD */
 
 function downloadReport(){
+
+    if(!isAdmin){
+
+        alert("Access Denied");
+        return;
+
+    }
 
     let report = `
 Government Civic Voting Report
