@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Government Civic Voting & Analytics Platform</title>
+<title>Global Indian Vote 2026 | Civic Voting & Analytics Platform</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -39,6 +39,7 @@ margin-bottom:30px;
 background:#132046;
 padding:25px;
 border-radius:20px;
+box-shadow:0 0 15px rgba(0,0,0,0.4);
 }
 
 .panel h2{
@@ -46,13 +47,15 @@ margin-bottom:20px;
 text-align:center;
 }
 
-input,select{
+input,
+select{
 width:100%;
 padding:14px;
 margin-top:12px;
 border:none;
 border-radius:10px;
 font-size:15px;
+outline:none;
 }
 
 button{
@@ -64,6 +67,10 @@ border-radius:10px;
 font-size:16px;
 cursor:pointer;
 color:white;
+}
+
+button:hover{
+opacity:0.9;
 }
 
 .voter-btn{
@@ -153,7 +160,8 @@ border-collapse:collapse;
 margin-top:20px;
 }
 
-table th,table td{
+table th,
+table td{
 border:1px solid #555;
 padding:10px;
 text-align:center;
@@ -163,6 +171,7 @@ text-align:center;
 text-align:center;
 margin-top:30px;
 color:#bbb;
+padding-bottom:30px;
 }
 
 #dashboard{
@@ -173,20 +182,29 @@ display:none;
 display:none;
 }
 
+@media(max-width:768px){
+
+.main-title{
+font-size:24px;
+}
+
+}
+
 </style>
 </head>
 
 <body>
 
 <h1 class="main-title">
-🏛 Government Civic Voting & Analytics Platform
+🏛 Global Indian Vote 2026<br>
+Civic Voting & Analytics Platform
 </h1>
 
-<!-- LOGIN PANELS -->
+<!-- LOGIN SECTION -->
 
 <div class="login-wrapper">
 
-<!-- PUBLIC VOTER LOGIN -->
+<!-- PUBLIC LOGIN -->
 
 <div class="panel">
 
@@ -238,7 +256,7 @@ Verify OTP
 
 <input type="text"
 id="adminMobile"
-placeholder="Enter Admin Mobile">
+placeholder="Enter Admin Mobile Number">
 
 <input type="password"
 id="adminPassword"
@@ -271,8 +289,8 @@ Admin Login
 </div>
 
 <div class="status-box">
-📍 Districts
-<h2>38</h2>
+🌍 Regions
+<h2>Global</h2>
 </div>
 
 <div class="status-box">
@@ -284,7 +302,7 @@ Admin Login
 
 </div>
 
-<!-- VOTER PANEL -->
+<!-- VOTING PANEL -->
 
 <div class="section">
 
@@ -295,29 +313,100 @@ id="voterName"
 placeholder="Enter Voter Name">
 
 <select id="country">
+
 <option>India</option>
 <option>USA</option>
-<option>UK</option>
+<option>United Kingdom</option>
 <option>UAE</option>
 <option>Japan</option>
+
 </select>
 
-<select id="state">
-<option>Tamil Nadu</option>
-<option>Kerala</option>
-<option>Karnataka</option>
-<option>Delhi</option>
-<option>Puducherry</option>
+<!-- UPDATED REGION SYSTEM -->
+
+<select id="region">
+
+<!-- INDIA -->
+
+<optgroup label="🇮🇳 India">
+
+<option>North Tamil Nadu</option>
+<option>West & Central Tamil Nadu</option>
+<option>South Tamil Nadu</option>
+
+<option>North Karnataka</option>
+<option>South Karnataka</option>
+
+<option>North Kerala</option>
+<option>South Kerala</option>
+
+<option>North Andhra Pradesh</option>
+<option>South Andhra Pradesh</option>
+
+<option>East Maharashtra</option>
+<option>West Maharashtra</option>
+
+<option>North India Region</option>
+<option>South India Region</option>
+<option>East India Region</option>
+<option>West India Region</option>
+
+</optgroup>
+
+<!-- USA -->
+
+<optgroup label="🇺🇸 USA">
+
+<option>East USA</option>
+<option>West USA</option>
+<option>Central USA</option>
+
+</optgroup>
+
+<!-- UK -->
+
+<optgroup label="🇬🇧 United Kingdom">
+
+<option>London Region</option>
+<option>North UK</option>
+<option>South UK</option>
+
+</optgroup>
+
+<!-- UAE -->
+
+<optgroup label="🇦🇪 UAE">
+
+<option>Dubai Region</option>
+<option>Abu Dhabi Region</option>
+<option>Sharjah Region</option>
+
+</optgroup>
+
+<!-- JAPAN -->
+
+<optgroup label="🇯🇵 Japan">
+
+<option>Tokyo Region</option>
+<option>Osaka Region</option>
+<option>North Japan Region</option>
+
+</optgroup>
+
+<!-- GLOBAL -->
+
+<optgroup label="🌍 Global">
+
+<option>Europe Region</option>
+<option>Middle East Region</option>
+<option>Asia Pacific Region</option>
+<option>Africa Region</option>
+
+</optgroup>
+
 </select>
 
-<select id="district">
-<option>Chennai</option>
-<option>Madurai</option>
-<option>Coimbatore</option>
-<option>Trichy</option>
-<option>Puducherry</option>
-<option>Karaikal</option>
-</select>
+<!-- VOTE BUTTONS -->
 
 <div class="vote-buttons">
 
@@ -343,7 +432,7 @@ onclick="vote('Oppose')">
 
 </div>
 
-<!-- ADMIN CONTROLS -->
+<!-- ADMIN PANEL -->
 
 <div class="section"
 id="adminControls">
@@ -382,7 +471,7 @@ Logout
 <th>Gmail</th>
 <th>Mobile</th>
 <th>Vote</th>
-<th>District</th>
+<th>Region</th>
 </tr>
 
 </table>
@@ -403,10 +492,10 @@ Logout
 
 <div class="section">
 
-<h2>🗺 GIS Map</h2>
+<h2>🗺 GIS Region Map</h2>
 
 <div class="map-box">
-Satellite + District View Placeholder
+Global Region Analytics Placeholder
 </div>
 
 </div>
@@ -429,11 +518,13 @@ AI-powered Civic Data & Public Opinion Analytics Platform
 
 <script>
 
-/* OTP */
+/* VARIABLES */
 
 let generatedOTP = "";
 let votedUsers = [];
 let adminMode = false;
+
+/* OTP SEND */
 
 function sendOTP(){
 
@@ -466,6 +557,8 @@ document.getElementById("otpSection")
 
 }
 
+/* OTP VERIFY */
+
 function verifyOTP(){
 
 const otp =
@@ -497,8 +590,8 @@ const password =
 document.getElementById("adminPassword").value;
 
 if(
-mobile === "9999999999" &&
-password === "admin123"
+mobile === "9384695599" &&
+password === "globalindianvote2026"
 ){
 
 adminMode = true;
@@ -511,17 +604,17 @@ document.getElementById("adminControls")
 
 window.scrollTo(0,500);
 
-alert("Admin Login Success");
+alert("✅ Admin Login Success");
 
 }else{
 
-alert("Invalid Admin Credentials");
+alert("❌ Invalid Admin Credentials");
 
 }
 
 }
 
-/* VOTES */
+/* VOTING */
 
 let votes = {
 support:40,
@@ -540,8 +633,8 @@ document.getElementById("mobile").value;
 const voter =
 document.getElementById("voterName").value;
 
-const district =
-document.getElementById("district").value;
+const region =
+document.getElementById("region").value;
 
 if(voter.trim() === ""){
 
@@ -549,6 +642,8 @@ alert("Enter voter name");
 return;
 
 }
+
+/* DUPLICATE CHECK */
 
 for(let i=0;i<votedUsers.length;i++){
 
@@ -558,7 +653,7 @@ votedUsers[i].mobile === mobile
 ){
 
 alert(
-"Your vote has already been submitted successfully.\n\nMultiple voting is not allowed."
+"⚠ Your vote has already been submitted successfully.\n\nMultiple voting is not allowed.\n\nThank you for participating."
 );
 
 logoutPublic();
@@ -569,10 +664,14 @@ return;
 
 }
 
+/* SAVE USER */
+
 votedUsers.push({
 gmail:gmail,
 mobile:mobile
 });
+
+/* COUNT VOTE */
 
 if(type === "Support"){
 votes.support++;
@@ -586,7 +685,11 @@ if(type === "Oppose"){
 votes.oppose++;
 }
 
+/* UPDATE CHARTS */
+
 updateCharts();
+
+/* ADD RECORD */
 
 const table =
 document.getElementById("recordsTable");
@@ -598,7 +701,9 @@ row.insertCell(0).innerHTML = voter;
 row.insertCell(1).innerHTML = gmail;
 row.insertCell(2).innerHTML = mobile;
 row.insertCell(3).innerHTML = type;
-row.insertCell(4).innerHTML = district;
+row.insertCell(4).innerHTML = region;
+
+/* LOCK BUTTONS */
 
 document.getElementById("supportBtn")
 .disabled = true;
@@ -609,9 +714,13 @@ document.getElementById("neutralBtn")
 document.getElementById("opposeBtn")
 .disabled = true;
 
+/* SUCCESS */
+
 alert(
 "✅ Vote Submitted Successfully\n\nYour final vote has been locked.\n\nYou have been securely logged out.\n\nThank you for participating."
 );
+
+/* AUTO LOGOUT */
 
 setTimeout(()=>{
 
@@ -669,7 +778,7 @@ window.scrollTo(0,0);
 
 }
 
-/* CHARTS */
+/* PIE CHART */
 
 const pieChart = new Chart(
 document.getElementById("pieChart"),
@@ -694,6 +803,8 @@ backgroundColor:[
 }]
 }
 });
+
+/* BAR CHART */
 
 const barChart = new Chart(
 document.getElementById("barChart"),
@@ -720,6 +831,8 @@ backgroundColor:[
 }]
 }
 });
+
+/* UPDATE CHARTS */
 
 function updateCharts(){
 
@@ -776,15 +889,15 @@ document.getElementById("recordsTable")
 <th>Gmail</th>
 <th>Mobile</th>
 <th>Vote</th>
-<th>District</th>
+<th>Region</th>
 </tr>
 `;
 
-alert("All Data Reset Successfully");
+alert("✅ All Data Reset Successfully");
 
 }
 
-/* DOWNLOAD */
+/* DOWNLOAD REPORT */
 
 function downloadReport(){
 
@@ -796,7 +909,7 @@ return;
 }
 
 let report = `
-Government Civic Voting Report
+Global Indian Vote 2026 Report
 
 Support Votes : ${votes.support}
 Neutral Votes : ${votes.neutral}
@@ -817,7 +930,7 @@ a.href =
 URL.createObjectURL(blob);
 
 a.download =
-"vote-report.txt";
+"global-indian-vote-report.txt";
 
 a.click();
 
