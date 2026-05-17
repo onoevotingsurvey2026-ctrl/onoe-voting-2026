@@ -71,18 +71,13 @@ button{
     margin-top:18px;
     border:none;
     border-radius:10px;
-    background:#2f6df6;
     color:white;
     font-size:16px;
     cursor:pointer;
 }
 
 button:hover{
-    background:#1c54d1;
-}
-
-button:disabled{
-    cursor:not-allowed;
+    opacity:0.9;
 }
 
 #successMessage{
@@ -215,6 +210,10 @@ canvas{
             🇮🇳 India (+91)
         </div>
 
+        <input type="email"
+        id="gmail"
+        placeholder="Enter Gmail ID">
+
         <input type="tel"
         id="mobileNumber"
         placeholder="Enter Mobile Number"
@@ -228,7 +227,8 @@ canvas{
         id="captchaInput"
         placeholder="Enter 11">
 
-        <button onclick="sendOTP()">
+        <button style="background:#2f6df6;"
+        onclick="sendOTP()">
         Send OTP
         </button>
 
@@ -238,7 +238,8 @@ canvas{
             id="otpInput"
             placeholder="Enter OTP">
 
-            <button onclick="verifyOTP()">
+            <button style="background:#2f6df6;"
+            onclick="verifyOTP()">
             Verify OTP
             </button>
 
@@ -296,43 +297,35 @@ canvas{
         <!-- COUNTRY -->
 
         <select id="country">
-
             <option>India</option>
             <option>USA</option>
             <option>UK</option>
             <option>UAE</option>
             <option>Japan</option>
-
         </select>
 
         <!-- STATE / UT -->
 
         <select id="state">
-
             <option>Tamil Nadu</option>
             <option>Kerala</option>
             <option>Karnataka</option>
             <option>Delhi</option>
             <option>Puducherry</option>
-
         </select>
 
         <!-- DISTRICT -->
 
         <select id="district">
-
             <option>Chennai</option>
-            <option>Coimbatore</option>
             <option>Madurai</option>
+            <option>Coimbatore</option>
             <option>Trichy</option>
-            <option>Salem</option>
-            <option>Tirunelveli</option>
             <option>Puducherry</option>
             <option>Karaikal</option>
-
         </select>
 
-        <!-- BUTTONS -->
+        <!-- VOTE BUTTONS -->
 
         <div class="vote-buttons">
 
@@ -353,6 +346,29 @@ canvas{
             onclick="vote('oppose')">
             ❌ Oppose
             </button>
+
+        </div>
+
+        <!-- ADMIN PANEL -->
+
+        <div class="section"
+        id="adminPanel">
+
+            <h2>🔐 Admin Panel</h2>
+
+            <div class="admin-buttons">
+
+                <button class="reset-btn"
+                onclick="resetData()">
+                Reset Data
+                </button>
+
+                <button class="download-btn"
+                onclick="downloadReport()">
+                Download Report
+                </button>
+
+            </div>
 
         </div>
 
@@ -390,28 +406,6 @@ canvas{
 
     </div>
 
-    <!-- ADMIN PANEL -->
-
-    <div class="section" id="adminPanel">
-
-        <h2>🔐 Admin Panel</h2>
-
-        <div class="admin-buttons">
-
-            <button class="reset-btn"
-            onclick="resetData()">
-            Reset Data
-            </button>
-
-            <button class="download-btn"
-            onclick="downloadReport()">
-            Download Report
-            </button>
-
-        </div>
-
-    </div>
-
     <!-- FOOTER -->
 
     <div class="footer">
@@ -425,6 +419,7 @@ canvas{
 /* LOGIN */
 
 let generatedOTP = "";
+let votedUsers = [];
 
 function sendOTP(){
 
@@ -501,12 +496,18 @@ function vote(type){
     if(alreadyVoted){
 
         alert(
-        "You have already submitted your final vote"
+        "Your vote has already been submitted successfully.\n\nMultiple voting is not allowed.\n\nThank you for participating."
         );
 
         return;
 
     }
+
+    const gmail =
+    document.getElementById("gmail").value;
+
+    const mobile =
+    document.getElementById("mobileNumber").value;
 
     const voter =
     document.getElementById("voterName").value;
@@ -517,6 +518,32 @@ function vote(type){
         return;
 
     }
+
+    /* DUPLICATE CHECK */
+
+    for(let i=0;i<votedUsers.length;i++){
+
+        if(
+            votedUsers[i].gmail === gmail ||
+            votedUsers[i].mobile === mobile
+        ){
+
+            alert(
+            "Your vote has already been submitted successfully.\n\nYour second vote has been blocked.\n\nThank you for participating."
+            );
+
+            logoutUser();
+
+            return;
+
+        }
+
+    }
+
+    votedUsers.push({
+        gmail:gmail,
+        mobile:mobile
+    });
 
     alreadyVoted = true;
 
@@ -561,6 +588,8 @@ Thank you for participating.`
 }
 
 function logoutUser(){
+
+    document.getElementById("gmail").value = "";
 
     document.getElementById("mobileNumber")
     .value = "";
@@ -698,16 +727,9 @@ function updateCharts(){
 
 }
 
-/* ADMIN PROTECTION */
+/* ADMIN */
 
-const isAdmin = false;
-
-if(!isAdmin){
-
-    document.getElementById("adminPanel")
-    .style.display = "none";
-
-}
+const isAdmin = true;
 
 /* RESET */
 
@@ -725,6 +747,8 @@ function resetData(){
         neutral:0,
         oppose:0
     };
+
+    votedUsers = [];
 
     updateCharts();
 
