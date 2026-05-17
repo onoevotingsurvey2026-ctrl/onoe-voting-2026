@@ -11,186 +11,166 @@
 <style>
 
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
 body{
-    font-family:Arial,sans-serif;
-    background:#081229;
-    color:white;
+font-family:Arial,sans-serif;
+background:#081229;
+color:white;
+padding:20px;
 }
 
-/* LOGIN */
-
-#loginPage{
-    width:100%;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
+.main-title{
+text-align:center;
+margin-bottom:30px;
 }
 
-.login-box{
-    width:100%;
-    max-width:420px;
-    background:#132046;
-    padding:30px;
-    border-radius:20px;
-    box-shadow:0 0 20px rgba(0,0,0,0.4);
+.login-wrapper{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+gap:20px;
+margin-bottom:30px;
 }
 
-.login-box h2{
-    text-align:center;
-    margin-bottom:25px;
+.panel{
+background:#132046;
+padding:25px;
+border-radius:20px;
 }
 
-.country-code{
-    background:#1f2f63;
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:20px;
-    text-align:center;
+.panel h2{
+margin-bottom:20px;
+text-align:center;
 }
 
-input, select{
-    width:100%;
-    padding:14px;
-    margin-top:14px;
-    border:none;
-    border-radius:10px;
-    font-size:16px;
-    outline:none;
+input,select{
+width:100%;
+padding:14px;
+margin-top:12px;
+border:none;
+border-radius:10px;
+font-size:15px;
 }
 
 button{
-    width:100%;
-    padding:14px;
-    margin-top:18px;
-    border:none;
-    border-radius:10px;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
+width:100%;
+padding:14px;
+margin-top:15px;
+border:none;
+border-radius:10px;
+font-size:16px;
+cursor:pointer;
+color:white;
 }
 
-button:hover{
-    opacity:0.9;
+.voter-btn{
+background:#2f6df6;
 }
 
-#successMessage{
-    margin-top:18px;
-    text-align:center;
-    color:#00ff95;
-    font-weight:bold;
-}
-
-/* DASHBOARD */
-
-#dashboard{
-    display:none;
-    padding:20px;
-}
-
-.header{
-    background:#10204a;
-    padding:25px;
-    border-radius:20px;
-    text-align:center;
-    margin-bottom:20px;
-}
-
-.header h1{
-    font-size:32px;
-}
-
-.status-panel{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-    margin-top:25px;
-}
-
-.status-box{
-    background:#18295a;
-    padding:20px;
-    border-radius:15px;
-    text-align:center;
-}
-
-.section{
-    background:#132046;
-    margin-top:25px;
-    padding:25px;
-    border-radius:20px;
-}
-
-.section h2{
-    margin-bottom:20px;
-}
-
-.vote-buttons{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:15px;
-    margin-top:20px;
+.admin-btn{
+background:#8e44ad;
 }
 
 .support-btn{
-    background:#00a651;
+background:#00a651;
 }
 
 .neutral-btn{
-    background:#777;
+background:#777;
 }
 
 .oppose-btn{
-    background:#d62828;
-}
-
-canvas{
-    background:white;
-    border-radius:15px;
-    padding:10px;
-}
-
-.map-box{
-    background:#1f2f63;
-    padding:50px;
-    border-radius:15px;
-    text-align:center;
-    font-size:20px;
-}
-
-.admin-buttons{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
+background:#d62828;
 }
 
 .reset-btn{
-    background:red;
+background:red;
 }
 
 .download-btn{
-    background:#2f6df6;
+background:#2f6df6;
+}
+
+.logout-btn{
+background:#444;
+}
+
+.section{
+background:#132046;
+padding:25px;
+border-radius:20px;
+margin-top:25px;
+}
+
+.status-panel{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-top:20px;
+}
+
+.status-box{
+background:#1f2f63;
+padding:20px;
+border-radius:15px;
+text-align:center;
+}
+
+.vote-buttons{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+margin-top:20px;
+}
+
+.admin-buttons{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+margin-top:20px;
+}
+
+canvas{
+background:white;
+border-radius:15px;
+padding:10px;
+}
+
+.map-box{
+background:#1f2f63;
+padding:50px;
+border-radius:15px;
+text-align:center;
+font-size:20px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+table th,table td{
+border:1px solid #555;
+padding:10px;
+text-align:center;
 }
 
 .footer{
-    margin-top:30px;
-    text-align:center;
-    color:#bbb;
-    padding:20px;
+text-align:center;
+margin-top:30px;
+color:#bbb;
 }
 
-@media(max-width:768px){
-
-.header h1{
-    font-size:26px;
+#dashboard{
+display:none;
 }
 
+#adminControls{
+display:none;
 }
 
 </style>
@@ -198,56 +178,78 @@ canvas{
 
 <body>
 
-<!-- LOGIN PAGE -->
+<h1 class="main-title">
+🏛 Government Civic Voting & Analytics Platform
+</h1>
 
-<div id="loginPage">
+<!-- LOGIN PANELS -->
 
-    <div class="login-box">
+<div class="login-wrapper">
 
-        <h2>📱 Mobile OTP Login</h2>
+<!-- PUBLIC VOTER LOGIN -->
 
-        <div class="country-code">
-            🇮🇳 India (+91)
-        </div>
+<div class="panel">
 
-        <input type="email"
-        id="gmail"
-        placeholder="Enter Gmail ID">
+<h2>👤 Public Voter Login</h2>
 
-        <input type="tel"
-        id="mobileNumber"
-        placeholder="Enter Mobile Number"
-        maxlength="10">
+<input type="email"
+id="gmail"
+placeholder="Enter Gmail ID">
 
-        <label style="margin-top:15px;display:block;">
-        CAPTCHA : 7 + 4 = ?
-        </label>
+<input type="tel"
+id="mobile"
+placeholder="Enter Mobile Number"
+maxlength="10">
 
-        <input type="number"
-        id="captchaInput"
-        placeholder="Enter 11">
+<label style="margin-top:15px;display:block;">
+CAPTCHA : 7 + 4 = ?
+</label>
 
-        <button style="background:#2f6df6;"
-        onclick="sendOTP()">
-        Send OTP
-        </button>
+<input type="number"
+id="captcha"
+placeholder="Enter 11">
 
-        <div id="otpSection" style="display:none;">
+<button class="voter-btn"
+onclick="sendOTP()">
+Send OTP
+</button>
 
-            <input type="number"
-            id="otpInput"
-            placeholder="Enter OTP">
+<div id="otpSection"
+style="display:none;">
 
-            <button style="background:#2f6df6;"
-            onclick="verifyOTP()">
-            Verify OTP
-            </button>
+<input type="number"
+id="otp"
+placeholder="Enter OTP">
 
-        </div>
+<button class="voter-btn"
+onclick="verifyOTP()">
+Verify OTP
+</button>
 
-        <div id="successMessage"></div>
+</div>
 
-    </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+
+<div class="panel">
+
+<h2>🔐 Main Admin Login</h2>
+
+<input type="text"
+id="adminMobile"
+placeholder="Enter Admin Mobile">
+
+<input type="password"
+id="adminPassword"
+placeholder="Enter Admin Password">
+
+<button class="admin-btn"
+onclick="adminLogin()">
+Admin Login
+</button>
+
+</div>
 
 </div>
 
@@ -255,504 +257,530 @@ canvas{
 
 <div id="dashboard">
 
-    <!-- HEADER -->
+<!-- STATUS -->
 
-    <div class="header">
+<div class="section">
 
-        <h1>
-        🏛 Government Civic Voting & Analytics Platform
-        </h1>
+<h2>📊 Live Dashboard</h2>
 
-        <div class="status-panel">
+<div class="status-panel">
 
-            <div class="status-box">
-                🗳 Total Votes
-                <h2 id="totalVotes">120</h2>
-            </div>
+<div class="status-box">
+🗳 Total Votes
+<h2 id="totalVotes">120</h2>
+</div>
 
-            <div class="status-box">
-                📍 Districts
-                <h2>38</h2>
-            </div>
+<div class="status-box">
+📍 Districts
+<h2>38</h2>
+</div>
 
-            <div class="status-box">
-                🔴 LIVE
-                <h2>Active</h2>
-            </div>
+<div class="status-box">
+🔴 LIVE
+<h2>Active</h2>
+</div>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
-    <!-- VOTING PANEL -->
+<!-- VOTER PANEL -->
 
-    <div class="section">
+<div class="section">
 
-        <h2>🗳 Voting Panel</h2>
+<h2>🗳 Voting Panel</h2>
 
-        <input type="text"
-        id="voterName"
-        placeholder="Enter Voter Name">
+<input type="text"
+id="voterName"
+placeholder="Enter Voter Name">
 
-        <!-- COUNTRY -->
+<select id="country">
+<option>India</option>
+<option>USA</option>
+<option>UK</option>
+<option>UAE</option>
+<option>Japan</option>
+</select>
 
-        <select id="country">
-            <option>India</option>
-            <option>USA</option>
-            <option>UK</option>
-            <option>UAE</option>
-            <option>Japan</option>
-        </select>
+<select id="state">
+<option>Tamil Nadu</option>
+<option>Kerala</option>
+<option>Karnataka</option>
+<option>Delhi</option>
+<option>Puducherry</option>
+</select>
 
-        <!-- STATE / UT -->
+<select id="district">
+<option>Chennai</option>
+<option>Madurai</option>
+<option>Coimbatore</option>
+<option>Trichy</option>
+<option>Puducherry</option>
+<option>Karaikal</option>
+</select>
 
-        <select id="state">
-            <option>Tamil Nadu</option>
-            <option>Kerala</option>
-            <option>Karnataka</option>
-            <option>Delhi</option>
-            <option>Puducherry</option>
-        </select>
+<div class="vote-buttons">
 
-        <!-- DISTRICT -->
+<button id="supportBtn"
+class="support-btn"
+onclick="vote('Support')">
+✅ Support
+</button>
 
-        <select id="district">
-            <option>Chennai</option>
-            <option>Madurai</option>
-            <option>Coimbatore</option>
-            <option>Trichy</option>
-            <option>Puducherry</option>
-            <option>Karaikal</option>
-        </select>
+<button id="neutralBtn"
+class="neutral-btn"
+onclick="vote('Neutral')">
+⚪ Neutral
+</button>
 
-        <!-- VOTE BUTTONS -->
+<button id="opposeBtn"
+class="oppose-btn"
+onclick="vote('Oppose')">
+❌ Oppose
+</button>
 
-        <div class="vote-buttons">
+</div>
 
-            <button id="supportBtn"
-            class="support-btn"
-            onclick="vote('support')">
-            ✅ Support
-            </button>
+</div>
 
-            <button id="neutralBtn"
-            class="neutral-btn"
-            onclick="vote('neutral')">
-            ⚪ Neutral
-            </button>
+<!-- ADMIN CONTROLS -->
 
-            <button id="opposeBtn"
-            class="oppose-btn"
-            onclick="vote('oppose')">
-            ❌ Oppose
-            </button>
+<div class="section"
+id="adminControls">
 
-        </div>
+<h2>🔐 Admin Panel</h2>
 
-        <!-- ADMIN PANEL -->
+<div class="admin-buttons">
 
-        <div class="section"
-        id="adminPanel">
+<button class="reset-btn"
+onclick="resetData()">
+Reset Data
+</button>
 
-            <h2>🔐 Admin Panel</h2>
+<button class="download-btn"
+onclick="downloadReport()">
+Download Report
+</button>
 
-            <div class="admin-buttons">
+<button class="logout-btn"
+onclick="adminLogout()">
+Logout
+</button>
 
-                <button class="reset-btn"
-                onclick="resetData()">
-                Reset Data
-                </button>
+</div>
 
-                <button class="download-btn"
-                onclick="downloadReport()">
-                Download Report
-                </button>
+<!-- VOTE RECORDS -->
 
-            </div>
+<h2 style="margin-top:30px;">
+📋 Vote Records
+</h2>
 
-        </div>
+<table id="recordsTable">
 
-    </div>
+<tr>
+<th>Name</th>
+<th>Gmail</th>
+<th>Mobile</th>
+<th>Vote</th>
+<th>District</th>
+</tr>
 
-    <!-- PIE CHART -->
+</table>
 
-    <div class="section">
+</div>
 
-        <h2>📊 Live Results</h2>
+<!-- PIE CHART -->
 
-        <canvas id="pieChart"></canvas>
+<div class="section">
 
-    </div>
+<h2>📊 Live Results</h2>
 
-    <!-- GIS -->
+<canvas id="pieChart"></canvas>
 
-    <div class="section">
+</div>
 
-        <h2>🗺 GIS Map</h2>
+<!-- GIS -->
 
-        <div class="map-box">
-            Satellite + District View Placeholder
-        </div>
+<div class="section">
 
-    </div>
+<h2>🗺 GIS Map</h2>
 
-    <!-- ANALYTICS -->
+<div class="map-box">
+Satellite + District View Placeholder
+</div>
 
-    <div class="section">
+</div>
 
-        <h2>📈 Analytics</h2>
+<!-- BAR CHART -->
 
-        <canvas id="barChart"></canvas>
+<div class="section">
 
-    </div>
+<h2>📈 Analytics</h2>
 
-    <!-- FOOTER -->
+<canvas id="barChart"></canvas>
 
-    <div class="footer">
-        AI-powered Civic Data & Public Opinion Analytics Platform
-    </div>
+</div>
+
+<div class="footer">
+AI-powered Civic Data & Public Opinion Analytics Platform
+</div>
 
 </div>
 
 <script>
 
-/* LOGIN */
+/* OTP */
 
 let generatedOTP = "";
 let votedUsers = [];
+let adminMode = false;
 
 function sendOTP(){
 
-    const mobile =
-    document.getElementById("mobileNumber").value;
+const mobile =
+document.getElementById("mobile").value;
 
-    const captcha =
-    document.getElementById("captchaInput").value;
+const captcha =
+document.getElementById("captcha").value;
 
-    if(mobile.length !== 10){
+if(mobile.length !== 10){
 
-        alert("Enter valid mobile number");
-        return;
+alert("Enter valid mobile number");
+return;
 
-    }
+}
 
-    if(captcha != "11"){
+if(captcha != "11"){
 
-        alert("Captcha incorrect");
-        return;
+alert("Captcha incorrect");
+return;
 
-    }
+}
 
-    generatedOTP = "1830";
+generatedOTP = "1830";
 
-    alert("Demo OTP Sent : " + generatedOTP);
+alert("Demo OTP Sent : 1830");
 
-    document.getElementById("otpSection")
-    .style.display = "block";
+document.getElementById("otpSection")
+.style.display = "block";
 
 }
 
 function verifyOTP(){
 
-    const enteredOTP =
-    document.getElementById("otpInput").value;
+const otp =
+document.getElementById("otp").value;
 
-    if(enteredOTP === generatedOTP){
+if(otp === generatedOTP){
 
-        document.getElementById("successMessage")
-        .innerHTML =
-        "✅ Mobile Login Success";
+document.getElementById("dashboard")
+.style.display = "block";
 
-        setTimeout(()=>{
+window.scrollTo(0,500);
 
-            document.getElementById("loginPage")
-            .style.display = "none";
+}else{
 
-            document.getElementById("dashboard")
-            .style.display = "block";
+alert("Invalid OTP");
 
-        },1000);
+}
 
-    }else{
+}
 
-        alert("Invalid OTP");
+/* ADMIN LOGIN */
 
-    }
+function adminLogin(){
+
+const mobile =
+document.getElementById("adminMobile").value;
+
+const password =
+document.getElementById("adminPassword").value;
+
+if(
+mobile === "9999999999" &&
+password === "admin123"
+){
+
+adminMode = true;
+
+document.getElementById("dashboard")
+.style.display = "block";
+
+document.getElementById("adminControls")
+.style.display = "block";
+
+window.scrollTo(0,500);
+
+alert("Admin Login Success");
+
+}else{
+
+alert("Invalid Admin Credentials");
+
+}
 
 }
 
 /* VOTES */
 
 let votes = {
-    support:40,
-    neutral:35,
-    oppose:25
+support:40,
+neutral:35,
+oppose:25
 };
-
-let alreadyVoted = false;
 
 function vote(type){
 
-    if(alreadyVoted){
+const gmail =
+document.getElementById("gmail").value;
 
-        alert(
-        "Your vote has already been submitted successfully.\n\nMultiple voting is not allowed.\n\nThank you for participating."
-        );
+const mobile =
+document.getElementById("mobile").value;
 
-        return;
+const voter =
+document.getElementById("voterName").value;
 
-    }
+const district =
+document.getElementById("district").value;
 
-    const gmail =
-    document.getElementById("gmail").value;
+if(voter.trim() === ""){
 
-    const mobile =
-    document.getElementById("mobileNumber").value;
-
-    const voter =
-    document.getElementById("voterName").value;
-
-    if(voter.trim() === ""){
-
-        alert("Enter voter name");
-        return;
-
-    }
-
-    /* DUPLICATE CHECK */
-
-    for(let i=0;i<votedUsers.length;i++){
-
-        if(
-            votedUsers[i].gmail === gmail ||
-            votedUsers[i].mobile === mobile
-        ){
-
-            alert(
-            "Your vote has already been submitted successfully.\n\nYour second vote has been blocked.\n\nThank you for participating."
-            );
-
-            logoutUser();
-
-            return;
-
-        }
-
-    }
-
-    votedUsers.push({
-        gmail:gmail,
-        mobile:mobile
-    });
-
-    alreadyVoted = true;
-
-    votes[type]++;
-
-    updateCharts();
-
-    document.getElementById("supportBtn")
-    .disabled = true;
-
-    document.getElementById("neutralBtn")
-    .disabled = true;
-
-    document.getElementById("opposeBtn")
-    .disabled = true;
-
-    document.getElementById("supportBtn")
-    .style.opacity = "0.5";
-
-    document.getElementById("neutralBtn")
-    .style.opacity = "0.5";
-
-    document.getElementById("opposeBtn")
-    .style.opacity = "0.5";
-
-    alert(
-`Vote Submitted Successfully
-
-Your final vote has been locked.
-
-You have been securely logged out.
-
-Thank you for participating.`
-    );
-
-    setTimeout(()=>{
-
-        logoutUser();
-
-    },2000);
+alert("Enter voter name");
+return;
 
 }
 
-function logoutUser(){
+for(let i=0;i<votedUsers.length;i++){
 
-    document.getElementById("gmail").value = "";
+if(
+votedUsers[i].gmail === gmail ||
+votedUsers[i].mobile === mobile
+){
 
-    document.getElementById("mobileNumber")
-    .value = "";
+alert(
+"Your vote has already been submitted successfully.\n\nMultiple voting is not allowed."
+);
 
-    document.getElementById("captchaInput")
-    .value = "";
+logoutPublic();
 
-    document.getElementById("otpInput")
-    .value = "";
-
-    document.getElementById("voterName")
-    .value = "";
-
-    document.getElementById("otpSection")
-    .style.display = "none";
-
-    document.getElementById("successMessage")
-    .innerHTML = "";
-
-    document.getElementById("dashboard")
-    .style.display = "none";
-
-    document.getElementById("loginPage")
-    .style.display = "flex";
-
-    alreadyVoted = false;
-
-    document.getElementById("supportBtn")
-    .disabled = false;
-
-    document.getElementById("neutralBtn")
-    .disabled = false;
-
-    document.getElementById("opposeBtn")
-    .disabled = false;
-
-    document.getElementById("supportBtn")
-    .style.opacity = "1";
-
-    document.getElementById("neutralBtn")
-    .style.opacity = "1";
-
-    document.getElementById("opposeBtn")
-    .style.opacity = "1";
+return;
 
 }
 
-/* PIE CHART */
+}
 
-const pieCtx =
-document.getElementById("pieChart");
-
-const pieChart = new Chart(pieCtx,{
-
-    type:'pie',
-
-    data:{
-        labels:[
-            'Support',
-            'Neutral',
-            'Oppose'
-        ],
-
-        datasets:[{
-
-            data:[40,35,25],
-
-            backgroundColor:[
-                '#00a651',
-                '#777',
-                '#d62828'
-            ]
-
-        }]
-    }
-
+votedUsers.push({
+gmail:gmail,
+mobile:mobile
 });
 
-/* BAR CHART */
+if(type === "Support"){
+votes.support++;
+}
 
-const barCtx =
-document.getElementById("barChart");
+if(type === "Neutral"){
+votes.neutral++;
+}
 
-const barChart = new Chart(barCtx,{
+if(type === "Oppose"){
+votes.oppose++;
+}
 
-    type:'bar',
+updateCharts();
 
-    data:{
-        labels:[
-            'Support',
-            'Neutral',
-            'Oppose'
-        ],
+const table =
+document.getElementById("recordsTable");
 
-        datasets:[{
+let row =
+table.insertRow();
 
-            label:'Votes',
+row.insertCell(0).innerHTML = voter;
+row.insertCell(1).innerHTML = gmail;
+row.insertCell(2).innerHTML = mobile;
+row.insertCell(3).innerHTML = type;
+row.insertCell(4).innerHTML = district;
 
-            data:[40,35,25],
+document.getElementById("supportBtn")
+.disabled = true;
 
-            backgroundColor:[
-                '#00a651',
-                '#777',
-                '#d62828'
-            ]
+document.getElementById("neutralBtn")
+.disabled = true;
 
-        }]
-    }
+document.getElementById("opposeBtn")
+.disabled = true;
 
+alert(
+"✅ Vote Submitted Successfully\n\nYour final vote has been locked.\n\nYou have been securely logged out.\n\nThank you for participating."
+);
+
+setTimeout(()=>{
+
+logoutPublic();
+
+},3000);
+
+}
+
+/* PUBLIC LOGOUT */
+
+function logoutPublic(){
+
+document.getElementById("gmail").value = "";
+document.getElementById("mobile").value = "";
+document.getElementById("captcha").value = "";
+document.getElementById("otp").value = "";
+document.getElementById("voterName").value = "";
+
+document.getElementById("otpSection")
+.style.display = "none";
+
+document.getElementById("dashboard")
+.style.display = "none";
+
+document.getElementById("supportBtn")
+.disabled = false;
+
+document.getElementById("neutralBtn")
+.disabled = false;
+
+document.getElementById("opposeBtn")
+.disabled = false;
+
+window.scrollTo(0,0);
+
+}
+
+/* ADMIN LOGOUT */
+
+function adminLogout(){
+
+adminMode = false;
+
+document.getElementById("dashboard")
+.style.display = "none";
+
+document.getElementById("adminControls")
+.style.display = "none";
+
+document.getElementById("adminMobile").value = "";
+document.getElementById("adminPassword").value = "";
+
+window.scrollTo(0,0);
+
+}
+
+/* CHARTS */
+
+const pieChart = new Chart(
+document.getElementById("pieChart"),
+{
+type:'pie',
+
+data:{
+labels:[
+'Support',
+'Neutral',
+'Oppose'
+],
+
+datasets:[{
+data:[40,35,25],
+
+backgroundColor:[
+'#00a651',
+'#777',
+'#d62828'
+]
+}]
+}
+});
+
+const barChart = new Chart(
+document.getElementById("barChart"),
+{
+type:'bar',
+
+data:{
+labels:[
+'Support',
+'Neutral',
+'Oppose'
+],
+
+datasets:[{
+label:'Votes',
+
+data:[40,35,25],
+
+backgroundColor:[
+'#00a651',
+'#777',
+'#d62828'
+]
+}]
+}
 });
 
 function updateCharts(){
 
-    pieChart.data.datasets[0].data = [
-        votes.support,
-        votes.neutral,
-        votes.oppose
-    ];
+pieChart.data.datasets[0].data = [
+votes.support,
+votes.neutral,
+votes.oppose
+];
 
-    pieChart.update();
+pieChart.update();
 
-    barChart.data.datasets[0].data = [
-        votes.support,
-        votes.neutral,
-        votes.oppose
-    ];
+barChart.data.datasets[0].data = [
+votes.support,
+votes.neutral,
+votes.oppose
+];
 
-    barChart.update();
+barChart.update();
 
-    document.getElementById("totalVotes")
-    .innerHTML =
-    votes.support +
-    votes.neutral +
-    votes.oppose;
+document.getElementById("totalVotes")
+.innerHTML =
+votes.support +
+votes.neutral +
+votes.oppose;
 
 }
-
-/* ADMIN */
-
-const isAdmin = true;
 
 /* RESET */
 
 function resetData(){
 
-    if(!isAdmin){
+if(!adminMode){
 
-        alert("Access Denied");
-        return;
+alert("Access Denied");
+return;
 
-    }
+}
 
-    votes = {
-        support:0,
-        neutral:0,
-        oppose:0
-    };
+votes = {
+support:0,
+neutral:0,
+oppose:0
+};
 
-    votedUsers = [];
+votedUsers = [];
 
-    updateCharts();
+updateCharts();
 
-    alert("All Data Reset Successfully");
+document.getElementById("recordsTable")
+.innerHTML =
+`
+<tr>
+<th>Name</th>
+<th>Gmail</th>
+<th>Mobile</th>
+<th>Vote</th>
+<th>District</th>
+</tr>
+`;
+
+alert("All Data Reset Successfully");
 
 }
 
@@ -760,14 +788,14 @@ function resetData(){
 
 function downloadReport(){
 
-    if(!isAdmin){
+if(!adminMode){
 
-        alert("Access Denied");
-        return;
+alert("Access Denied");
+return;
 
-    }
+}
 
-    let report = `
+let report = `
 Government Civic Voting Report
 
 Support Votes : ${votes.support}
@@ -778,20 +806,20 @@ Total Votes :
 ${votes.support + votes.neutral + votes.oppose}
 `;
 
-    let blob =
-    new Blob([report],
-    {type:"text/plain"});
+let blob =
+new Blob([report],
+{type:"text/plain"});
 
-    let a =
-    document.createElement("a");
+let a =
+document.createElement("a");
 
-    a.href =
-    URL.createObjectURL(blob);
+a.href =
+URL.createObjectURL(blob);
 
-    a.download =
-    "vote-report.txt";
+a.download =
+"vote-report.txt";
 
-    a.click();
+a.click();
 
 }
 
