@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Indian Vote 2026</title>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<!-- CHART -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{font-family:Arial;background:#081229;color:#fff;padding:20px}
+.panel,.section{background:#132046;padding:20px;border-radius:15px;margin-top:15px}
+input,select,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none}
+button{cursor:pointer;color:#fff}
+.support{background:#00a651}
+.neutral{background:#777}
+.oppose{background:#d62828}
+.admin{background:#8e44ad}
+.reset{background:red}
+</style>
+</head>
+
+<body>
+
+<h2 style="text-align:center">🏛 Global Indian Vote 2026</h2>
+
+<!-- LOGIN -->
+<div class="panel">
+<h3>📱 Mobile Login</h3>
+
+<input id="mobile" placeholder="Mobile Number" maxlength="10">
+
+<label>CAPTCHA: 7 + 4 = ?</label>
+<input id="captcha" placeholder="Answer">
+
+<div id="recaptcha-container"></div>
+
+<button onclick="sendOTP()">Send OTP</button>
+
+<div id="otpBox" style="display:none">
+<input id="otp" placeholder="Enter OTP">
+<button onclick="verifyOTP()">Verify OTP</button>
+</div>
+</div>
+
+<!-- ADMIN -->
+<div class="panel">
+<h3>🔐 Admin Login</h3>
+<input id="adminMobile" placeholder="Admin Mobile">
+<input id="adminPassword" type="password" placeholder="Password">
+<button class="admin" onclick="adminLogin()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none">
+
+<div class="section">
+<h3>🗳 Vote</h3>
+
+<input id="voterName" placeholder="Name">
+
+<select id="country">
+<option>India</option><option>USA</option><option>UK</option>
+</select>
+
+<select id="region">
+<option>South India</option>
+<option>North India</option>
+<option>USA East</option>
+<option>Europe</option>
+</select>
+
+<button class="support" onclick="vote('Support')">Support</button>
+<button class="neutral" onclick="vote('Neutral')">Neutral</button>
+<button class="oppose" onclick="vote('Oppose')">Oppose</button>
+
+</div>
+
+<div class="section" id="adminPanel" style="display:none">
+<h3>Admin Panel</h3>
+<button class="reset" onclick="resetData()">Reset</button>
+<button onclick="downloadReport()">Download</button>
+
+<table id="table" border="1" style="width:100%;margin-top:10px">
+<tr><th>Name</th><th>Mobile</th><th>Vote</th><th>Region</th></tr>
+</table>
+</div>
+
+<div class="section">
+<canvas id="pie"></canvas>
+</div>
+
+<div class="section">
+<canvas id="bar"></canvas>
+</div>
+
+</div>
+
+<script>
+
+/* FIREBASE CONFIG */
+const firebaseConfig = {
+apiKey: "AIzaSyCu6x8GIWMGPdMWBolZSQBhVw5aTK1mnL4",
+authDomain: "onoevote2026-d5bf9.firebaseapp.com",
+projectId: "onoevote2026-d5bf9",
+storageBucket: "onoevote2026-d5bf9.appspot.com",
+messagingSenderId: "299038708392",
+appId: "1:299038708392:web:f34f488706a0e8bf46689d"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+let confirmationResult;
+let adminMode = false;
+
+let votes = {support:10, neutral:5, oppose:3};
+
+/* OTP */
+function sendOTP(){
+
+let mobile = document.getElementById("mobile").value;
+
+if(mobile.length != 10){
+alert("Invalid Mobile");
+return;
+}
+
+if(document.getElementById("captcha").value != "11"){
+alert("Captcha wrong");
+return;
+}
+
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+'recaptcha-container',
+{size:'invisible'}
+);
+
+auth.signInWithPhoneNumber("+91"+mobile, window.recaptchaVerifier)
+.then((result)=>{
+confirmationResult = result;
+alert("OTP Sent");
+document.getElementById("otpBox").style.display="block";
+})
+.catch(e=>alert(e.message));
+
+}
+
+/* VERIFY */
+function verifyOTP(){
+
+let otp = document.getElementById("otp").value;
+
+confirmationResult.confirm(otp)
+.then(()=>{
+alert("Login Success");
+document.getElementById("dashboard").style.display="block";
+})
+.catch(()=>alert("Invalid OTP"));
+
+}
+
+/* ADMIN */
+function adminLogin(){
+
+let m = document.getElementById("adminMobile").value;
+let p = document.getElementById("adminPassword").value;
+
+if(m=="9384695599" && p=="globalindianvote2026"){
+adminMode=true;
+document.getElementById("dashboard").style.display="block";
+document.getElementById("adminPanel").style.display="block";
+}
+else alert("Invalid");
+}
+
+/* VOTE */
+function vote(type){
+
+let mobile = document.getElementById("mobile").value;
+let name = document.getElementById("voterName").value;
+let region = document.getElementById("region").value;
+let country = document.getElementById("country").value;
+
+if(name==""){alert("Enter name");return;}
+
+db.collection("votes").where("mobile","==",mobile).get()
+.then(snapshot=>{
+
+if(!snapshot.empty){
+alert("Already voted");
+return;
+}
+
+db.collection("votes").add({
+name,mobile,vote:type,region,country,time:new Date()
+});
+
+if(type=="Support") votes.support++;
+if(type=="Neutral") votes.neutral++;
+if(type=="Oppose") votes.oppose++;
+
+updateCharts();
+
+document.getElementById("table").innerHTML += `
+<tr><td>${name}</td><td>${mobile}</td><td>${type}</td><td>${region}</td></tr>
+`;
+
+alert("Vote Saved");
+
+setTimeout(()=>location.reload(),2000);
+
+});
+
+}
+
+/* CHARTS */
+let pie = new Chart(document.getElementById("pie"),{
+type:"pie",
+data:{labels:["Support","Neutral","Oppose"],
+datasets:[{data:Object.values(votes)}]}
+});
+
+let bar = new Chart(document.getElementById("bar"),{
+type:"bar",
+data:{labels:["Support","Neutral","Oppose"],
+datasets:[{data:Object.values(votes)}]}
+});
+
+function updateCharts(){
+pie.data.datasets[0].data=Object.values(votes);
+bar.data.datasets[0].data=Object.values(votes);
+pie.update();bar.update();
+}
+
+/* RESET */
+function resetData(){
+if(!adminMode) return alert("No Access");
+votes={support:0,neutral:0,oppose:0};
+updateCharts();
+}
+
+/* DOWNLOAD */
+function downloadReport(){
+let txt = JSON.stringify(votes);
+let blob = new Blob([txt],{type:"text/plain"});
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="report.txt";
+a.click();
+}
+
+</script>
+
+</body>
+</html>
