@@ -1,19 +1,24 @@
-﻿# Updated index.html (Production Vote Function Included)
-
-```html
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Global Indian Vote 2026</title>
+
+<!-- FIREBASE -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<!-- CHART -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+
 body{
 font-family:Arial;
 background:#081229;
@@ -35,14 +40,18 @@ button{
 width:100%;
 padding:12px;
 margin-top:10px;
-border-radius:10px;
 border:none;
+border-radius:10px;
 }
 
 button{
 background:#2f6df6;
 color:white;
 cursor:pointer;
+}
+
+button:hover{
+opacity:0.9;
 }
 
 #dashboard{
@@ -65,7 +74,9 @@ border:1px solid #555;
 padding:10px;
 text-align:center;
 }
+
 </style>
+
 </head>
 
 <body>
@@ -73,6 +84,8 @@ text-align:center;
 <h1>
 🏛 Global Indian Vote 2026
 </h1>
+
+<!-- MOBILE LOGIN -->
 
 <div class="panel">
 
@@ -91,7 +104,8 @@ placeholder="Enter 11">
 Send OTP
 </button>
 
-<div id="otpSection" style="display:none;">
+<div id="otpSection"
+style="display:none;">
 
 <input type="number"
 id="otp"
@@ -103,7 +117,11 @@ Verify OTP
 
 </div>
 
+<div id="recaptcha-container"></div>
+
 </div>
+
+<!-- ADMIN -->
 
 <div class="panel">
 
@@ -123,6 +141,8 @@ Admin Login
 
 </div>
 
+<!-- DASHBOARD -->
+
 <div id="dashboard">
 
 <div class="section">
@@ -134,18 +154,22 @@ id="voterName"
 placeholder="Enter Voter Name">
 
 <select id="country">
+
 <option>India</option>
 <option>USA</option>
-<option>UAE</option>
 <option>United Kingdom</option>
+<option>UAE</option>
+
 </select>
 
 <select id="region">
+
 <option>North Tamil Nadu</option>
 <option>South Tamil Nadu</option>
 <option>West India Region</option>
 <option>East USA</option>
 <option>Dubai Region</option>
+
 </select>
 
 <button id="supportBtn"
@@ -165,7 +189,10 @@ onclick="vote('Oppose')">
 
 </div>
 
-<div class="section" id="adminControls">
+<!-- ADMIN PANEL -->
+
+<div class="section"
+id="adminControls">
 
 <h2>🔐 Admin Panel</h2>
 
@@ -182,24 +209,34 @@ Logout
 </button>
 
 <table id="recordsTable">
+
 <tr>
 <th>Name</th>
 <th>Mobile</th>
 <th>Vote</th>
 <th>Region</th>
 </tr>
+
 </table>
 
 </div>
 
+<!-- CHARTS -->
+
 <div class="section">
+
 <h2>📊 Live Results</h2>
+
 <canvas id="pieChart"></canvas>
+
 </div>
 
 <div class="section">
+
 <h2>📈 Analytics</h2>
+
 <canvas id="barChart"></canvas>
+
 </div>
 
 </div>
@@ -209,29 +246,35 @@ Logout
 /* FIREBASE CONFIG */
 
 const firebaseConfig = {
-apiKey: "YOUR_API_KEY",
+
+apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
 authDomain: "onoevote2026.firebaseapp.com",
 projectId: "onoevote2026",
 storageBucket: "onoevote2026.appspot.com",
 messagingSenderId: "181065724520",
 appId: "1:181065724520:web:f72a93869786373c1101dd"
+
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.firestore();
 
 /* VARIABLES */
 
-let generatedOTP = "";
+let confirmationResult;
+
 let adminMode = false;
 
 let votes = {
+
 support:40,
 neutral:35,
 oppose:25
+
 };
 
-/* OTP */
+/* REAL FIREBASE OTP */
 
 function sendOTP(){
 
@@ -242,43 +285,83 @@ const captcha =
 document.getElementById("captcha").value;
 
 if(mobile.length !== 10){
+
 alert("Enter valid mobile number");
 return;
+
 }
 
 if(captcha != "11"){
+
 alert("Captcha incorrect");
 return;
+
 }
 
-generatedOTP = "1830";
+window.recaptchaVerifier =
+new firebase.auth.RecaptchaVerifier(
+'recaptcha-container',
+{
+size:'invisible'
+}
+);
 
-alert("Demo OTP : 1830");
+const phoneNumber = "+91" + mobile;
+
+firebase.auth()
+.signInWithPhoneNumber(
+phoneNumber,
+window.recaptchaVerifier
+)
+
+.then((result)=>{
+
+confirmationResult = result;
+
+alert("✅ Real OTP Sent");
 
 document.getElementById("otpSection")
 .style.display = "block";
 
+})
+
+.catch((error)=>{
+
+alert(error.message);
+
+});
+
 }
+
+/* VERIFY OTP */
 
 function verifyOTP(){
 
 const otp =
 document.getElementById("otp").value;
 
-if(otp === generatedOTP){
+confirmationResult.confirm(otp)
+
+.then((result)=>{
+
+alert("✅ Mobile Verification Success");
 
 document.getElementById("dashboard")
 .style.display = "block";
 
-}else{
+window.scrollTo(0,500);
+
+})
+
+.catch((error)=>{
 
 alert("Invalid OTP");
 
-}
+});
 
 }
 
-/* ADMIN */
+/* ADMIN LOGIN */
 
 function adminLogin(){
 
@@ -311,7 +394,7 @@ alert("Invalid Admin Credentials");
 
 }
 
-/* FINAL PRODUCTION VOTING */
+/* FINAL PRODUCTION VOTE */
 
 function vote(type){
 
@@ -328,15 +411,16 @@ const country =
 document.getElementById("country").value;
 
 if(voter.trim() === ""){
+
 alert("Enter voter name");
 return;
-}
 
-/* FIREBASE GLOBAL DUPLICATE CHECK */
+}
 
 db.collection("votes")
 .where("mobile","==",mobile)
 .get()
+
 .then((snapshot)=>{
 
 if(!snapshot.empty){
@@ -364,6 +448,8 @@ time: new Date().toISOString()
 
 });
 
+/* COUNT */
+
 if(type === "Support"){
 votes.support++;
 }
@@ -378,6 +464,8 @@ votes.oppose++;
 
 updateCharts();
 
+/* TABLE */
+
 const table =
 document.getElementById("recordsTable");
 
@@ -389,10 +477,14 @@ row.insertCell(1).innerHTML = mobile;
 row.insertCell(2).innerHTML = type;
 row.insertCell(3).innerHTML = region;
 
-alert("✅ Vote Submitted Successfully");
+alert(
+"✅ Vote Submitted Successfully"
+);
 
 setTimeout(()=>{
+
 logoutPublic();
+
 },3000);
 
 });
@@ -413,6 +505,8 @@ document.getElementById("dashboard")
 
 }
 
+/* ADMIN LOGOUT */
+
 function adminLogout(){
 
 adminMode = false;
@@ -425,49 +519,80 @@ document.getElementById("adminControls")
 
 }
 
-/* CHARTS */
+/* PIE CHART */
 
 const pieChart = new Chart(
 document.getElementById("pieChart"),
 {
 type:'pie',
+
 data:{
-labels:['Support','Neutral','Oppose'],
+labels:[
+'Support',
+'Neutral',
+'Oppose'
+],
+
 datasets:[{
 data:[40,35,25],
-backgroundColor:['green','gray','red']
+
+backgroundColor:[
+'green',
+'gray',
+'red'
+]
 }]
 }
 });
+
+/* BAR CHART */
 
 const barChart = new Chart(
 document.getElementById("barChart"),
 {
 type:'bar',
+
 data:{
-labels:['Support','Neutral','Oppose'],
+labels:[
+'Support',
+'Neutral',
+'Oppose'
+],
+
 datasets:[{
 label:'Votes',
+
 data:[40,35,25],
-backgroundColor:['green','gray','red']
+
+backgroundColor:[
+'green',
+'gray',
+'red'
+]
 }]
 }
 });
 
+/* UPDATE CHART */
+
 function updateCharts(){
 
 pieChart.data.datasets[0].data = [
+
 votes.support,
 votes.neutral,
 votes.oppose
+
 ];
 
 pieChart.update();
 
 barChart.data.datasets[0].data = [
+
 votes.support,
 votes.neutral,
 votes.oppose
+
 ];
 
 barChart.update();
@@ -479,14 +604,18 @@ barChart.update();
 function resetData(){
 
 if(!adminMode){
+
 alert("Access Denied");
 return;
+
 }
 
 votes = {
+
 support:0,
 neutral:0,
 oppose:0
+
 };
 
 updateCharts();
@@ -495,18 +624,21 @@ alert("Reset Success");
 
 }
 
-/* DOWNLOAD */
+/* DOWNLOAD REPORT */
 
 function downloadReport(){
 
 let report = `
+
 Support : ${votes.support}
 Neutral : ${votes.neutral}
 Oppose : ${votes.oppose}
+
 `;
 
 let blob =
-new Blob([report],{type:"text/plain"});
+new Blob([report],
+{type:"text/plain"});
 
 let a =
 document.createElement("a");
@@ -525,10 +657,3 @@ a.click();
 
 </body>
 </html>
-```
-
-Replace your current `index.html` fully with this updated version and then run:
-
-```bash
-firebase deploy
-```
