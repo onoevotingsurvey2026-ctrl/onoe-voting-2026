@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -13,24 +14,35 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
-<!-- CHART -->
+<!-- CHART JS -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
 body{
-font-family:Arial;
+font-family:Arial,sans-serif;
 background:#081229;
 color:white;
 padding:20px;
 }
 
+.main-title{
+text-align:center;
+margin-bottom:30px;
+}
+
 .panel,
 .section{
 background:#132046;
-padding:20px;
-border-radius:15px;
+padding:25px;
+border-radius:20px;
 margin-top:20px;
 }
 
@@ -38,20 +50,56 @@ input,
 select,
 button{
 width:100%;
-padding:12px;
-margin-top:10px;
+padding:14px;
+margin-top:12px;
 border:none;
 border-radius:10px;
+font-size:15px;
 }
 
 button{
-background:#2f6df6;
-color:white;
 cursor:pointer;
+color:white;
+background:#2f6df6;
 }
 
 button:hover{
 opacity:0.9;
+}
+
+.vote-buttons{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+margin-top:20px;
+}
+
+.support-btn{
+background:#00a651;
+}
+
+.neutral-btn{
+background:#777;
+}
+
+.oppose-btn{
+background:#d62828;
+}
+
+.admin-btn{
+background:#8e44ad;
+}
+
+.reset-btn{
+background:red;
+}
+
+.download-btn{
+background:#2f6df6;
+}
+
+.logout-btn{
+background:#444;
 }
 
 #dashboard{
@@ -75,13 +123,27 @@ padding:10px;
 text-align:center;
 }
 
+canvas{
+background:white;
+border-radius:15px;
+padding:10px;
+}
+
+@media(max-width:768px){
+
+.main-title{
+font-size:24px;
+}
+
+}
+
 </style>
 
 </head>
 
 <body>
 
-<h1>
+<h1 class="main-title">
 🏛 Global Indian Vote 2026
 </h1>
 
@@ -95,6 +157,10 @@ text-align:center;
 id="mobile"
 placeholder="Enter Mobile Number"
 maxlength="10">
+
+<label style="display:block;margin-top:15px;">
+CAPTCHA : 7 + 4 = ?
+</label>
 
 <input type="number"
 id="captcha"
@@ -121,7 +187,7 @@ Verify OTP
 
 </div>
 
-<!-- ADMIN -->
+<!-- ADMIN LOGIN -->
 
 <div class="panel">
 
@@ -135,7 +201,8 @@ placeholder="Admin Mobile">
 id="adminPassword"
 placeholder="Admin Password">
 
-<button onclick="adminLogin()">
+<button class="admin-btn"
+onclick="adminLogin()">
 Admin Login
 </button>
 
@@ -144,6 +211,8 @@ Admin Login
 <!-- DASHBOARD -->
 
 <div id="dashboard">
+
+<!-- VOTING -->
 
 <div class="section">
 
@@ -159,6 +228,7 @@ placeholder="Enter Voter Name">
 <option>USA</option>
 <option>United Kingdom</option>
 <option>UAE</option>
+<option>Japan</option>
 
 </select>
 
@@ -169,23 +239,31 @@ placeholder="Enter Voter Name">
 <option>West India Region</option>
 <option>East USA</option>
 <option>Dubai Region</option>
+<option>Tokyo Region</option>
 
 </select>
 
+<div class="vote-buttons">
+
 <button id="supportBtn"
+class="support-btn"
 onclick="vote('Support')">
 ✅ Support
 </button>
 
 <button id="neutralBtn"
+class="neutral-btn"
 onclick="vote('Neutral')">
 ⚪ Neutral
 </button>
 
 <button id="opposeBtn"
+class="oppose-btn"
 onclick="vote('Oppose')">
 ❌ Oppose
 </button>
+
+</div>
 
 </div>
 
@@ -196,17 +274,24 @@ id="adminControls">
 
 <h2>🔐 Admin Panel</h2>
 
-<button onclick="resetData()">
+<button class="reset-btn"
+onclick="resetData()">
 Reset Data
 </button>
 
-<button onclick="downloadReport()">
+<button class="download-btn"
+onclick="downloadReport()">
 Download Report
 </button>
 
-<button onclick="adminLogout()">
+<button class="logout-btn"
+onclick="adminLogout()">
 Logout
 </button>
+
+<h2 style="margin-top:30px;">
+📋 Vote Records
+</h2>
 
 <table id="recordsTable">
 
@@ -221,7 +306,7 @@ Logout
 
 </div>
 
-<!-- CHARTS -->
+<!-- LIVE RESULTS -->
 
 <div class="section">
 
@@ -230,6 +315,8 @@ Logout
 <canvas id="pieChart"></canvas>
 
 </div>
+
+<!-- ANALYTICS -->
 
 <div class="section">
 
@@ -248,10 +335,15 @@ Logout
 const firebaseConfig = {
 
 apiKey: "AIzaSyCfyVODifxy7a1Vt80IcU-ixhZwu6W0Jeg",
+
 authDomain: "onoevote2026.firebaseapp.com",
+
 projectId: "onoevote2026",
+
 storageBucket: "onoevote2026.appspot.com",
+
 messagingSenderId: "181065724520",
+
 appId: "1:181065724520:web:f72a93869786373c1101dd"
 
 };
@@ -329,6 +421,8 @@ document.getElementById("otpSection")
 
 alert(error.message);
 
+console.log(error);
+
 });
 
 }
@@ -357,6 +451,8 @@ window.scrollTo(0,500);
 
 alert("Invalid OTP");
 
+console.log(error);
+
 });
 
 }
@@ -384,17 +480,17 @@ document.getElementById("dashboard")
 document.getElementById("adminControls")
 .style.display = "block";
 
-alert("Admin Login Success");
+alert("✅ Admin Login Success");
 
 }else{
 
-alert("Invalid Admin Credentials");
+alert("❌ Invalid Admin Credentials");
 
 }
 
 }
 
-/* FINAL PRODUCTION VOTE */
+/* FINAL PRODUCTION VOTING */
 
 function vote(type){
 
@@ -416,6 +512,8 @@ alert("Enter voter name");
 return;
 
 }
+
+/* DUPLICATE CHECK */
 
 db.collection("votes")
 .where("mobile","==",mobile)
@@ -448,7 +546,7 @@ time: new Date().toISOString()
 
 });
 
-/* COUNT */
+/* UPDATE COUNTS */
 
 if(type === "Support"){
 votes.support++;
@@ -464,7 +562,7 @@ votes.oppose++;
 
 updateCharts();
 
-/* TABLE */
+/* UPDATE TABLE */
 
 const table =
 document.getElementById("recordsTable");
@@ -476,6 +574,17 @@ row.insertCell(0).innerHTML = voter;
 row.insertCell(1).innerHTML = mobile;
 row.insertCell(2).innerHTML = type;
 row.insertCell(3).innerHTML = region;
+
+/* LOCK BUTTONS */
+
+document.getElementById("supportBtn")
+.disabled = true;
+
+document.getElementById("neutralBtn")
+.disabled = true;
+
+document.getElementById("opposeBtn")
+.disabled = true;
 
 alert(
 "✅ Vote Submitted Successfully"
@@ -500,8 +609,20 @@ document.getElementById("captcha").value = "";
 document.getElementById("otp").value = "";
 document.getElementById("voterName").value = "";
 
+document.getElementById("otpSection")
+.style.display = "none";
+
 document.getElementById("dashboard")
 .style.display = "none";
+
+document.getElementById("supportBtn")
+.disabled = false;
+
+document.getElementById("neutralBtn")
+.disabled = false;
+
+document.getElementById("opposeBtn")
+.disabled = false;
 
 }
 
@@ -537,9 +658,9 @@ datasets:[{
 data:[40,35,25],
 
 backgroundColor:[
-'green',
-'gray',
-'red'
+'#00a651',
+'#777',
+'#d62828'
 ]
 }]
 }
@@ -565,9 +686,9 @@ label:'Votes',
 data:[40,35,25],
 
 backgroundColor:[
-'green',
-'gray',
-'red'
+'#00a651',
+'#777',
+'#d62828'
 ]
 }]
 }
@@ -620,7 +741,7 @@ oppose:0
 
 updateCharts();
 
-alert("Reset Success");
+alert("✅ Reset Success");
 
 }
 
@@ -629,6 +750,8 @@ alert("Reset Success");
 function downloadReport(){
 
 let report = `
+
+Global Indian Vote 2026 Report
 
 Support : ${votes.support}
 Neutral : ${votes.neutral}
